@@ -73,6 +73,7 @@
   fill("#sx-say-avatar", [IMG_PFP]);
   fill("#sx-rev-avatar", [IMG_REVIEW_AVATAR]);
   fill("#sx-dc-avatar", [IMG_PFP]);
+  fill("#sx-tt-avatar", [IMG_PFP]);
 
   document.querySelectorAll("[data-year]").forEach(function (n) { n.textContent = new Date().getFullYear(); });
 

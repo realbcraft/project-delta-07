@@ -98,6 +98,41 @@
       #x-posts .x-posts-list > .x-post:nth-child(n+2) { display: none; }
     }
 
+    /* News post window (copied from the news page, so a post opens right here on the homepage) */
+    .news-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+    .news-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.8rem; }
+    .news-date { color: var(--color-text-muted); font-size: 0.86rem; font-weight: 600; }
+    .news-badge { display: inline-block; padding: 0.1rem 0.6rem; border: 1px dashed rgba(var(--rgb-orange), 0.7); border-radius: 999px; color: var(--color-orange-bright); font-size: 0.76rem; font-weight: 700; line-height: 1.5; }
+    .news-thumb { position: relative; overflow: hidden; aspect-ratio: 1280 / 720; border: 1px solid var(--color-border); border-radius: var(--radius); background: linear-gradient(135deg, #10204a, #08112a); }
+    .news-thumb-img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
+    .news-thumb:not(.is-template)::before { content: ""; position: absolute; inset: -16px; background: var(--img, none) center / cover no-repeat; filter: blur(22px) brightness(0.65) saturate(1.15); }
+    .news-thumb.is-template { display: flex; align-items: center; justify-content: center; background: radial-gradient(ellipse 70% 80% at 50% 40%, rgba(var(--rgb-blue), 0.18), transparent 75%), linear-gradient(135deg, #10204a, #08112a); }
+    .news-thumb-logo { display: block; width: 42%; height: auto; opacity: 0.9; }
+    .news-dialog .tag::before { display: none; }
+    /* Article view (dialog): small and quiet */
+    .news-dialog { width: min(34rem, calc(100% - 1.5rem)); max-height: calc(100vh - 1.5rem); max-height: calc(100dvh - 1.5rem); margin: auto; padding: 0; overflow: auto; overscroll-behavior: contain; border: 1px solid rgba(var(--rgb-blue), 0.32); border-radius: var(--radius-card); background: var(--color-surface); color: var(--color-text); box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.9); }
+    .news-dialog::backdrop { background: rgba(3, 6, 14, 0.8); }
+    .news-article-bar { position: sticky; top: 0; z-index: 5; display: flex; justify-content: flex-end; height: 0; padding: 0 0.6rem; pointer-events: none; }
+    .news-close { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; margin-top: 0.6rem; border: 1px solid rgba(var(--rgb-silver), 0.3); border-radius: 50%; background-color: rgba(11, 18, 38, 0.9); color: var(--color-text); cursor: pointer; pointer-events: auto; transition: background-color 0.15s ease, border-color 0.15s ease; }
+    .news-close:hover { border-color: var(--color-accent-bright); background-color: rgba(var(--rgb-blue), 0.25); }
+    .news-article-body { padding: var(--space-3) var(--space-3) var(--space-3); padding-right: 3.6rem; }
+    .news-article-title { margin-top: 0.8rem; font-size: clamp(1.5rem, 4.5vw, 1.9rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; }
+    .news-article-lede { margin-top: 0.7rem; color: var(--color-silver); font-size: 1rem; }
+    .news-dialog .news-thumb { width: 100%; max-width: none; margin: 0; border: 0; border-bottom: 1px solid var(--color-border); border-radius: 0; }
+    .news-prose { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
+    .news-prose p { margin-top: 0.8rem; color: #dbe3f1; font-size: 0.97rem; line-height: 1.7; }
+    .news-prose p:first-child { margin-top: 0; }
+    .news-prose h3 { margin-top: 1.3rem; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; }
+    .news-prose ul { display: grid; gap: 0.4rem; margin-top: 0.8rem; }
+    .news-prose li { position: relative; padding-left: 1.1rem; color: #dbe3f1; font-size: 0.97rem; line-height: 1.6; }
+    .news-prose li::before { content: ""; position: absolute; left: 0; top: 0.65em; width: 0.4em; height: 0.4em; background-color: var(--color-accent); transform: rotate(45deg); }
+    .news-article-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: var(--space-3); }
+    @media (prefers-reduced-motion: no-preference) {
+      .news-dialog[open] { animation: news-dialog-in 0.2s ease both; }
+      @keyframes news-dialog-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    }
+    @media (prefers-reduced-motion: reduce) { .news-close { transition: none; } }
+
   </style>
 
 </head>
@@ -1126,7 +1161,9 @@
       posts.forEach(function (entry, i) {
         var post = entry.src;
         var card = el("a", "news-card");
-        card.href = "/news/#post=" + encodeURIComponent(post.id);
+        card.href = "/news/#post=" + encodeURIComponent(post.id);   // still a normal link (new tab, no JS); a plain click opens the window below
+        card.dataset.postId = post.id;
+        card.setAttribute("aria-haspopup", "dialog");
         card.appendChild(thumb(post));
 
         var body = el("div", "news-card-body");
@@ -1147,6 +1184,213 @@
         host.appendChild(card);
       });
       strip.hidden = false;
+    })();
+  </script>
+  <!-- ===== NEWS POST WINDOW =====
+       The same window the news page uses. A click on a "Latest news" card opens the post here
+       instead of sending the visitor to /news/. Esc, the close button and a click outside close it. -->
+  <dialog class="news-dialog" aria-labelledby="news-dialog-title" data-news-dialog>
+    <div class="news-article-bar">
+      <button class="news-close" type="button" aria-label="Close article" data-news-close>
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <article data-news-article></article>
+  </dialog>
+  <script>
+    // Opens a news post in the window above. Reads the same NEWS_POSTS list as the news page.
+    (function () {
+      "use strict";
+      var dialog = document.querySelector("[data-news-dialog]");
+      var articleHost = document.querySelector("[data-news-article]");
+      if (!dialog || !articleHost || typeof NEWS_POSTS === "undefined" || typeof parseNewsDate !== "function") return;
+
+      function el(tag, cls, text) {
+        var node = document.createElement(tag);
+        if (cls) node.className = cls;
+        if (text != null) node.textContent = text;
+        return node;
+      }
+      // Plain text, with [[PLACEHOLDERS]] turned into highlighted marks
+      function rich(node, text) {
+        String(text).split(/(\[\[.+?\]\])/g).forEach(function (part) {
+          if (!part) return;
+          if (/^\[\[.+\]\]$/.test(part)) node.appendChild(el("mark", "news-placeholder", "[" + part.slice(2, -2) + "]"));
+          else node.appendChild(document.createTextNode(part));
+        });
+        return node;
+      }
+
+      // Every valid post, by id
+      var posts = {};
+      NEWS_POSTS.forEach(function (raw) {
+        var date = raw && raw.id && raw.title ? parseNewsDate(raw.date) : null;
+        if (!date || posts[raw.id]) return;
+        var post = {};
+        Object.keys(raw).forEach(function (k) { post[k] = raw[k]; });
+        post.dateInfo = date;
+        posts[raw.id] = post;
+      });
+
+      function metaEl(post) {
+        var meta = el("div", "news-meta");
+        meta.appendChild(el("span", "tag", post.category || "News"));
+        var time = el("time", "news-date", post.dateInfo.label);
+        time.setAttribute("datetime", post.dateInfo.iso);
+        meta.appendChild(time);
+        if (post.badge) meta.appendChild(el("span", "news-badge", post.badge));
+        return meta;
+      }
+
+      // Picture at the top of the post (the Bcraft logo tile when there is no image or the file is missing)
+      function thumbEl(post) {
+        var box = el("div", "news-thumb");
+        var dims = String(post.imageSize || "").match(/(\d+)\s*[x\u00d7,]\s*(\d+)/i);
+        var imgW = dims ? Number(dims[1]) : 1280, imgH = dims ? Number(dims[2]) : 720;
+        if (dims && imgW > 0 && imgH > 0) box.style.aspectRatio = imgW + " / " + imgH;
+        function template() {
+          box.classList.add("is-template");
+          var logo = document.createElement("img");
+          logo.className = "news-thumb-logo";
+          logo.src = "/images/logo.webp";
+          logo.alt = "";
+          logo.addEventListener("error", function () { logo.remove(); });
+          box.appendChild(logo);
+        }
+        if (post.image) {
+          var img = document.createElement("img");
+          img.className = "news-thumb-img";
+          img.alt = post.imageAlt || "";
+          img.width = imgW;
+          img.height = imgH;
+          img.decoding = "async";
+          img.addEventListener("error", function () { img.remove(); template(); });
+          img.src = post.image;
+          box.style.setProperty("--img", 'url("' + String(post.image).replace(/"/g, "%22") + '")');
+          box.appendChild(img);
+        } else {
+          template();
+        }
+        return box;
+      }
+
+      function linkEl(cta, cls) {
+        var a = el("a", cls, cta.text || "Learn more");
+        a.href = cta.href;
+        if (/^https?:\/\//i.test(cta.href)) { a.target = "_blank"; a.rel = "noopener noreferrer"; }
+        return a;
+      }
+
+      function blocksEl(content) {
+        var wrap = el("div", "news-prose");
+        (content || []).forEach(function (block) {
+          if (typeof block === "string") wrap.appendChild(rich(el("p"), block));
+          else if (block && block.heading) wrap.appendChild(rich(el("h3"), block.heading));
+          else if (block && block.list) {
+            var ul = el("ul");
+            block.list.forEach(function (item) { ul.appendChild(rich(el("li"), item)); });
+            wrap.appendChild(ul);
+          }
+        });
+        return wrap;
+      }
+
+      function postUrl(id) { return location.href.split("#")[0] + "#post=" + encodeURIComponent(id); }
+
+      function copyFallback(text) {
+        var box = document.createElement("textarea");
+        box.value = text;
+        box.setAttribute("readonly", "");
+        box.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+        dialog.appendChild(box);
+        box.select();
+        var ok = false;
+        try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+        box.remove();
+        return ok;
+      }
+      function copyLink(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return copyFallback(text); });
+        }
+        return Promise.resolve(copyFallback(text));
+      }
+
+      function articleEl(post) {
+        var article = el("div", "news-article");
+        article.appendChild(thumbEl(post));
+        var body = el("div", "news-article-body");
+        body.appendChild(metaEl(post));
+        var title = el("h2", "news-article-title", post.title);
+        title.id = "news-dialog-title";
+        body.appendChild(title);
+        if (post.summary) body.appendChild(rich(el("p", "news-article-lede"), post.summary));
+        if (post.content && post.content.length) body.appendChild(blocksEl(post.content));
+
+        var actions = el("div", "news-article-actions");
+        if (post.cta && post.cta.href) actions.appendChild(linkEl(post.cta, "button button-primary"));
+        var copy = el("button", "button button-secondary", "Copy link");
+        copy.type = "button";
+        var msg = el("span", "news-sr");
+        msg.setAttribute("role", "status");
+        copy.addEventListener("click", function () {
+          copyLink(postUrl(post.id)).then(function (ok) {
+            copy.textContent = msg.textContent = ok ? "Link copied" : "Couldn't copy the link";
+            copy.focus();
+            setTimeout(function () { copy.textContent = "Copy link"; msg.textContent = ""; }, 2200);
+          });
+        });
+        actions.appendChild(copy);
+        actions.appendChild(msg);
+        body.appendChild(actions);
+        article.appendChild(body);
+        return article;
+      }
+
+      var lastTrigger = null;
+
+      function setHash(id) {
+        try { history.replaceState(null, "", id ? "#post=" + encodeURIComponent(id) : location.pathname + location.search); } catch (e) { /* file:// can refuse this; harmless */ }
+      }
+
+      function openPost(id, trigger) {
+        var post = posts[id];
+        if (!post) return false;
+        lastTrigger = trigger || document.activeElement;
+        articleHost.replaceChildren(articleEl(post));
+        if (!dialog.open) dialog.showModal();
+        dialog.scrollTop = 0;
+        document.documentElement.classList.add("lightbox-lock");
+        setHash(id);
+        return true;
+      }
+
+      dialog.addEventListener("close", function () {
+        document.documentElement.classList.remove("lightbox-lock");
+        setHash("");
+        if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus();
+        lastTrigger = null;
+      });
+      dialog.addEventListener("click", function (event) {
+        if (event.target === dialog || event.target.closest("[data-news-close]")) dialog.close();
+      });
+
+      // A plain click on a news card opens the window; Ctrl / Cmd / Shift / middle click still open the news page
+      document.addEventListener("click", function (event) {
+        var card = event.target.closest && event.target.closest(".news-card[data-post-id]");
+        if (!card || dialog.contains(card)) return;
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (openPost(card.dataset.postId, card)) event.preventDefault();
+      });
+
+      // A link like  bcraftdesigns.com/#post=new-client-promotion  opens the post too
+      function openFromHash() {
+        var m = /^#post=(.+)$/.exec(location.hash);
+        if (m) openPost(decodeURIComponent(m[1]), null);
+        else if (dialog.open) dialog.close();
+      }
+      window.addEventListener("hashchange", openFromHash);
+      if (location.hash) openFromHash();
     })();
   </script>
   <!-- FAQ accordion: buttons toggle aria-expanded; Up / Down / Home / End move between questions. -->

@@ -418,14 +418,31 @@
 .sx-dc-btn svg { width: 1.1rem; height: 1.1rem; }
 .sx-dc:hover .sx-dc-btn { background: #6d79ff; }
 
+/* ----- TikTok-style profile card (same card as "Find Me Around" on the homepage) ----- */
+.sx-tt { --g1: 37, 244, 238; --g2: 254, 44, 85; display: block; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; background-color: #0b0c10; transition: transform 0.22s var(--spring), border-color 0.18s ease; }
+.sx-tt:hover, .sx-tt:focus-visible { transform: translateY(-2px); border-color: rgba(37, 244, 238, 0.55); }
+.sx-tt-banner { display: block; height: 4.4rem; background: radial-gradient(circle at 15% 130%, rgba(37, 244, 238, 0.5), transparent 60%), radial-gradient(circle at 88% -30%, rgba(254, 44, 85, 0.55), transparent 60%), #0b0c10; }
+.sx-tt-top { display: flex; align-items: flex-end; justify-content: space-between; margin: -2.3rem 1rem 0; position: relative; }
+.sx-tt-pfp { position: relative; display: grid; place-items: center; width: 4.6rem; height: 4.6rem; overflow: hidden; border: 5px solid #0b0c10; border-radius: 50%; background: var(--color-surface-raised); color: var(--color-accent-bright); font: 800 1.6rem var(--font-display); }
+.sx-tt-pfp img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.sx-tt-logo { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; margin-bottom: 0.3rem; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 12px; background: #000; color: #fff; }
+.sx-tt-logo svg { width: 1.3rem; height: 1.3rem; filter: drop-shadow(-1px -1px 0 #25f4ee) drop-shadow(1px 1px 0 #fe2c55); }
+.sx-tt-card { display: grid; gap: 0.1rem; margin: 0.6rem 0.75rem 0.75rem; padding: 0.85rem 0.95rem 0.95rem; border-radius: 12px; background: #06070a; }
+.sx-tt-name { font: 700 1.25rem var(--font-main); }
+.sx-tt-user { color: #aab0bd; font-size: 0.9rem; }
+.sx-tt-text { margin-top: 0.5rem; color: #c8cdd8; font-size: 0.92rem; line-height: 1.45; }
+.sx-tt-btn { display: inline-flex; align-items: center; justify-self: start; gap: 0.5rem; margin-top: 0.8rem; padding: 0.5rem 0.95rem; border-radius: 8px; background: #fe2c55; color: #fff; font-weight: 700; font-size: 0.9rem; transition: background-color 0.15s ease; }
+.sx-tt-btn svg { width: 0.9rem; height: 0.9rem; }
+.sx-tt:hover .sx-tt-btn { background: #ff4a6d; }
+
 
 @media (prefers-reduced-motion: reduce) {
-  .sx-btn, .sx-btn::after, .sx-btn-arrow, .sx-tool, .sx-dc, .sx-toast { transition: none; }
-  .sx-btn:hover, .sx-tool:hover, .sx-dc:hover { transform: none; }
+  .sx-btn, .sx-btn::after, .sx-btn-arrow, .sx-tool, .sx-dc, .sx-tt, .sx-toast { transition: none; }
+  .sx-btn:hover, .sx-tool:hover, .sx-dc:hover, .sx-tt:hover { transform: none; }
 }
 
 /* ----- The X-post glow, on every card: soft corner light + an outer blue/violet halo ----- */
-.sx-order, .sx-comm, .sx-rbx, .sx-ytp, .sx-dc, .sx-say-bubble {
+.sx-order, .sx-comm, .sx-rbx, .sx-ytp, .sx-dc, .sx-tt, .sx-say-bubble {
   --g1: var(--rgb-blue);
   --g2: 150, 130, 255;
   box-shadow:
@@ -437,7 +454,8 @@
 }
 .sx-ytp { --g1: 255, 70, 70; }
 .sx-dc { --g1: 88, 101, 242; }
-.sx-comm, .sx-ytp, .sx-dc {
+.sx-tt { --g1: 37, 244, 238; --g2: 254, 44, 85; }
+.sx-comm, .sx-ytp, .sx-dc, .sx-tt {
   background-image:
     radial-gradient(circle at 100% 0, rgba(var(--g1), 0.2), transparent 58%),
     radial-gradient(circle at 0 100%, rgba(var(--g2), 0.16), transparent 55%);
@@ -448,7 +466,7 @@
     radial-gradient(circle at 0 100%, rgba(var(--g2), 0.16), transparent 55%),
     linear-gradient(180deg, var(--color-surface-raised), var(--color-surface));
 }
-.sx-order:hover, .sx-rbx:hover, .sx-ytp:hover, .sx-dc:hover, .sx-say:hover .sx-say-bubble {
+.sx-order:hover, .sx-rbx:hover, .sx-ytp:hover, .sx-dc:hover, .sx-tt:hover, .sx-say:hover .sx-say-bubble {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.1),
     0 28px 54px -28px rgba(0, 0, 0, 0.9),

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#060a14">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex, follow">
+  <title>404: GFX Not Found | Bcraft Designs</title>
+  <meta name="description" content="This page apparently never made it past the viewport. Head back to the Bcraft Designs homepage.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600;700&display=swap">
+  <!-- Absolute paths (/style.css) on purpose: GitHub Pages serves this file at the URL that was
+       not found, which can be any depth (/foo/, /foo/bar/), so relative paths would break. -->
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preload" as="image" href="/images/404.webp" fetchpriority="high">
+  <script src="/script.js" defer></script>
+  <style>
+    /* Skip link (same as the other pages) */
+    .skip-link { position: fixed; top: 0.75rem; left: 0.75rem; z-index: 1000; padding: 0.6rem 1rem; border-radius: 10px; background: var(--color-accent-bright); color: #04101f; font-weight: 800; transform: translateY(-200%); transition: transform 0.2s ease; }
+    .skip-link:focus-visible { transform: none; outline: 2px solid #fff; outline-offset: 2px; }
+    #top:focus { outline: none; }
+
+    /* ===== 404 page =====
+       Built on .page-hero (soft glow, dot cluster, seasonal decor hook), .hero-line / .hero-text / .hero-actions,
+       .brick, .tag, .cat-chip and .button from style.css. Only the render "viewport" is new (nf- prefix). */
+    .nf { display: flex; align-items: center; }
+    /* Full-bleed hero background: starts at the very top (behind the sticky header) and fades into the page at the bottom */
+    .nf { margin-top: calc(var(--header-height) * -1); padding-top: calc(var(--space-6) + var(--header-height)); padding-bottom: var(--space-6); overflow-x: clip; }
+    .nf .tag::before { display: none; }
+    .nf > .container { z-index: 1; }
+    .nf-bg { position: absolute; inset: 0; z-index: 0; overflow: hidden; background: #0a0a12; pointer-events: none; -webkit-mask-image: linear-gradient(180deg, #000 0, #000 62%, transparent 100%); mask-image: linear-gradient(180deg, #000 0, #000 62%, transparent 100%); }
+    .nf-img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; object-position: 60% 50%; transform: translate3d(var(--px, 0px), var(--py, 0px), 0) scale(1.06); will-change: transform; }
+    /* Dark on the text side so the headline stays readable */
+    .nf-shade { position: absolute; inset: 0; background:
+      linear-gradient(90deg, rgba(6, 10, 20, 0.94) 0, rgba(6, 10, 20, 0.8) 32%, rgba(6, 10, 20, 0.25) 62%, transparent 100%),
+      linear-gradient(180deg, rgba(6, 10, 20, 0.35) 0, transparent 30%); }
+    .nf-path { max-width: 100%; margin-top: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 500 12px/1.4 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; letter-spacing: 0.1em; color: rgba(var(--rgb-blue), 0.9); }
+    .nf-grid { display: grid; gap: var(--space-5); align-items: center; }
+    .nf-copy { max-width: 36rem; }
+    .nf-copy .tag { margin-bottom: var(--space-3); }
+    .nf-title { font-size: clamp(3rem, 13vw, 5.6rem); font-weight: 800; line-height: 0.92; letter-spacing: -0.045em; }
+    .nf-title .hero-fx-word { --hfx-color: var(--color-orange-bright); --hfx-glow: rgba(var(--rgb-orange), 0.8); }
+    .nf-back .nf-arrow { display: inline-block; margin-right: 0.55rem; transition: transform 0.2s var(--spring); }
+    .nf-back:hover .nf-arrow, .nf-back:focus-visible .nf-arrow { transform: translateX(-4px); }
+    @media (min-width: 900px) {
+      .nf { min-height: min(100svh, 50rem); }
+    }
+    @media (max-width: 899px) {
+      .nf { padding-bottom: 12rem; }
+      .nf-img { object-position: 72% 50%; }
+      .nf-shade { background: linear-gradient(180deg, rgba(6, 10, 20, 0.8) 0, rgba(6, 10, 20, 0.62) 45%, rgba(6, 10, 20, 0.35) 100%); }
+    }
+    @media (max-width: 479px) { .nf-back, .nf-actions .button { flex: 1 1 100%; } }
+    @media (prefers-reduced-motion: reduce) { .nf-back .nf-arrow { transition: none; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#top">Skip to main content</a>
+
+  <!-- ===== BACKGROUND (same as every page) ===== -->
+  <div class="site-background" aria-hidden="true">
+    <div class="cursor-light" id="cursor-light"></div>
+  </div>
+
+  <!-- ===== HEADER / NAVIGATION (copied 1:1 from index.html) ===== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="site-logo" href="/" aria-label="Bcraft Designs, go to homepage" data-tooltip="Go to homepage">
+        <img class="site-logo-image" src="/images/logo.webp" alt="" width="512" height="329">
+      </a>
+
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Open menu">
+        <span class="menu-toggle-bar"></span>
+        <span class="menu-toggle-bar"></span>
+      </button>
+
+      <div class="site-menu" id="site-menu">
+        <nav class="site-nav" aria-label="Main navigation">
+          <ul class="nav-list">
+
+            <!-- WORK mega menu (preview images are set in script.js) -->
+            <li class="nav-item has-mega">
+              <button class="nav-link nav-trigger" type="button" aria-expanded="false" aria-controls="mega-work">
+                Work <svg class="nav-chevron" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="mega mega-work" id="mega-work" data-mega="work">
+                <div class="mega-inner">
+                  <div class="mega-main">
+                    <p class="mega-eyebrow">Browse the work</p>
+                    <ul class="mega-links">
+                  <li>
+                    <a class="mega-link" href="/work/#game-thumbnails" data-preview="thumbnails">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span>
+                      <span class="mega-link-body">
+                        <span class="mega-link-title">Thumbnails</span>
+                        <span class="mega-link-text">Game and YouTube thumbnails.</span>
+                      </span>
+                      <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="mega-link" href="/work/#game-icons" data-preview="game-icons">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></span>
+                      <span class="mega-link-body">
+                        <span class="mega-link-title">Game Icons</span>
+                        <span class="mega-link-text">Small squares, big first impressions.</span>
+                      </span>
+                      <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="mega-link" href="/work/#ui" data-preview="ui">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M9 9v11"/></svg></span>
+                      <span class="mega-link-body">
+                        <span class="mega-link-title">UI</span>
+                        <span class="mega-link-text">Roblox interface and UI design.</span>
+                      </span>
+                      <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="mega-link" href="/work/#more" data-preview="more">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="6" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="18" cy="12" r="1.5" fill="currentColor"/></svg></span>
+                      <span class="mega-link-body">
+                        <span class="mega-link-title">More</span>
+                        <span class="mega-link-text">Everything else I make.</span>
+                      </span>
+                      <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                  </li>
+                    </ul>
+                    <div class="mega-foot">
+                      <a class="mega-all" href="/work/">View all work <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+                      <a class="mega-aside" href="/pricing/">
+                        <span class="mega-aside-text">Need something custom?</span>
+                        <span class="mega-aside-link">See pricing</span>
+                      </a>
+                    </div>
+                    <!-- Large banner slot. Image path is set in script.js (MEGA_BANNER_DATA) -->
+                    <figure class="mega-banner" aria-hidden="true">
+                      <img class="mega-banner-image" src="" alt="">
+                    </figure>
+                  </div>
+                </div>
+              </div>
+            </li>
+
+            <li class="nav-item"><a class="nav-link" href="/pricing/">Pricing</a></li>
+            <li class="nav-item"><a class="nav-link" href="/reviews/">Reviews</a></li>
+            <li class="nav-item"><a class="nav-link" href="/about/">About</a></li>
+            <li class="nav-item"><a class="nav-link" href="/news/">News</a></li>
+            <li class="nav-item"><a class="nav-link" href="/contact/">Contact</a></li>
+          </ul>
+        </nav>
+        <!-- Social icons. The links are set in script.js (SOCIAL_LINKS), not here. -->
+        <ul class="nav-socials" aria-label="Bcraft Designs on social media">
+          <li>
+            <a class="nav-social" href="#" data-social="robloxCommunity" data-tooltip="Roblox" aria-label="Bcraft Designs on Roblox">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.926 23.998 0 18.892 5.075 0 24 5.108ZM15.348 10.09l-5.282-1.453-1.414 5.273 5.282 1.453z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a class="nav-social" href="#" data-social="youtube" data-tooltip="YouTube" aria-label="Bcraft Designs on YouTube">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a class="nav-social" href="#" data-social="x" data-tooltip="X / Twitter" aria-label="Bcraft Designs on X (Twitter)">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a class="nav-social" href="#" data-social="discord" data-tooltip="Discord" aria-label="Bcraft Designs on Discord">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+            </a>
+          </li>
+        </ul>
+        <a class="button button-primary" href="/pricing/">Commission Me</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top" tabindex="-1">
+    <!-- ===== 404 ===== -->
+    <section class="page-hero nf" aria-labelledby="nf-title">
+      <!-- Full-bleed dark hero: the 404 render behind the text (runs up behind the header, fades out at the bottom). -->
+      <div class="nf-bg" aria-hidden="true">
+        <img class="nf-img" src="/images/404.webp" alt="" width="1920" height="1080" decoding="async" fetchpriority="high">
+        <span class="nf-shade"></span>
+      </div>
+      <div class="container nf-grid">
+
+        <div class="nf-copy">
+          <span class="tag">Page not found</span>
+          <h1 id="nf-title" class="nf-title">
+            <span class="hero-line">404:</span>
+            <span class="hero-line hero-line-indent"><span class="hero-fx-word" data-text="GFX">GFX</span></span>
+            <span class="hero-line"><span data-nf-word>NOT FOUND</span><span class="brick" aria-hidden="true"></span></span>
+          </h1>
+          <p class="hero-text">This page apparently never made it past the viewport.</p>
+          <p class="nf-path" data-nf-path hidden></p>
+          <div class="hero-actions nf-actions">
+            <a class="button button-primary button-lg nf-back" href="/"><span class="nf-arrow" aria-hidden="true">&larr;</span>Return Home</a>
+            <a class="button button-secondary button-lg nf-suggest" data-nf-suggest href="/" hidden></a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER (copied 1:1 from index.html) ===== -->
+  <footer class="site-footer">
+    <span class="footer-glow" aria-hidden="true"></span>
+    <span class="footer-curve" aria-hidden="true"></span>
+    <div class="container footer-inner">
+      <div class="footer-top">
+        <div class="footer-intro">
+          <a class="footer-brand" href="#top" aria-label="Bcraft Designs, back to top">
+            <img class="footer-logo" src="/images/logo.webp" alt="" width="512" height="329">
+          </a>
+          <p class="footer-tagline">Custom GFX and UI that make your game look as good as it plays.</p>
+          <a class="button button-primary footer-cta" href="/pricing/">
+            Commission Me
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <div class="footer-group">
+            <h2 class="footer-heading">Explore</h2>
+            <ul>
+              <li><a href="/work/">Work</a></li>
+              <li><a href="/pricing/">Pricing</a></li>
+              <li><a href="/reviews/">Reviews</a></li>
+              <li><a href="/about/">About</a></li>
+              <li><a href="/news/">News</a></li>
+            </ul>
+          </div>
+          <div class="footer-group footer-group-legal">
+            <h2 class="footer-heading">Legal</h2>
+            <ul>
+              <li><a href="/privacy/">Privacy Policy</a></li>
+              <li><a href="/tos/">Terms of Service</a></li>
+            </ul>
+          </div>
+          <div class="footer-group">
+            <h2 class="footer-heading">Connect</h2>
+            <ul>
+              <li><a href="/contact/">Contact</a></li>
+            </ul>
+            <ul class="footer-socials" aria-label="Bcraft Designs on social media">
+            <li>
+              <a class="footer-social" href="#" data-social="robloxCommunity" aria-label="Bcraft Designs on Roblox" title="Roblox">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.926 23.998 0 18.892 5.075 0 24 5.108ZM15.348 10.09l-5.282-1.453-1.414 5.273 5.282 1.453z"/></svg>
+              </a>
+            </li>
+            <li>
+              <a class="footer-social" href="#" data-social="youtube" aria-label="Bcraft Designs on YouTube" title="YouTube">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              </a>
+            </li>
+            <li>
+              <a class="footer-social" href="#" data-social="x" aria-label="Bcraft Designs on X (Twitter)" title="X / Twitter">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>
+              </a>
+            </li>
+            <li>
+              <a class="footer-social" href="#" data-social="discord" aria-label="Bcraft Designs on Discord" title="Discord">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+              </a>
+            </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copy">&copy; <span data-year>2026</span> Bcraft Designs</p>
+        <a class="footer-top-link" href="#top">Back to top <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M6 10V2M2.5 5.5 6 2l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </div>
+  </footer>
+  <script>
+    // 404 extras: broken path, "did you mean", rare headline variants, soft mouse parallax. Everything is optional;
+    // without JavaScript the page shows the plain "404: GFX NOT FOUND" version.
+    (function () {
+      var path = location.pathname;
+      try { path = decodeURIComponent(path); } catch (e) { /* keep the raw path */ }
+      var direct = /^\/404(\.html|\/)?$/i.test(path);   // opened on purpose, not a missing page
+      var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Now and then the last word changes (the default stays NOT FOUND)
+      var word = document.querySelector('[data-nf-word]');
+      var VARIANTS = ['UNRENDERED', 'OFF-CANVAS', 'LOST LAYER', 'MISSING'];
+      if (word && Math.random() < 0.35) word.textContent = VARIANTS[Math.floor(Math.random() * VARIANTS.length)];
+
+      // The address that was not found (written as text, never as HTML)
+      var tag = document.querySelector('[data-nf-path]');
+      if (tag && !direct && path.length > 1) {
+        tag.textContent = (path.length > 48 ? path.slice(0, 47) + '…' : path) + '  not found';
+        tag.hidden = false;
+      }
+
+      // "Did you mean ...?" for typos, short paths and old .html links
+      var PAGES = ['work', 'pricing', 'reviews', 'about', 'news', 'contact', 'tos', 'privacy', 'socials'];
+      function dist(a, b) {
+        var m = [], i, j;
+        for (i = 0; i <= a.length; i++) m[i] = [i];
+        for (j = 1; j <= b.length; j++) m[0][j] = j;
+        for (i = 1; i <= a.length; i++) for (j = 1; j <= b.length; j++) {
+          m[i][j] = Math.min(m[i - 1][j] + 1, m[i][j - 1] + 1, m[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        }
+        return m[a.length][b.length];
+      }
+      var link = document.querySelector('[data-nf-suggest]');
+      var seg = path.toLowerCase().replace(/\.html?$/, '').split('/').filter(Boolean)[0] || '';
+      if (link && !direct && seg) {
+        var best = null, bestD = 99;
+        PAGES.forEach(function (name) {
+          var d = dist(seg, name);
+          if (seg.length >= 3 && name.indexOf(seg) === 0) d = 0;   // "/pric" -> pricing
+          if (d < bestD) { bestD = d; best = name; }
+        });
+        if (best && bestD <= Math.max(1, Math.min(2, Math.floor(best.length / 2)))) {
+          link.href = '/' + best + '/';
+          link.textContent = 'Did you mean /' + best + '/?';
+          link.hidden = false;
+        }
+      }
+
+      // Soft parallax: the picture drifts a little against the mouse (mouse devices only)
+      var hero = document.querySelector('.nf');
+      var img = document.querySelector('.nf-img');
+      if (hero && img && !calm && window.matchMedia && matchMedia('(hover: hover)').matches) {
+        var tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
+        var tick = function () {
+          cx += (tx - cx) * 0.08;
+          cy += (ty - cy) * 0.08;
+          img.style.setProperty('--px', cx.toFixed(2) + 'px');
+          img.style.setProperty('--py', cy.toFixed(2) + 'px');
+          raf = (Math.abs(tx - cx) > 0.05 || Math.abs(ty - cy) > 0.05) ? requestAnimationFrame(tick) : 0;
+        };
+        hero.addEventListener('pointermove', function (e) {
+          var r = hero.getBoundingClientRect();
+          tx = -((e.clientX - r.left) / r.width - 0.5) * 24;
+          ty = -((e.clientY - r.top) / r.height - 0.5) * 14;
+          if (!raf) raf = requestAnimationFrame(tick);
+        });
+        hero.addEventListener('pointerleave', function () { tx = 0; ty = 0; if (!raf) raf = requestAnimationFrame(tick); });
+      }
+    })();
+  </script>
+</body>
+</html>

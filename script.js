@@ -161,6 +161,8 @@ const CURRENT_SEASON = (function () {
   }
   return "";
 })();
+// Lets style.css tint the page background for the season (see "SEASONAL BACKGROUND TINT")
+if (CURRENT_SEASON) document.documentElement.setAttribute("data-season", CURRENT_SEASON);
 
 
 // ==========================================================
@@ -248,7 +250,7 @@ const HALLOWEEN_POPUP = {
   buttonText: "Commission Me",
   buttonLink: "/pricing/",
   tabText: "20% off",
-  delay: 1200,
+  delay: 3000,
   endsAt: SEASON_YEAR + "-10-31T23:59:59"
 };
 
@@ -273,7 +275,7 @@ const CHRISTMAS_POPUP = {
   buttonText: "Commission Me",
   buttonLink: "/pricing/",
   tabText: "25% off",
-  delay: 1200,
+  delay: 3000,
   endsAt: SEASON_YEAR + "-12-26T23:59:59"
 };
 
@@ -301,7 +303,7 @@ const SUMMER_POPUP = {
   buttonText: "Commission Me",
   buttonLink: "/pricing/",
   tabText: "20% off",
-  delay: 1200,
+  delay: 3000,
   endsAt: SEASON_YEAR + "-08-31T23:59:59"
 };
 
@@ -328,7 +330,7 @@ const HERO_ARTWORK = {
 
 // ==========================================================
 // HERO SLIDESHOW (homepage)
-// The hero cycles through several pieces with a soft cross-fade.
+// The hero cycles through several pieces with a soft fade and drift (see style.css, .hero-slide).
 //   images    - leave [] to auto-detect: it loads images/hero-main-01.webp,
 //               hero-main-02.webp, hero-main-03.webp ... in order and stops at
 //               the first missing number. Or list the files yourself, e.g.
@@ -926,7 +928,7 @@ const SOCIAL_LINKS = {
   youtube:         "https://www.youtube.com/@realbcraft",
   tiktok:          "https://www.tiktok.com/@realbcraft",
   robloxCommunity: "https://www.roblox.com/communities/35405048/Bcraft-Designs",
-  robloxProfile:   "",                 // paste your Roblox profile link here. Until then, links that use it are hidden
+  robloxProfile:   "https://www.roblox.com/users/2504673556/profile",   // your Roblox profile
   commission:      "/pricing/"      // where "commission" links go (or a Discord invite, form, mailto: ...)
 };
 
@@ -1132,7 +1134,7 @@ const WELCOME_OFFER = {
   emailLink: "mailto:YOUR-EMAIL@example.com",   // <-- put your real e-mail address here
   emailSubject: "Welcome offer",
   modalCloseText: "Not now",
-  delay: 1800,
+  delay: 5000,
   nudge: true,
   nudgeDelay: 4500,
   nudgeMax: 3,
@@ -3252,9 +3254,9 @@ const LIGHTBOX_SETTINGS = {
   });
   observeReveals(document.querySelectorAll("[data-reveal]"));
 
-  // Footer year (fixed at 2024)
+  // Footer year (fixed at 2026)
   document.querySelectorAll("[data-year]").forEach((node) => {
-    node.textContent = "2024";
+    node.textContent = "2026";
   });
 })();
 
@@ -3270,7 +3272,7 @@ const LIGHTBOX_SETTINGS = {
   if (!visual) return;
 
   // ----- Slideshow: the first image is the <img> already in the page; the others are
-  // found and added one by one. Each switch = a soft cross-fade (see style.css, .hero-slide).
+  // found and added one by one. Each switch = a soft fade and drift (see style.css, .hero-slide).
   function initHeroSlideshow(slot, firstImg, data) {
     const frame = slot.querySelector(".hero-art-frame");
     const heroEl = visual.closest(".hero");
@@ -3720,31 +3722,32 @@ function buildSalePopup(cfg, STORAGE_KEY, theme) {
     }
   });
 
-  // Start: a first visit shows the card after a short delay. After it has
-  // been closed, only the small tab is shown, on every page.
+  // Start: after the delay, the sale popup is the widget that opens by itself.
+  // It only starts as the small tab if the visitor minimized it on an earlier visit.
+  // (Nothing is shown, not even the tab, until the delay is over.)
   tab.setAttribute("aria-hidden", "true");
   tab.tabIndex = -1;
-  if (readState() === "closed") {
-    closePopup(false);
-  } else {
-    openTimer = window.setTimeout(() => openPopup(false), cfg.delay || 0);
-  }
+  const minimizedBefore = readState() === "closed";
+  openTimer = window.setTimeout(() => {
+    if (minimizedBefore) closePopup(false);
+    else openPopup(false);
+  }, cfg.delay || 0);
   return true;
 }
 
 [
-  [HALLOWEEN_POPUP, "bcraft-halloween-popup", ""],
-  [CHRISTMAS_POPUP, "bcraft-christmas-popup", "christmas"],
-  [SUMMER_POPUP, "bcraft-summer-popup", "summer"]
+  [HALLOWEEN_POPUP, "bcraft-halloween-popup-v2", "halloween"],
+  [CHRISTMAS_POPUP, "bcraft-christmas-popup-v2", "christmas"],
+  [SUMMER_POPUP, "bcraft-summer-popup-v2", "summer"]
 ].some((entry) => buildSalePopup(entry[0], entry[1], entry[2]));
 
 
 // ==========================================================
 // WELCOME OFFER CARD (settings: WELCOME_OFFER near the top of this file)
 // A sticky card in the bottom-right corner, always stacked right above the
-// sale popup, or above its small tab once that is closed (it moves by itself
-// when the popup opens or closes). It starts minimized as a small blue tab;
-// clicking the tab opens the card, the close button minimizes it again.
+// sale popup, or above its small tab (it moves by itself when the popup opens
+// or closes). It opens by itself on a visit; the close button minimizes it to a
+// small blue tab, and clicking the tab opens it again.
 // The card's Redeem button opens a small window that explains how to redeem
 // the offer (DM me). Nothing is added to the HTML pages.
 // ==========================================================
@@ -4017,8 +4020,13 @@ function buildSalePopup(cfg, STORAGE_KEY, theme) {
   // ----- State -----
   let ready = false;          // false until the short delay is over
   let ended = false;          // true once endsAt has passed: everything is removed
-  // Minimized (the small tab) by default; it only starts open if the visitor opened it earlier.
-  let userClosed = welcomeGet(WELCOME_UI_KEY) !== "open";
+  // While a seasonal sale popup is running, that popup is the widget that opens on page load,
+  // so the welcome offer starts as its small tab (it opens if the visitor opened it earlier).
+  // With no seasonal popup, it opens by default, unless the visitor closed it earlier.
+  const seasonalRunning = !!document.querySelector(".sale-popup");
+  let userClosed = seasonalRunning
+    ? welcomeGet(WELCOME_UI_KEY) !== "open"
+    : welcomeGet(WELCOME_UI_KEY) === "closed";
   card.setAttribute("aria-label", cfg.eyebrow + ": " + amount + " " + cfg.off + " " + cfg.sub);
 
   const endTime = cfg.endsAt ? new Date(cfg.endsAt).getTime() : NaN;
@@ -5699,6 +5707,78 @@ const HOME_HOVER_FX = true;
 
   if (/(^|\/)news(\.html|\/)?$/i.test(window.location.pathname)) {
     news.querySelector("a").setAttribute("aria-current", "page");
+  }
+})();
+
+
+// ==========================================================
+// NAVBAR: NEWS DOT
+// A small dot above "News" while the newest post has not been seen yet.
+// Clicking News (or opening the News page) hides it. The newest post's id
+// is remembered in the browser, so the dot comes back when a NEW post is
+// added to news-data.js. Pages that do not load news-data.js load it here.
+// ==========================================================
+(function () {
+  const link = document.querySelector('.nav-list a[href="/news/"]');
+  if (!link) return;
+
+  const SEEN_KEY = "bcraft-news-seen";
+  const onNewsPage = /(^|\/)news(\.html|\/)?$/i.test(window.location.pathname);
+
+  function getSeen() {
+    try { return window.localStorage.getItem(SEEN_KEY); } catch (error) { return null; }
+  }
+  function setSeen(id) {
+    try { window.localStorage.setItem(SEEN_KEY, id); } catch (error) { /* storage blocked: the dot just returns next visit */ }
+  }
+
+  // The id of the newest post (same rules as the "Latest news" strip on the homepage)
+  function newestPostId() {
+    if (typeof NEWS_POSTS === "undefined" || !Array.isArray(NEWS_POSTS)) return null;
+    const dated = typeof parseNewsDate === "function";
+    let best = null;
+    NEWS_POSTS.forEach((post, index) => {
+      if (!post || !post.id || !post.title) return;
+      const date = dated ? parseNewsDate(post.date) : null;
+      if (dated && !date) return;
+      const time = date ? date.time : 0;
+      if (!best || time > best.time) best = { id: String(post.id), time: time };
+    });
+    return best ? best.id : null;
+  }
+
+  function addDot(id) {
+    if (link.querySelector(".nav-news-dot")) return;
+    const label = createEl("span", "nav-news-label");
+    while (link.firstChild) label.appendChild(link.firstChild);
+    const dot = createEl("span", "nav-news-dot");
+    dot.setAttribute("aria-hidden", "true");
+    label.appendChild(dot);
+    link.appendChild(label);
+    link.setAttribute("aria-label", "News, new post");
+
+    link.addEventListener("click", () => {
+      setSeen(id);
+      link.removeAttribute("aria-label");
+      dot.classList.add("is-gone");
+      setTimeout(() => dot.remove(), 250);
+    }, { once: true });
+  }
+
+  function start() {
+    const id = newestPostId();
+    if (!id) return;
+    if (onNewsPage) { setSeen(id); return; }   // already looking at the news
+    if (getSeen() !== id) addDot(id);
+  }
+
+  if (typeof NEWS_POSTS !== "undefined") {
+    start();
+  } else {
+    const loader = document.createElement("script");
+    loader.src = "/news-data.js";
+    loader.addEventListener("load", start, { once: true });
+    document.head.appendChild(loader);
   }
 })();
 
