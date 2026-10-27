@@ -465,7 +465,8 @@ const WORK = {
     { image: "/images/work/portfolio-game-thumbnail-03.webp",  id: 17 },
     { image: "/images/work/portfolio-game-thumbnail-04.webp",  id: 18 },
     { image: "/images/work/portfolio-game-thumbnail-05.webp",  id: 19 },
-    { image: "/images/work/portfolio-game-thumbnail-06.webp",  id: 20 }
+    { image: "/images/work/portfolio-game-thumbnail-06.webp",  id: 20 },
+    { image: "/images/work/portfolio-game-thumbnail-07.webp",  id: 21 }
   ],
   "Game Icons": [
     { image: "/images/work/featured-logo-01.webp",             id: 4,  featured: 5 }
