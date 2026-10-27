@@ -549,124 +549,104 @@ body::after {
   transition: transform 0.25s var(--spring), filter 0.3s ease;
 }
 
-/* Logo hover (every page): DIE-CUT STICKER.
-   A white sticker edge grows around the logo's exact shape (it follows the outline of the picture,
-   so it works for any logo shape; eight small offset copies make the corners round), the logo gives a little wiggle as if it were being stuck down,
-   and a soft gloss sweeps across it once. It stays tilted a touch while hovered, like a sticker
-   on a laptop. Pure CSS: no script, no HTML change.
-   The edge must NOT be the same colour as the logo (a white logo with a white edge merges into one
-   blob and loses its details), so it is a colour setting.
-   Tweak: --edge-rgb = edge colour, --edge = sticker border thickness, --edge-pop = how far it overshoots while popping out,
-   --tilt-rest = the angle it stays at, 0.7s = speed (change both 0.7s and the 0.6s gloss to match). */
+/* Logo hover (every page): BRICK FULL STOP.
+   An orange brick (the same one that ends the headings) drops in to the right of the logo and
+   lands on its baseline, so the logo reads like a word with a full stop: "[logo]."
+   The brick squashes and bounces once on landing and stays put while the mouse is over the logo;
+   the logo itself gets a small knock and an orange flash as it lands. The brick is the ::before
+   layer, so no HTML change is needed.
+   Tweak: --brick-size = size, --brick-gap = space between logo and brick, --brick-base = how far
+   above the bottom edge it sits (raise it for a higher full stop), --brick-fall = how far above
+   its final spot it starts. The 0.9s values set the speed (change both together). */
 .site-logo {
-  --edge: 2px;
-  --edge-rgb: var(--rgb-blue);   /* edge colour: var(--rgb-blue) or var(--rgb-orange); avoid white/silver, they merge with a white logo */
-  --edge-pop: 3px;
-  --tilt-rest: -2deg;
+  --brick-size: 0.5rem;
+  --brick-gap: 0.3rem;
+  --brick-base: 0.12rem;
+  --brick-fall: -1.7rem;
 }
 
-/* The gloss: a soft diagonal band, cut to the logo's shape with a mask (not to the white edge) */
 .site-logo::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 50%;
-  z-index: 1;
-  width: calc(2.25rem * 512 / 329);
-  height: 2.25rem;
-  margin-top: -1.125rem;
-  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.7) 50%, transparent 62%) no-repeat;
-  background-size: 260% 100%;
-  background-position: 130% 0;
-  -webkit-mask: url("/images/logo.webp") center / contain no-repeat;
-          mask: url("/images/logo.webp") center / contain no-repeat;
+  left: calc(100% + var(--brick-gap));
+  bottom: var(--brick-base);
+  z-index: 2;
+  width: var(--brick-size);
+  height: var(--brick-size);
+  border-radius: 0.08rem;
+  background-color: var(--color-orange);
+  box-shadow: 0 0 10px rgba(var(--rgb-orange), 0.55);
   opacity: 0;
+  transform: translateY(var(--brick-fall)) rotate(-35deg);
+  transform-origin: 50% 100%;
   pointer-events: none;
-  transition: transform 0.25s var(--spring);
+  transition: opacity 0.15s ease, transform 0.2s ease;
 }
 
 .site-logo:hover .site-logo-image,
 .site-logo:focus-visible .site-logo-image {
-  transform: rotate(var(--tilt-rest)) scale(1.06);
-  filter: drop-shadow(calc(var(--edge) * 0.5) 0 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge) * -0.5) 0 0 rgba(var(--edge-rgb), 1)) drop-shadow(0 calc(var(--edge) * 0.5) 0 rgba(var(--edge-rgb), 1)) drop-shadow(0 calc(var(--edge) * -0.5) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge) * 0.25) calc(var(--edge) * 0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge) * -0.25) calc(var(--edge) * -0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge) * 0.25) calc(var(--edge) * -0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge) * -0.25) calc(var(--edge) * 0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(0 3px 5px rgba(2, 6, 16, 0.75));
-  animation: site-logo-wiggle 0.7s ease-in-out, site-logo-edge 0.7s ease-out;
+  transform: translateY(-1px);
+  filter: brightness(1.08) drop-shadow(0 0 8px rgba(var(--rgb-blue), 0.5));
+  animation: site-logo-knock 0.9s linear;
 }
 
 .site-logo:hover::before,
 .site-logo:focus-visible::before {
   opacity: 1;
-  transform: rotate(var(--tilt-rest)) scale(1.06);
-  animation: site-logo-wiggle 0.7s ease-in-out, site-logo-gloss 0.6s ease-out 0.12s;
+  transform: rotate(12deg);
+  animation: site-logo-brick 0.9s linear;
 }
 
-/* Press: the sticker flattens down */
 .site-logo:active .site-logo-image {
   transform: scale(0.95);
   animation: none;
 }
 
-@keyframes site-logo-wiggle {
-  0%   { transform: rotate(0) scale(1); }
-  25%  { transform: rotate(-7deg) scale(1.11); }
-  50%  { transform: rotate(5deg) scale(1.08); }
-  75%  { transform: rotate(-3.5deg) scale(1.07); }
-  100% { transform: rotate(var(--tilt-rest)) scale(1.06); }
+/* Both animations share one timeline: the brick lands at 40%, the logo reacts at 40% */
+@keyframes site-logo-brick {
+  0%   { opacity: 0; transform: translateY(var(--brick-fall)) rotate(-35deg); animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.55); }
+  12%  { opacity: 1; }
+  40%  { opacity: 1; transform: translateY(0) rotate(12deg); animation-timing-function: ease-out; }
+  46%  { transform: translateY(0) rotate(12deg) scale(1.3, 0.7); animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1); }
+  58%  { transform: translateY(-0.4rem) rotate(22deg) scale(0.95, 1.08); animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.55); }
+  72%  { transform: translateY(0) rotate(12deg) scale(1.15, 0.85); animation-timing-function: ease-out; }
+  86%, 100% { opacity: 1; transform: translateY(0) rotate(12deg) scale(1); }
 }
 
-/* The white edge pops out past its final thickness, then settles */
-@keyframes site-logo-edge {
-  0%   { filter: drop-shadow(calc(0px * 0.5) 0 0 rgba(var(--edge-rgb), 0)) drop-shadow(calc(0px * -0.5) 0 0 rgba(var(--edge-rgb), 0)) drop-shadow(0 calc(0px * 0.5) 0 rgba(var(--edge-rgb), 0)) drop-shadow(0 calc(0px * -0.5) 0 rgba(var(--edge-rgb), 0)) drop-shadow(calc(0px * 0.25) calc(0px * 0.25) 0 rgba(var(--edge-rgb), 0)) drop-shadow(calc(0px * -0.25) calc(0px * -0.25) 0 rgba(var(--edge-rgb), 0)) drop-shadow(calc(0px * 0.25) calc(0px * -0.25) 0 rgba(var(--edge-rgb), 0)) drop-shadow(calc(0px * -0.25) calc(0px * 0.25) 0 rgba(var(--edge-rgb), 0)) drop-shadow(0 3px 5px rgba(2, 6, 16, 0)); }
-  35%  { filter: drop-shadow(calc(var(--edge-pop) * 0.5) 0 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge-pop) * -0.5) 0 0 rgba(var(--edge-rgb), 1)) drop-shadow(0 calc(var(--edge-pop) * 0.5) 0 rgba(var(--edge-rgb), 1)) drop-shadow(0 calc(var(--edge-pop) * -0.5) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge-pop) * 0.25) calc(var(--edge-pop) * 0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge-pop) * -0.25) calc(var(--edge-pop) * -0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge-pop) * 0.25) calc(var(--edge-pop) * -0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge-pop) * -0.25) calc(var(--edge-pop) * 0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(0 3px 5px rgba(2, 6, 16, 0.75)); }
-  100% { filter: drop-shadow(calc(var(--edge) * 0.5) 0 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge) * -0.5) 0 0 rgba(var(--edge-rgb), 1)) drop-shadow(0 calc(var(--edge) * 0.5) 0 rgba(var(--edge-rgb), 1)) drop-shadow(0 calc(var(--edge) * -0.5) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge) * 0.25) calc(var(--edge) * 0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge) * -0.25) calc(var(--edge) * -0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge) * 0.25) calc(var(--edge) * -0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(calc(var(--edge) * -0.25) calc(var(--edge) * 0.25) 0 rgba(var(--edge-rgb), 1)) drop-shadow(0 3px 5px rgba(2, 6, 16, 0.75)); }
+/* The knock: a small recoil away from the brick and a warm orange flash, then it settles */
+@keyframes site-logo-knock {
+  0%, 38% { transform: none; filter: brightness(1) drop-shadow(0 0 0 rgba(var(--rgb-orange), 0)); }
+  43%     { transform: translateX(-2px); filter: brightness(1.25) drop-shadow(0 0 10px rgba(var(--rgb-orange), 0.75)); }
+  62%     { transform: translateX(0.5px); filter: brightness(1.12) drop-shadow(0 0 9px rgba(var(--rgb-blue), 0.55)); }
+  100%    { transform: translateY(-1px); filter: brightness(1.08) drop-shadow(0 0 8px rgba(var(--rgb-blue), 0.5)); }
 }
 
-@keyframes site-logo-gloss {
-  from { background-position: 130% 0; }
-  to   { background-position: -30% 0; }
-}
-
-/* Reduced motion: no wiggle and no gloss, the white edge simply appears */
+/* Reduced motion: no animation, but the brick still appears, already sitting next to the logo */
 @media (prefers-reduced-motion: reduce) {
   .site-logo:hover .site-logo-image,
-  .site-logo:focus-visible .site-logo-image {
-    transform: none;
-    animation: none;
-  }
-  .site-logo::before { display: none; }
+  .site-logo:focus-visible .site-logo-image,
+  .site-logo:hover::before,
+  .site-logo:focus-visible::before { animation: none; }
+  .site-logo:hover::before,
+  .site-logo:focus-visible::before { opacity: 1; transform: rotate(12deg); }
 }
 
-/* Tooltip under the logo: tells visitors it goes back to the homepage */
+/* Label under the logo: a small orange pill with a house that pops in beneath the logo (centred),
+   a beat after the brick has landed. The text is set here, in one place, so every page matches
+   without editing each page's HTML (the data-tooltip attribute in the HTML is no longer used).
+   Change the wording on the --logo-label line. */
+.site-logo {
+  --logo-label: "Home";
+}
+
 @media (hover: hover) {
   .site-logo::after {
-    content: attr(data-tooltip);
+    content: var(--logo-label);
     position: absolute;
-    top: calc(100% + 0.5rem);
-    left: 0;
+    top: calc(100% + 0.55rem);
+    left: 50%;
     z-index: 5;
-    padding: 0.25rem 0.65rem;
-    border-radius: 6px;
-    background-color: var(--color-orange);
-    color: var(--color-orange-ink);
-    font-family: var(--font-main);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0;
-    white-space: nowrap;
-    opacity: 0;
-    transform: translateY(-4px) rotate(-2deg);
-    pointer-events: none;
-    transition: opacity 0.12s ease, transform 0.2s var(--spring);
-  }
-
-  .site-logo:hover::after,
-  .site-logo:focus-visible::after {
-    opacity: 1;
-    transform: translateY(0) rotate(-2deg);
-  }
-
-  /* Nicer tooltip: rounded pill with a little house, a soft glow, and a springy pop */
-  .site-logo::after {
-    padding: 0.32rem 0.8rem 0.32rem 1.85rem;
+    padding: 0.3rem 0.8rem 0.3rem 1.75rem;
     border-radius: 999px;
     background-color: var(--color-orange);
     background-image:
@@ -674,15 +654,28 @@ body::after {
       linear-gradient(180deg, var(--color-orange-bright), var(--color-orange));
     background-repeat: no-repeat;
     background-position: left 0.6rem center, 0 0;
-    background-size: 0.9rem 0.9rem, 100% 100%;
+    background-size: 0.85rem 0.85rem, 100% 100%;
     box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.85), 0 0 0 3px rgba(var(--rgb-orange), 0.18);
-    transform: translateY(-6px) rotate(-2deg) scale(0.9);
-    transform-origin: 20% 0;
+    color: var(--color-orange-ink);
+    font-family: var(--font-main);
+    font-size: 0.8rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: 0;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(-50%, -6px) scale(0.9);
+    transform-origin: 50% 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.2s var(--spring);
   }
+
   .site-logo:hover::after,
   .site-logo:focus-visible::after {
-    transform: translateY(0) rotate(-2deg) scale(1);
-    transition: opacity 0.15s ease 0.1s, transform 0.35s var(--spring) 0.1s;   /* a short beat, so it does not flash when the mouse only passes by */
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+    /* waits for the brick to land, and does not flash when the mouse only passes by */
+    transition: opacity 0.15s ease 0.45s, transform 0.35s var(--spring) 0.45s;
   }
 }
 
