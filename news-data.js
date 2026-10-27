@@ -128,6 +128,21 @@ const X_NAME = "Bcraft | bcraftdesigns.com";
 /* X-POSTS:START  (auto-generated from x-links.txt by GitHub Actions. Do not edit by hand, add links to x-links.txt instead) */
 const X_POSTS = [
   {
+    "url": "https://x.com/realbcraft/status/2115164715811045873",
+    "date": "2026-10-27",
+    "image": "images/x-2115164715811045873.webp",
+    "text": [
+      "Do NOT go into the woods with someone you don't know.. 🌲",
+      "My first official gore GFX. No warning since this isn't extreme.. yet."
+    ],
+    "tags": [
+      "robloxart",
+      "robloxgfx",
+      "gfx",
+      "robloxdev"
+    ]
+  },
+  {
     "url": "https://x.com/realbcraft/status/2113664464348172378",
     "date": "2026-10-23",
     "image": "images/x-2113664464348172378.webp",
@@ -135,25 +150,6 @@ const X_POSTS = [
       "Linktree? Not anymore. 👀",
       "I built my own custom socials page for me. Complete with a new design, easter eggs, beautiful buttons, and all my socials in one place. 💙",
       "🫣Take a look: https://bcraftdesigns.com/socials"
-    ]
-  },
-  {
-    "url": "https://x.com/realbcraft/status/2113283931659534803",
-    "date": "2026-10-22",
-    "image": "images/x-2113283931659534803.webp",
-    "text": [
-      "🎁 NEW CLIENT OFFER!",
-      "Get $5 OFF your first Bcraft Designs commission!",
-      "💰 $10 minimum order",
-      "👤 New clients only",
-      "📩 DM me & mention the offer before ordering",
-      "🚫 Cannot be combined with other promos",
-      "Full details & TOS 👇",
-      "🔗 https://bcraftdesigns.com/news/#post=new-client-promotion"
-    ],
-    "tags": [
-      "BcraftDesigns",
-      "RobloxGFX"
     ]
   }
 ];
