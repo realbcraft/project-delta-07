@@ -465,8 +465,7 @@ const WORK = {
     { image: "/images/work/portfolio-game-thumbnail-03.webp",  id: 17 },
     { image: "/images/work/portfolio-game-thumbnail-04.webp",  id: 18 },
     { image: "/images/work/portfolio-game-thumbnail-05.webp",  id: 19 },
-    { image: "/images/work/portfolio-game-thumbnail-06.webp",  id: 20 },
-    { image: "/images/work/portfolio-game-thumbnail-07.webp",  id: 21 }
+    { image: "/images/work/portfolio-game-thumbnail-06.webp",  id: 20 }
   ],
   "Game Icons": [
     { image: "/images/work/featured-logo-01.webp",             id: 4,  featured: 5 }
@@ -1249,6 +1248,14 @@ function loadBanner(mega) {
   if (mega.bannerLoaded) return;
   mega.bannerLoaded = true;
 
+  // Warm up the pictures that the banner shows while a link is hovered
+  if (isDesktop()) {
+    const pictures = MEGA_MENU_DATA[mega.name] || {};
+    Object.keys(pictures).forEach((key) => {
+      if (pictures[key].image) new Image().src = pictures[key].image;
+    });
+  }
+
   const data = MEGA_BANNER_DATA[mega.name];
   const image = mega.panel.querySelector(".mega-banner-image");
   if (!data || !data.image || !image) return;
@@ -1262,8 +1269,77 @@ function loadBanner(mega) {
   image.src = data.image;
 }
 
+// ----- Banner follows the hovered link -----
+// The wide banner under "View all work" crossfades to the artwork of the link under the mouse
+// (the pictures come from MEGA_MENU_DATA at the top of this file) and fades back to the normal
+// banner when the mouse leaves the list of links. Two spare picture layers are added to the
+// banner by this code, so no HTML change is needed.
+function getBannerLayers(mega) {
+  if (mega.bannerLayers) return mega.bannerLayers;
+  const base = mega.panel.querySelector(".mega-banner-image");
+  if (!base) return null;
+  mega.bannerLayers = [0, 1].map(() => {
+    const layer = document.createElement("img");
+    layer.className = "mega-banner-image mega-banner-swap";
+    layer.alt = "";
+    layer.decoding = "async";
+    base.parentNode.appendChild(layer);
+    return layer;
+  });
+  mega.bannerLayer = 0;   // which of the two layers is in front
+  return mega.bannerLayers;
+}
+
+function showBanner(mega, key) {
+  const data = MEGA_MENU_DATA[mega.name] && MEGA_MENU_DATA[mega.name][key];
+  const layers = getBannerLayers(mega);
+  if (!data || !data.image || !layers) return;
+  if (mega.bannerKey === key) return;
+  mega.bannerKey = key;
+
+  // Highlight the link whose artwork is showing
+  mega.links.forEach((link) => {
+    link.classList.toggle("is-showing", link.dataset.preview === key);
+  });
+
+  const current = layers[mega.bannerLayer];
+  const next = layers[1 - mega.bannerLayer];
+
+  const reveal = () => {
+    if (mega.bannerKey !== key) return;   // the mouse already moved on
+    mega.bannerLayer = 1 - mega.bannerLayer;
+    // new picture in front, old one right behind it; both stay below the seasonal cobweb (z-index 2)
+    next.style.zIndex = "1";
+    current.style.zIndex = "0";
+    next.classList.add("is-visible");
+    // The old picture stays underneath until the new one is fully in, so the banner never
+    // dips back to the normal image in the middle of a crossfade
+    setTimeout(() => {
+      if (current !== layers[mega.bannerLayer]) current.classList.remove("is-visible");
+    }, 450);
+  };
+
+  next.onload = reveal;
+  next.onerror = () => {};   // picture missing: just keep showing what is there
+  if (next.getAttribute("src") !== data.image) {
+    next.src = data.image;
+  } else if (next.complete && next.naturalWidth) {
+    reveal();
+  }
+}
+
+function resetBanner(mega) {
+  mega.bannerKey = null;
+  clearTimeout(mega.bannerIntent);
+  mega.links.forEach((link) => link.classList.remove("is-showing"));
+  if (mega.bannerLayers) {
+    mega.bannerLayers.forEach((layer) => layer.classList.remove("is-visible"));
+  }
+}
+
 // ----- Open / close -----
 function hideMega(mega) {
+  resetBanner(mega);
   mega.item.classList.remove("is-open");
   mega.panel.classList.remove("is-open");
   mega.trigger.setAttribute("aria-expanded", "false");
@@ -1424,12 +1500,30 @@ megaMenus.forEach((mega) => {
 
   // Change the artwork preview when a category is hovered or focused
   mega.links.forEach((link) => {
-    const show = () => {
-      if (isDesktop()) showPreview(mega, link.dataset.preview, false);
+    const show = (instant) => {
+      if (!isDesktop()) return;
+      showPreview(mega, link.dataset.preview, false);
+      // Keyboard focus swaps the banner at once; a mouse waits a moment so sweeping down
+      // the list does not flicker through every picture
+      clearTimeout(mega.bannerIntent);
+      if (instant) {
+        showBanner(mega, link.dataset.preview);
+      } else {
+        mega.bannerIntent = setTimeout(() => showBanner(mega, link.dataset.preview), 70);
+      }
     };
-    link.addEventListener("mouseenter", show);
-    link.addEventListener("focus", show);
+    link.addEventListener("mouseenter", () => show(false));
+    link.addEventListener("focus", () => show(true));
   });
+
+  // Back to the normal banner when the mouse or keyboard leaves the list of links
+  const linkList = mega.panel.querySelector(".mega-links");
+  if (linkList) {
+    linkList.addEventListener("mouseleave", () => resetBanner(mega));
+    linkList.addEventListener("focusout", (event) => {
+      if (!linkList.contains(event.relatedTarget)) resetBanner(mega);
+    });
+  }
 });
 
 // ----- Mobile menu button -----

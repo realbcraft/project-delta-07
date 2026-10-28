@@ -961,6 +961,42 @@ body::after {
   opacity: 1;
 }
 
+/* Banner artwork for the hovered link: two spare layers (added by script.js) crossfade over the
+   normal banner, with a slight zoom-out as each picture settles. They sit below the seasonal
+   cobweb (.season-web, z-index 2), so that decoration stays visible on top of the pictures. */
+.mega-banner-swap {
+  transform: scale(1.04);
+  transition: opacity 0.38s ease, transform 0.7s ease;
+}
+
+.mega-banner-swap.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* The link whose artwork is on the banner: a clear "this one" state (blue edge, bright title,
+   icon and arrow), so the link and the picture read as a pair. */
+.mega-work .mega-link.is-showing {
+  border-color: rgba(var(--rgb-blue), 0.38);
+  background-color: rgba(var(--rgb-blue), 0.1);
+  box-shadow: inset 3px 0 0 var(--color-accent-bright);
+}
+
+.mega-work .mega-link.is-showing .mega-link-title {
+  color: var(--color-accent-bright);
+}
+
+.mega-work .mega-link.is-showing .mega-link-icon {
+  color: var(--color-accent-bright);
+  opacity: 1;
+}
+
+.mega-work .mega-link.is-showing .mega-arrow {
+  color: var(--color-accent-bright);
+  opacity: 0.95;
+  transform: rotate(-45deg);
+}
+
 /* ----- Artwork preview (right side of the mega menu) ----- */
 .mega-preview-body {
   transition: opacity 0.18s ease, transform 0.18s ease;
