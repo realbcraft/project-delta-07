@@ -18,173 +18,373 @@
   <script src="/script.js" defer></script>
   <script src="/companion.js" defer></script>
   <style>
-    /* ===== BUNDLES v7: shop-style picker + roomy card =====
-       Left: a vertical picker (artwork preview, name, price). Right: the open bundle (artwork, piece labels, compact contents list, price, button).
-       The artwork ignores the pointer: a piece only lifts (and shows its number) when its row in the contents list is hovered.
-       On phones the picker becomes a snapping row of cards and the price + button stick to the bottom of the card. */
+    /* ===== BUNDLES v14: three cards, premium one in the middle =====
+       Game Launch Pack (popular: true) is the middle card: wider, taller, soft violet border.
+       On tablets and phones the cards stack and the featured one comes first. Hover = small lift only.
+       The cards are built by the script at the bottom from BUNDLES. */
     .bk-upto { display: inline-block; margin: 0.6rem 0 0; padding: 0.2rem 0.7rem; border-radius: 6px; background: rgba(64, 200, 140, 0.16); border: 1px solid rgba(64, 200, 140, 0.55); color: #7ff0b8; font-size: 0.82rem; font-weight: 800; }
-    .sp-shop { --t: 74, 163, 255; --g: 245, 200, 80; --sp-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-      display: grid; grid-template-columns: 16.5rem minmax(0, 1fr); gap: 1.25rem; align-items: start; max-width: 62rem; margin-inline: auto; }
-
-    /* ---- Picker (left) ---- */
-    .sp-chips { position: relative; display: flex; flex-direction: column; gap: 0.5rem; }
     /* Hero: See Bundles button + commission status on one row */
     .pc-actions { align-items: center; }
+    /* ===== Pricing page refresh: details ===== */
+    /* Hero quick facts */
+    .pc-facts { display: flex; flex-wrap: wrap; gap: 0.5rem 1.6rem; margin: 1.5rem 0 0; padding: 0; list-style: none; color: var(--color-text-muted); font-size: 0.92rem; font-weight: 600; }
+    .pc-facts li { display: inline-flex; align-items: center; gap: 0.5rem; }
+    .pc-facts svg { flex: none; width: 1.05rem; height: 1.05rem; color: var(--color-accent-bright); }
+
+    /* How it works: small detail chip under each step (kept in line with the staggered layout) */
+    .process-meta { margin: 0.8rem 0 0; padding: 0; list-style: none; }
+    @media (max-width: 959px) { .process-meta { grid-column: 2; } }
+    @media (min-width: 960px) {
+      .process-steps-4 { align-items: stretch; }
+      .process-steps-4 .process-step { display: flex; flex-direction: column; }
+      .process-steps-4 .process-num { margin-bottom: 0; }   /* flex does not collapse margins like block layout did */
+      .process-steps-4 .process-meta { margin-top: auto; padding-top: 0.8rem; }
+    }
+
+    /* Read before ordering: a calm notice panel (the closing call to action stays the one big button) */
+    .pc-tos { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); padding: var(--space-3); border: 1px solid rgba(var(--rgb-blue), 0.2); border-radius: 18px; background: rgba(var(--rgb-blue), 0.05); }
+    .pc-tos-icon { flex: none; display: grid; place-items: center; width: 3rem; height: 3rem; border: 1px solid rgba(var(--rgb-blue), 0.4); border-radius: 12px; background: rgba(var(--rgb-blue), 0.12); color: var(--color-accent-bright); }
+    .pc-tos-icon svg { width: 1.4rem; height: 1.4rem; }
+    .pc-tos-copy { flex: 1 1 22rem; min-width: 0; }
+    .pc-tos-title { margin: 0; font-family: var(--font-display); font-size: clamp(1.3rem, 2.4vw, 1.6rem); font-weight: 800; line-height: 1.15; letter-spacing: -0.025em; }
+    .pc-tos-text { margin: 0.35rem 0 0; color: var(--color-text-muted); font-size: 0.98rem; }
+    .pc-tos .button { flex: none; gap: 0.5rem; }
+
+    /* Payments: two notes side by side */
+    .pay-notes { display: grid; gap: 0.75rem; margin-top: var(--space-3); }
+    .pay-notes .pc-roblox-note { margin: 0; align-items: flex-start; }
+    .pay-notes strong { color: var(--color-text); }
+    .pc-note-icon { flex: none; width: 1.3rem; height: 1.3rem; margin-top: 0.05rem; color: var(--color-accent-bright); }
+    @media (min-width: 860px) { .pay-notes { grid-template-columns: 1fr 1fr; } }
+
+    /* Spacing: counter pulled up under the cards and close to the product chips; Bundles starts higher */
+    .pc-catalogue { padding-bottom: 0; }
+    .pc-carousel { padding-bottom: 0; }
+    .pc-controls { margin-top: -1.25rem; }
+    .pc-chips { margin-top: 0.5rem; }
+    .pc-bundles { padding-top: var(--space-4); padding-bottom: var(--space-2); }
+    .pc-hero .pc-pay-hint { max-width: 48rem; margin: 1rem 0 0; text-align: left; }
+    /* Two buttons now: keep the row narrow enough that the status box wraps under them instead of sliding under the artwork */
+    .pc-hero .pc-actions { max-width: 46rem; }
+    /* Product cards: price on the left, Commission button on the right. The price is a little smaller so the full numbers ($30.00, 8.000) fit
+       next to the button; on very narrow cards (small phones) the button drops under the price instead. */
+    .pc-buy { gap: 0.6rem 0.75rem; }
+    .pc-price-amount { font-size: 1.2rem; }
+    .pc-price-amount.is-unset { font-size: 1.05rem; }
+    .pc-buy .pc-price-row { gap: 0.4rem; }
+    .pc-buy .pc-price-robux { font-size: 0.8rem; }
+    .pc-buy .pc-price-robux .pc-robux-icon { width: 1.1rem; height: 1.1rem; }
+    .pc-buy .pc-button { flex: 1 1 8rem; justify-content: center; padding-inline: 0.9rem; }
+    @media (max-width: 480px) { .pc-buy .pc-price-row { flex-direction: column; align-items: flex-start; gap: 0.25rem; } }   /* phones: USD above Robux, so the button still fits on the right */
+
+    /* Bundles heading: the lead sits right under the title */
+    .pc-bundles .section-head { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+    .pc-bundles .pc-head-aside { align-items: flex-start; }
+    .pc-bundles .services-lead { max-width: none; margin: 0; text-align: left; }
+
+    /* ===== Currency switch: the whole page follows html[data-currency] = both | usd | robux ===== */
+    html[data-currency="usd"] .cur-rbx,
+    html[data-currency="usd"] .pc-price-robux { display: none !important; }
+    html[data-currency="robux"] .cur-usd,
+    html[data-currency="robux"] .pc-price-amount:not(.is-unset) { display: none !important; }
+    /* the savings badge / pill on the bundle cards shows one currency only: dollars, or Robux when the page is in Robux */
+    html:not([data-currency="robux"]) .tc-off.cur-rbx,
+    html:not([data-currency="robux"]) .tc-save.cur-rbx { display: none; }
+    .tc-off.cur-rbx { display: inline-flex; align-items: center; gap: 0.3em; }
+    .tc-off .pc-robux-icon, .tc-save .pc-robux-icon { width: 0.95em; height: 0.95em; }
+    /* with Robux only, the Robux price takes the place of the dollar price */
+    html[data-currency="robux"] .tc-price-row .tc-rbx { color: var(--color-text); font-family: var(--font-display); font-size: 2.4rem; font-weight: 800; line-height: 1; letter-spacing: -0.04em; }
+    html[data-currency="robux"] .tc-card.is-popular .tc-price-row .tc-rbx { font-size: 3rem; }
+    html[data-currency="robux"] .tc-price-row .tc-rbx .pc-robux-icon { width: 0.8em; height: 0.8em; }
+    html[data-currency="robux"] .pc-buy .pc-price-robux { color: var(--color-text); font-size: 1.2rem; }
+    html[data-currency="robux"] .pc-buy .pc-price-robux .pc-robux-icon { width: 1.3rem; height: 1.3rem; }
+
+    .pc-currency { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; }
+    .pc-currency-label { color: var(--color-text-muted); font-size: 0.82rem; font-weight: 700; }
+    .pc-seg { position: relative; display: inline-flex; padding: 0.2rem; border: 1px solid rgba(var(--rgb-blue), 0.3); border-radius: 999px; background: rgba(var(--rgb-blue), 0.08); }
+    .pc-seg button { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.38rem 0.9rem; border: 0; border-radius: 999px; background: transparent; color: var(--color-text-muted); font: inherit; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: color 0.3s ease; }
+    /* The light pill that slides (with a little overshoot) to the chosen option; the script sets its width and position */
+    .pc-seg-thumb { position: absolute; top: 0.2rem; bottom: 0.2rem; left: 0; width: 0; border-radius: 999px; background: var(--color-accent-bright); box-shadow: 0 6px 16px -6px rgba(var(--rgb-blue), 0.9); pointer-events: none; }
+    .pc-seg.is-ready .pc-seg-thumb { transition: transform 0.45s cubic-bezier(0.34, 1.45, 0.5, 1), width 0.45s cubic-bezier(0.34, 1.45, 0.5, 1); }
+    .pc-seg button:hover { color: var(--color-text); }
+    .pc-seg button[aria-pressed="true"] { color: #06122b; }
+    .pc-seg button:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
+    .pc-seg .pc-robux-icon { width: 0.95rem; height: 0.95rem; }
+    .pc-seg .pc-robux-icon { transition: filter 0.3s ease; }
+    .pc-seg button[aria-pressed="true"] .pc-robux-icon { filter: brightness(0); }
+    @media (prefers-reduced-motion: reduce) { .pc-seg.is-ready .pc-seg-thumb { transition: none; } .pc-seg button, .pc-seg .pc-robux-icon { transition: none; } }
+
+    /* ===== Order estimator ===== */
+    .pc-estimator { padding: var(--space-4) 0 var(--space-2); scroll-margin-top: var(--header-height); }
+    .pc-estimator .section-head { flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-bottom: var(--space-3); }
+    .pc-estimator .services-lead { max-width: none; margin: 0; text-align: left; }
+    .est { display: grid; gap: 1.2rem; align-items: start; }
+    @media (min-width: 960px) {
+      .est { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+      .est-summary { position: sticky; top: calc(var(--header-height) + 1.2rem); }
+    }
+    .est-panel, .est-summary { border: 1px solid rgba(var(--rgb-blue), 0.2); border-radius: 20px; background: radial-gradient(ellipse 90% 60% at 0% 0%, rgba(var(--rgb-blue), 0.12), transparent 70%), rgba(var(--rgb-blue), 0.04); }
+    .est-panel { padding: 1.4rem 1.5rem; }
+    .est-block + .est-block { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.07); }
+    .est-label { margin: 0 0 0.75rem; color: var(--color-text-muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+    .est-label small { margin-left: 0.4rem; font-size: 0.85rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
+    .est-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .est-chip { padding: 0.45rem 0.95rem; border: 1px solid rgba(var(--rgb-blue), 0.35); border-radius: 999px; background: rgba(var(--rgb-blue), 0.08); color: var(--color-text); font: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; }
+    .est-chip:hover { border-color: var(--color-accent-bright); background: rgba(var(--rgb-blue), 0.18); }
+    .est-chip:focus-visible, .est-step:focus-visible, .est-reset:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
+    .est-list { display: grid; margin: 0; padding: 0; list-style: none; }
+    .est-row { display: flex; align-items: center; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+    .est-row:last-child { border-bottom: 0; }
+    .est-info { flex: 1; min-width: 0; }
+    .est-name { font-weight: 800; line-height: 1.25; }
+    .est-row.is-on .est-name { color: var(--color-accent-bright); }
+    .est-sub { margin-top: 0.15rem; color: var(--color-text-muted); font-size: 0.85rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .est-row.is-disabled { opacity: 0.55; }
+    .est-free { display: inline-flex; margin-left: 0.5rem; padding: 0.1rem 0.55rem; border: 1px solid rgba(47, 214, 143, 0.5); border-radius: 999px; background: rgba(47, 214, 143, 0.16); color: #7ff0b8; font-size: 0.74rem; font-weight: 800; vertical-align: middle; }
+    .est-extra { color: var(--color-orange); font-weight: 800; }
+    .est-stepper { display: inline-flex; flex: none; align-items: center; gap: 0.15rem; padding: 0.2rem; border: 1px solid rgba(var(--rgb-blue), 0.3); border-radius: 999px; background: rgba(0, 0, 0, 0.2); }
+    .est-step { display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 50%; background: rgba(var(--rgb-blue), 0.16); color: var(--color-text); font: inherit; font-size: 1.15rem; font-weight: 800; line-height: 1; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
+    .est-step:hover:not(:disabled) { background: var(--color-accent-bright); color: #06122b; }
+    .est-step:disabled { opacity: 0.35; cursor: not-allowed; }
+    .est-qty { min-width: 2rem; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .est-toggle { position: relative; flex: none; width: 2.7rem; height: 1.55rem; }
+    .est-toggle input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+    .est-toggle span { position: absolute; inset: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.16); pointer-events: none; transition: background-color 0.2s ease; }
+    .est-toggle span::after { content: ""; position: absolute; top: 0.2rem; left: 0.2rem; width: 1.15rem; height: 1.15rem; border-radius: 50%; background: #fff; transition: transform 0.2s ease; }
+    .est-toggle input:checked + span { background: var(--color-accent-bright); }
+    .est-toggle input:checked + span::after { transform: translateX(1.15rem); background: #06122b; }
+    .est-toggle input:focus-visible + span { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
+    .est-toggle input:disabled { cursor: not-allowed; }
+    .est-hint { margin: 0 0 0.4rem; color: var(--color-text-muted); font-size: 0.88rem; }
+
+    .est-summary { display: grid; gap: 1rem; padding: 1.4rem 1.5rem; }
+    .est-sum-title { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 0; font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
+    .est-sum-title small { color: var(--color-text-muted); font-family: inherit; font-size: 0.85rem; font-weight: 700; letter-spacing: 0; }
+    .est-empty { margin: 0; color: var(--color-text-muted); }
+    .est-lines { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }
+    .est-line { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; font-size: 0.92rem; }
+    .est-line > span:first-child { min-width: 0; color: #c3cde0; }
+    .est-line.is-good > span:first-child, .est-line.is-good .est-money, .est-line.is-good .est-rbx { color: #7ff0b8; }
+    .est-money { display: inline-flex; flex: none; align-items: center; gap: 0.5rem; color: var(--color-text); font-weight: 700; white-space: nowrap; }
+    .est-rbx { display: inline-flex; align-items: center; gap: 0.25rem; color: var(--color-orange); }
+    .est-rbx .pc-robux-icon { width: 1rem; height: 1rem; }
+    /* "I'm a new client": a proper custom checkbox (the tick draws itself) in a framed card that lights up when ticked */
+    .est-new { position: relative; display: flex; align-items: center; gap: 0.9rem; padding: 0.95rem 1.1rem; border: 1.5px solid rgba(var(--rgb-blue), 0.28); border-radius: 16px; background: linear-gradient(135deg, rgba(var(--rgb-blue), 0.12), rgba(var(--rgb-blue), 0.03)); cursor: pointer; transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease; }
+    .est-new[hidden] { display: none; }
+    .est-new:hover { border-color: rgba(var(--rgb-blue), 0.6); }
+    .est-new.is-checked { border-color: var(--color-accent-bright); background: linear-gradient(135deg, rgba(var(--rgb-blue), 0.26), rgba(var(--rgb-blue), 0.07)); box-shadow: 0 0 0 1px rgba(var(--rgb-blue), 0.25), 0 16px 34px -20px rgba(var(--rgb-blue), 0.9); }
+    .est-new input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+    .est-newbox { flex: none; display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border: 2px solid rgba(var(--rgb-blue), 0.6); border-radius: 9px; background: rgba(0, 0, 0, 0.28); transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.6, 0.5, 1); }
+    .est-newbox svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: #06122b; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 22; stroke-dashoffset: 22; transition: stroke-dashoffset 0.3s ease 0.08s; }
+    .est-new:hover .est-newbox { border-color: var(--color-accent-bright); }
+    .est-new input:checked ~ .est-newbox { border-color: var(--color-accent-bright); background: var(--color-accent-bright); box-shadow: 0 0 0 4px rgba(var(--rgb-blue), 0.25); transform: scale(1.06); }
+    .est-new input:checked ~ .est-newbox svg { stroke-dashoffset: 0; }
+    .est-new input:focus-visible ~ .est-newbox { outline: 2px solid var(--color-accent-bright); outline-offset: 3px; }
+    .est-newtext { flex: 1; min-width: 0; }
+    .est-newtext strong { display: block; font-size: 1rem; line-height: 1.25; }
+    .est-newtext small { display: block; margin-top: 0.15rem; color: var(--color-text-muted); font-size: 0.82rem; line-height: 1.4; }
+    .est-newtext .est-newfine { margin-top: 0.35rem; font-size: 0.78rem; opacity: 0.85; }
+    .est-newtag { flex: none; padding: 0.3rem 0.7rem; border: 1px solid rgba(47, 214, 143, 0.5); border-radius: 999px; background: rgba(47, 214, 143, 0.14); color: #7ff0b8; font-size: 0.85rem; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .est-newtag .est-rbx { color: #7ff0b8; }
+    html:not([data-currency="robux"]) .est-newtag .cur-rbx { display: none; }
+    @media (prefers-reduced-motion: reduce) { .est-new, .est-newbox, .est-newbox svg { transition: none; } }
+    .est-note { margin: 0; padding: 0.7rem 0.9rem; border-radius: 12px; background: rgba(var(--rgb-blue), 0.1); color: #c3cde0; font-size: 0.86rem; line-height: 1.45; }
+    .est-note[hidden] { display: none; }
+    .est-total { display: grid; gap: 0.4rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+    .est-total-label { color: var(--color-text-muted); font-size: 0.8rem; font-weight: 700; }
+    .est-total-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.8rem; }
+    .est-total-usd { font-family: var(--font-display); font-size: 2.6rem; font-weight: 800; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+    .est-total-rbx { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--color-orange); font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .est-total-rbx .pc-robux-icon { width: 1.25rem; height: 1.25rem; }
+    html[data-currency="robux"] .est-total-rbx { color: var(--color-text); font-family: var(--font-display); font-size: 2.6rem; line-height: 1; letter-spacing: -0.04em; }
+    html[data-currency="robux"] .est-total-rbx .pc-robux-icon { width: 0.8em; height: 0.8em; }
+    html:not([data-currency="robux"]) .est-saved .cur-rbx { display: none; }
+    .est-saved { display: inline-flex; width: fit-content; padding: 0.25rem 0.75rem; border: 1px solid rgba(47, 214, 143, 0.5); border-radius: 999px; background: rgba(47, 214, 143, 0.16); color: #7ff0b8; font-size: 0.88rem; font-weight: 800; }
+    .est-actions { display: grid; gap: 0.6rem; }
+    .est-actions[hidden] { display: none; }
+    .est-actions .button { width: 100%; justify-content: center; gap: 0.5rem; cursor: pointer; }
+    .est-reset { justify-self: center; padding: 0.3rem 0.6rem; border: 0; background: transparent; color: var(--color-text-muted); font: inherit; font-size: 0.88rem; font-weight: 700; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
+    .est-reset:hover { color: var(--color-text); }
+    .est-fine { margin: 0; color: var(--color-text-muted); font-size: 0.8rem; line-height: 1.45; }
+    @media (max-width: 559px) { .est-panel, .est-summary { padding: 1.1rem; } .est-row { gap: 0.7rem; } }
+
+    /* Add-ons: collapsed until "View add-ons" is pressed */
+    .est-addhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; }
+    .est-addhead .est-label { margin: 0; }
+    .est-viewbtn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border: 1px solid rgba(var(--rgb-blue), 0.4); border-radius: 999px; background: rgba(var(--rgb-blue), 0.1); color: var(--color-text); font: inherit; font-size: 0.88rem; font-weight: 800; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; }
+    .est-viewbtn:hover { border-color: var(--color-accent-bright); background: rgba(var(--rgb-blue), 0.2); }
+    .est-viewbtn:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
+    .est-viewcount { padding: 0.05rem 0.5rem; border-radius: 999px; background: var(--color-accent-bright); color: #06122b; font-size: 0.74rem; font-weight: 800; }
+    .est-viewcount[hidden] { display: none; }
+    .est-chev { transition: transform 0.35s ease; }
+    .est-viewbtn[aria-expanded="true"] .est-chev { transform: rotate(180deg); }
+    .est-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; }
+    .est-collapse.is-open { grid-template-rows: 1fr; }
+    .est-collapse-inner { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s linear 0.4s; }
+    .est-collapse.is-open .est-collapse-inner { visibility: visible; transition-delay: 0s; }
+    .est-collapse-inner > :first-child { margin-top: 0.9rem; }
+
+    /* The estimate picture pop-up */
+    html.est-modal-open { overflow: hidden; }
+    .est-modal { position: fixed; inset: 0; z-index: 5000; display: grid; place-items: center; padding: 1rem; }
+    .est-modal[hidden] { display: none; }
+    .est-modal-backdrop { position: absolute; inset: 0; background: rgba(3, 6, 16, 0.74); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); animation: est-fade 0.25s ease both; }
+    .est-modal-box { position: relative; width: min(44rem, 100%); max-height: calc(100vh - 2rem); overflow: auto; padding: 1.5rem 1.5rem 1.3rem; border: 1px solid rgba(var(--rgb-blue), 0.32); border-radius: 22px; background: linear-gradient(180deg, #101a36, #0a1024); box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.9); animation: est-pop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
+    .est-modal-close { position: absolute; top: 0.9rem; right: 0.9rem; display: grid; place-items: center; width: 2.4rem; height: 2.4rem; padding: 0; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 50%; background: rgba(255, 255, 255, 0.06); color: var(--color-text); font: inherit; font-size: 1.5rem; line-height: 1; cursor: pointer; transition: background-color 0.2s ease; }
+    .est-modal-close:hover { background: rgba(255, 255, 255, 0.14); }
+    .est-modal-close:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
+    .est-modal-title { margin: 0 2.8rem 0.3rem 0; font-family: var(--font-display); font-size: 1.55rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
+    .est-modal-lead { margin: 0 0 1rem; color: var(--color-text-muted); font-size: 0.95rem; }
+    .est-ticket-wrap { display: grid; place-items: center; padding: 1.2rem 1rem; border-radius: 16px; background: radial-gradient(ellipse 70% 80% at 50% 0%, rgba(var(--rgb-blue), 0.2), transparent 70%), rgba(255, 255, 255, 0.02); }
+    .est-ticket { display: block; width: min(100%, 25rem); height: auto; filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.55)); animation: est-print 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both; }
+    .est-modal-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
+    .est-modal-actions .button { flex: 1 1 8rem; justify-content: center; gap: 0.5rem; cursor: pointer; }
+    .est-modal-actions .button[hidden] { display: none; }
+    .est-modal-actions .est-modal-go { flex-basis: 100%; }
+    .est-modal-tip { margin: 0.8rem 0 0; color: var(--color-text-muted); font-size: 0.82rem; line-height: 1.45; }
+    @keyframes est-fade { from { opacity: 0; } }
+    @keyframes est-pop { from { opacity: 0; transform: translateY(20px) scale(0.96); } }
+    @keyframes est-print { from { clip-path: inset(0 0 100% 0); transform: translateY(-14px) rotate(-1.2deg); } to { clip-path: inset(0 0 0 0); transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .est-modal-backdrop, .est-modal-box, .est-ticket { animation: none; } .est-collapse, .est-chev { transition: none; } }
+    @media (max-width: 559px) { .est-modal-box { padding: 1.2rem 1rem 1rem; } .est-ticket-wrap { padding: 0.8rem 0.4rem; } }
+
+    /* After pressing a card button the estimate section flashes once, and a small message offers the direct way */
+    .est-panel { position: relative; }
+    .est.is-flash .est-panel::after, .est.is-flash .est-summary::after, .est-addcard.is-nudge::after { content: ""; position: absolute; inset: -2px; border: 2px solid var(--color-accent-bright); border-radius: inherit; pointer-events: none; animation: est-ring 1.3s ease-out both; }
+    .est-addcard.is-nudge::after { animation-iteration-count: 2; }
+    @keyframes est-ring { from { opacity: 0.9; transform: scale(1); } to { opacity: 0; transform: scale(1.035); } }
+    .est-direct { margin: 0; color: var(--color-text-muted); font-size: 0.88rem; text-align: center; }
+    .est-direct a { color: var(--color-accent-bright); font-weight: 700; text-decoration: underline; text-underline-offset: 0.2em; }
+    .est-direct a:hover { text-decoration-thickness: 2px; }
+    .est-toast { position: fixed; left: 50%; bottom: 1.2rem; z-index: 4000; display: flex; align-items: center; gap: 0.9rem; width: max-content; max-width: min(38rem, calc(100vw - 2rem)); padding: 0.8rem 0.9rem 0.8rem 1.1rem; border: 1px solid rgba(var(--rgb-blue), 0.4); border-radius: 16px; background: rgba(10, 16, 36, 0.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.9); font-size: 0.92rem; line-height: 1.4; transform: translateX(-50%); animation: est-toast-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
+    .est-toast[hidden] { display: none; }
+    .est-toast-text { min-width: 0; }
+    .est-toast-text strong { color: var(--color-accent-bright); }
+    .est-toast-link { color: var(--color-text); font-weight: 700; text-decoration: underline; text-underline-offset: 0.2em; white-space: nowrap; }
+    .est-toast-link:hover { color: var(--color-accent-bright); }
+    .est-toast-close { flex: none; display: grid; place-items: center; width: 1.9rem; height: 1.9rem; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.08); color: var(--color-text); font: inherit; font-size: 1.2rem; line-height: 1; cursor: pointer; }
+    .est-toast-close:hover { background: rgba(255, 255, 255, 0.18); }
+    @keyframes est-toast-in { from { opacity: 0; transform: translate(-50%, 14px); } }
+    @media (max-width: 559px) { .est-toast { flex-wrap: wrap; bottom: 0.8rem; } }
+    @media (prefers-reduced-motion: reduce) { .est-toast { animation: none; } }
+
+    /* Add-ons: a card that stands out, so it is found without scrolling around */
+    .est-addcard { position: relative; display: flex; align-items: center; gap: 1.1rem; padding: 1.1rem 1.2rem; border: 1.5px solid rgba(var(--rgb-blue), 0.42); border-radius: 18px; background: linear-gradient(135deg, rgba(var(--rgb-blue), 0.22), rgba(var(--rgb-blue), 0.05)); }
+    .est-addicon { flex: none; display: grid; place-items: center; width: 3.1rem; height: 3.1rem; border-radius: 14px; background: var(--color-accent-bright); color: #06122b; box-shadow: 0 10px 24px -10px rgba(var(--rgb-blue), 0.9); }
+    .est-addicon svg { width: 1.7rem; height: 1.7rem; fill: currentColor; }
+    .est-addinfo { flex: 1; min-width: 0; }
+    .est-addtitle { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; }
+    .est-addsub { margin: 0.25rem 0 0; color: #c3cde0; font-size: 0.92rem; }
+    .est-addcard .est-viewbtn { flex: none; padding: 0.7rem 1.2rem; border: 0; background: var(--color-accent-bright); color: #06122b; font-size: 0.95rem; box-shadow: 0 10px 24px -12px rgba(var(--rgb-blue), 0.95); }
+    .est-addcard .est-viewbtn:hover { background: var(--color-accent-bright); filter: brightness(1.1); }
+    .est-addcard .est-viewcount { background: #06122b; color: var(--color-accent-bright); }
+    .est-collapse-inner > :first-child { margin-top: 1rem; }
+    @media (max-width: 719px) { .est-addcard { flex-wrap: wrap; } .est-addcard .est-viewbtn { width: 100%; justify-content: center; } }
+    .est-teaser { display: flex; align-items: center; gap: 0.7rem; width: 100%; padding: 0.75rem 1rem; border: 1.5px dashed rgba(var(--rgb-blue), 0.55); border-radius: 14px; background: rgba(var(--rgb-blue), 0.07); color: var(--color-text); font: inherit; font-size: 0.9rem; text-align: left; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; }
+    .est-teaser[hidden] { display: none; }
+    .est-teaser:hover { border-style: solid; background: rgba(var(--rgb-blue), 0.16); }
+    .est-teaser:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
+    .est-teaser svg { flex: none; width: 1.3rem; height: 1.3rem; fill: currentColor; color: var(--color-accent-bright); }
+    .est-teaser svg:last-child { width: 0.9rem; height: 0.9rem; fill: none; }
+    .est-teaser span { flex: 1; min-width: 0; }
+    .est-teaser strong { color: var(--color-accent-bright); }
+    .est-quote { display: inline-flex; margin-left: 0.5rem; padding: 0.1rem 0.55rem; border: 1px solid rgba(var(--rgb-blue), 0.65); border-radius: 999px; background: rgba(var(--rgb-blue), 0.18); color: var(--color-accent-bright); font-size: 0.74rem; font-weight: 800; vertical-align: middle; }
+    .est-pending { color: var(--color-text-muted); font-size: 0.82rem; font-weight: 600; }
+    @media (prefers-reduced-motion: reduce) { .est.is-flash .est-panel::after, .est.is-flash .est-summary::after, .est-addcard.is-nudge::after { animation: none; opacity: 0; } }
+
+    /* Custom requests panel: text on the left, button on the right (it used to wrap under the text) */
+    @media (min-width: 760px) {
+      .pc-custom-panel { flex-wrap: nowrap; }
+      .pc-custom-panel > div { flex: 1 1 auto; min-width: 0; }
+      .pc-custom-panel .button { flex: none; }
+    }
     .pc-actions .pc-status { margin: 0; }
-    .pc-bundles-btn { display: inline-flex; align-items: center; gap: 0.6rem; border-color: rgba(47, 214, 143, 0.55); }
-    .pc-bundles-btn:hover, .pc-bundles-btn:focus-visible { border-color: #2fd68f; }
+    .pc-bundles-btn { display: inline-flex; align-items: center; gap: 0.6rem; }
     .pc-bundles-save { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; background: #2fd68f; color: #03281a; font-size: 0.8rem; font-weight: 800; line-height: 1.3; white-space: nowrap; font-variant-numeric: tabular-nums; }
     .pc-bundles-save[hidden] { display: none; }
-    .sp-chip { display: flex; align-items: center; gap: 0.75rem; width: 100%; padding: 0.6rem 0.9rem 0.6rem 0.6rem; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; background: rgba(255, 255, 255, 0.05); color: var(--color-text-muted); font: inherit; text-align: left; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
-    .sp-chip:hover { background: rgba(255, 255, 255, 0.09); color: var(--color-text); }
-    .sp-chip:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
-    .sp-chip[aria-selected="true"] { background: rgba(var(--t), 0.2); border-color: rgba(var(--t), 0.55); color: #fff; }
-    .sp-ctext { display: grid; flex: 1; min-width: 0; gap: 0.15rem; line-height: 1.2; }
-    .sp-ctext strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.98rem; font-weight: 700; }
-    .sp-ctext small { font-size: 0.84rem; font-weight: 600; opacity: 0.75; font-variant-numeric: tabular-nums; }
-    .sp-cflags { display: grid; flex: none; justify-items: end; gap: 0.3rem; }
-    .sp-star { display: block; width: 0.95rem; height: 0.95rem; color: rgb(var(--g)); }
-    .sp-best { padding: 0.1rem 0.5rem; border-radius: 999px; background: #2fd68f; color: #03281a; font-size: 0.74rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 
-    /* ---- The open bundle ---- */
-    .sp-card { position: relative; z-index: 0; isolation: isolate; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 22px; background: var(--color-surface); box-shadow: 0 30px 60px -34px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
-    .sp-card:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 3px; }
+    .tc-grid { --t: 74, 163, 255; --tc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: grid; grid-template-columns: 1fr 1.22fr 1fr; gap: 1.2rem; align-items: center; max-width: 74rem; margin-inline: auto; padding-block: 0.6rem; }
 
-    .sp-stage { position: relative; height: clamp(13rem, 27vw, 18rem);
-      background: radial-gradient(ellipse 60% 90% at 50% 120%, rgba(var(--t), 0.28), transparent 70%), rgba(255, 255, 255, 0.02); }
-    .sp-pile { position: absolute; top: 0.7rem; bottom: 3.3rem; left: 50%; width: min(var(--pile-w, 30rem), calc(100% - 2.5rem)); transform: translateX(-50%); container-type: size; }
+    /* ---- Card ---- */
+    .tc-card { position: relative; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 22px; background: var(--color-surface); box-shadow: 0 30px 60px -38px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.04); transition: transform 0.25s var(--tc-ease); }
+    /* Hover: the card only lifts a little, nothing else changes (mouse devices only) */
+    @media (hover: hover) { .tc-card:hover { transform: translateY(-4px); } }
 
-    /* Artwork tiles. Size comes from the picture's real ratio (--ar), so nothing is cropped or stretched.
-       The middle piece (--base) sits in front, a little bigger. Tiles ignore the pointer. */
-    .sp-tile { --lift: 0; --rt: 1; --base: 1; --sc: var(--base); --wd: min(calc(var(--hh, 50) * 1cqh * var(--ar, 1.6)), calc(var(--cap, 50) * 1cqw));
-      position: absolute; z-index: var(--z); top: calc(var(--y) * 1%); left: calc((100% - var(--wd)) * var(--f)); display: block; width: var(--wd); aspect-ratio: var(--ar, 1.6); overflow: hidden; pointer-events: none;
-      border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 9px; background: rgba(var(--t), 0.3);
-      box-shadow: 0 12px 18px -8px rgba(0, 0, 0, 0.85);
-      transform: translateY(calc(-50% + var(--lift) * 1px)) rotate(calc(var(--r) * var(--rt) * 1deg)) scale(var(--sc));
-      transition: transform 0.35s var(--sp-ease);
-      animation: sp-deal 0.45s var(--sp-ease) backwards; animation-delay: calc(var(--i) * 60ms); }
-    .sp-tile img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
-    .sp-tile.is-missing { display: grid; place-items: center; border-style: dashed; color: rgba(255, 255, 255, 0.75); font-size: 0.7rem; font-weight: 700; text-align: center; line-height: 1.1; padding: 0.2rem; }
-    /* Number marker: shows on a piece only while its row is hovered */
-    .sp-tile::after { content: attr(data-n); position: absolute; top: 0.4rem; left: 0.4rem; display: grid; place-items: center; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: rgb(var(--t)); color: #06101f; font-size: 0.78rem; font-weight: 800; opacity: 0; transform: scale(0.6); transition: opacity 0.2s ease, transform 0.25s var(--sp-ease); }
-    @keyframes sp-deal { from { opacity: 0; transform: translateY(calc(-50% + 0.8rem)) rotate(0deg) scale(0.95); } }
-    .sp-stage.is-focus .sp-tile.is-lit { --lift: -5; --rt: 0; --sc: calc(var(--base) + 0.04); z-index: 98; }
-    .sp-stage.is-focus .sp-tile.is-lit::after { opacity: 0; }
+    /* Featured card: bigger (it is taller than the other two), with a soft violet border and a faint violet tint */
+    .tc-card.is-popular { --t: 150, 115, 255; --u: 1.25rem; border: 1px solid transparent;
+      background: linear-gradient(180deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0) 45%) padding-box, linear-gradient(var(--color-surface), var(--color-surface)) padding-box, linear-gradient(145deg, rgba(196, 174, 255, 0.7), rgba(120, 92, 230, 0.4) 55%, rgba(160, 120, 255, 0.5)) border-box;
+      box-shadow: 0 40px 80px -44px rgba(120, 90, 230, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05); }
 
+    /* ---- Artwork collage ---- */
+    .tc-stage { position: relative; height: 12.5rem; background: radial-gradient(ellipse 75% 90% at 50% 125%, rgba(var(--t), 0.32), transparent 70%), rgba(255, 255, 255, 0.02); }
+    .tc-card.is-popular .tc-stage { height: 18rem; background: radial-gradient(ellipse 80% 90% at 50% 125%, rgba(139, 92, 246, 0.3), transparent 70%), rgba(255, 255, 255, 0.02); }
+    .tc-tile { --th: 6.2rem; position: absolute; z-index: var(--z, 2); top: 54%; left: calc(50% + var(--dx, 0) * var(--u, 1rem)); width: min(calc(var(--th) * var(--ar, 1.6)), 8.8rem); aspect-ratio: var(--ar, 1.6); overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 10px; background: rgba(var(--t), 0.3); box-shadow: 0 16px 24px -10px rgba(0, 0, 0, 0.85);
+      transform: translate(-50%, -50%) rotate(calc(var(--r, 0) * 1deg)) scale(var(--sc, 1)); transition: transform 0.35s var(--tc-ease);
+      animation: tc-deal 0.45s var(--tc-ease) backwards; animation-delay: calc(var(--i, 0) * 60ms); }
+    .tc-card.is-popular .tc-tile { --th: 8.8rem; width: min(calc(var(--th) * var(--ar, 1.6)), 12.2rem); box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.85); }
+    .tc-tile img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; }
+    .tc-tile.is-missing { display: grid; place-items: center; border-style: dashed; color: rgba(255, 255, 255, 0.75); font-size: 0.72rem; font-weight: 700; text-align: center; line-height: 1.1; padding: 0.2rem; }
+    .tc-tile[data-p="profile-pictures"] { width: calc(var(--th) * 0.92); aspect-ratio: 1; border-radius: 50%; }
+    .tc-tile[data-p="renders"] { background: rgba(var(--t), 0.04); border-color: rgba(255, 255, 255, 0.05); box-shadow: 0 16px 24px -12px rgba(0, 0, 0, 0.3); }
+    @keyframes tc-deal { from { opacity: 0; transform: translate(-50%, calc(-50% + 0.8rem)) rotate(0deg) scale(0.95); } }
 
-    /* Piece labels under the artwork */
-    .sp-strip { position: absolute; z-index: 120; left: 0.8rem; right: 0.8rem; bottom: 0.8rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; }
-    .sp-pchip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.22rem 0.7rem 0.22rem 0.25rem; border-radius: 999px; background: rgba(6, 10, 20, 0.62); color: #c3cde0; font-size: 0.8rem; font-weight: 700; transition: background-color 0.2s ease, color 0.2s ease; }
-    .sp-pchip b { display: grid; place-items: center; width: 1.25rem; height: 1.25rem; border-radius: 50%; background: rgba(var(--t), 0.3); color: #fff; font-size: 0.72rem; font-weight: 800; transition: background-color 0.2s ease, color 0.2s ease; }
-    .sp-stage.is-focus .sp-pchip.is-lit { background: rgb(var(--t)); color: #06101f; }
-    .sp-stage.is-focus .sp-pchip.is-lit b { background: #06101f; color: rgb(var(--t)); }
-
-    /* Badges on the stage */
-    .sp-pop { position: absolute; z-index: 130; top: 0.8rem; left: 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.7rem 0.25rem 0.55rem; border-radius: 999px; background: rgba(var(--g), 0.16); color: rgb(var(--g)); font-size: 0.82rem; font-weight: 800; }
-    .sp-off { position: absolute; z-index: 130; top: 0.8rem; right: 0.8rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: #2fd68f; color: #03281a; font-size: 0.82rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    /* ---- Badges ---- */
+    .tc-badge { position: absolute; z-index: 20; top: 0.85rem; left: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.75rem; border-radius: 999px; background: rgba(var(--t), 0.24); color: #fff; font-size: 0.8rem; font-weight: 800; line-height: 1.3; }
+    .tc-badge.is-popular { padding-left: 0.55rem; background: rgba(150, 115, 255, 0.2); color: #dccfff; box-shadow: inset 0 0 0 1px rgba(180, 150, 255, 0.35); }
+    .tc-badge .sp-star { display: block; width: 0.9rem; height: 0.9rem; }
+    .tc-off { position: absolute; z-index: 20; top: 0.85rem; right: 0.85rem; padding: 0.25rem 0.75rem; border-radius: 999px; background: #2fd68f; color: #03281a; font-size: 0.82rem; font-weight: 800; line-height: 1.3; font-variant-numeric: tabular-nums; }
 
     /* ---- Body ---- */
-    .sp-body { display: grid; gap: 1.15rem; padding: 1.4rem 1.5rem 1.5rem; animation: sp-rise 0.3s var(--sp-ease) backwards; }
-    @keyframes sp-rise { from { opacity: 0; transform: translateY(0.4rem); } }
-    .sp-name { margin: 0; font-family: var(--font-display); font-size: 1.7rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
-    .sp-text { margin: 0.5rem 0 0; color: #c3cde0; font-size: 1rem; line-height: 1.5; }
-    .sp-meta { margin: 0.6rem 0 0; color: var(--color-text-muted); font-size: 0.86rem; font-weight: 700; }
+    .tc-body { display: flex; flex: 1; flex-direction: column; gap: 1rem; padding: 1.3rem 1.4rem 1.4rem; }
+    .tc-card.is-popular .tc-body { gap: 1.1rem; padding: 1.6rem 1.7rem 1.7rem; }
+    .tc-name { margin: 0; font-family: var(--font-display); font-size: 1.45rem; font-weight: 800; line-height: 1.12; letter-spacing: -0.02em; }
+    .tc-card.is-popular .tc-name { font-size: 1.8rem; }
+    .tc-text { margin: 0.45rem 0 0; color: #c3cde0; font-size: 0.94rem; line-height: 1.45; }
+    .tc-card.is-popular .tc-text { font-size: 1rem; }
+    .tc-group { display: grid; gap: 0.45rem; }
+    .tc-group-label { color: var(--color-text-muted); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
+    .tc-card.is-popular .tc-group-label { color: #b9a8ee; }
+    .tc-chips li { font-size: 0.82rem; }
+    .tc-card.is-popular .tc-chips li { border-color: rgba(170, 140, 255, 0.28); background-color: rgba(139, 92, 246, 0.08); font-size: 0.86rem; }
 
-    /* Contents: one compact line per item */
-    .sp-layers { display: grid; gap: 0.35rem; margin: 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }
-    .sp-layer { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.9rem 0.5rem 0.55rem; border-radius: 11px; background: rgba(255, 255, 255, 0.04); transition: background-color 0.2s ease; }
-    .sp-layer:hover, .sp-layer:focus-visible { background: rgba(255, 255, 255, 0.09); outline: 0; }
-    .sp-lnum { display: grid; flex: none; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: rgba(var(--t), 0.2); color: rgb(var(--t)); font-size: 0.8rem; font-weight: 800; transition: background-color 0.2s ease, color 0.2s ease; }
-    .sp-layer:hover .sp-lnum, .sp-layer:focus-visible .sp-lnum { background: rgb(var(--t)); color: #06101f; }
-    .sp-lname { display: flex; flex: 1; flex-wrap: wrap; align-items: baseline; gap: 0 0.6rem; min-width: 0; line-height: 1.3; }
-    .sp-lname strong { font-size: 0.98rem; font-weight: 700; }
-    .sp-lname small { color: var(--color-text-muted); font-size: 0.8rem; font-weight: 600; }
-    .sp-lprice { flex: none; color: var(--color-text-muted); font-size: 0.96rem; font-weight: 700; }
-
-    /* Price, then a big button */
-    .sp-foot { display: grid; gap: 1rem; padding-top: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.07); }
-    .sp-price { display: grid; gap: 0.35rem; }
-    .sp-price-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 0.8rem; }
-    .sp-new-usd { font-family: var(--font-display); font-size: 2.6rem; font-weight: 800; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
-    .sp-new-usd.is-unset { font-size: 1.15rem; letter-spacing: 0; }
-    .sp-new-rbx { display: inline-flex; align-items: center; gap: 0.3rem; color: #c3cde0; font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-    .sp-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.7rem; color: var(--color-text-muted); font-size: 0.88rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-    .sp-old-usd, .sp-old-rbx { display: inline-flex; align-items: center; gap: 0.2rem; text-decoration: line-through; text-decoration-color: rgba(255, 90, 90, 0.8); text-decoration-thickness: 1px; }
-    .sp-save { color: #7ff0b8; font-weight: 800; }
-    .sp-price-row { align-items: center; }
-    .sp-sub { gap: 0.4rem 0.8rem; font-size: 1rem; }
-    .sp-old-usd, .sp-old-rbx { font-size: 1.15rem; font-weight: 700; }
-    .sp-save { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.85rem; border-radius: 999px; background: rgba(47, 214, 143, 0.16); border: 1px solid rgba(47, 214, 143, 0.5); font-size: 1.05rem; }
-    .sp-save .pc-robux-icon { width: 1.05em; height: 1.05em; }
-    .sp-pct { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 8px; background: #2fd68f; color: #03281a; font-size: 1rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+    /* ---- Price + button ---- */
+    .tc-foot { display: grid; gap: 0.9rem; margin-top: auto; padding-top: 1.1rem; border-top: 1px solid rgba(255, 255, 255, 0.07); }
+    .tc-card.is-popular .tc-foot { border-top-color: rgba(170, 140, 255, 0.16); }
+    .tc-price { display: grid; gap: 0.35rem; }
+    .tc-from { color: var(--color-text-muted); font-size: 0.8rem; font-weight: 700; }
+    .tc-price-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.1rem 0.7rem; }
+    .tc-usd { font-family: var(--font-display); font-size: 2.4rem; font-weight: 800; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+    .tc-card.is-popular .tc-usd { font-size: 3rem; }
+    .tc-usd.is-unset { font-size: 1.1rem; letter-spacing: 0; }
+    .tc-rbx { display: inline-flex; align-items: center; gap: 0.3rem; color: #c3cde0; font-size: 1.05rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .tc-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.6rem; color: var(--color-text-muted); font-size: 0.88rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .tc-old { display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 700; text-decoration: line-through; text-decoration-color: rgba(255, 90, 90, 0.8); text-decoration-thickness: 1px; }
+    .tc-save { display: inline-flex; align-items: center; padding: 0.2rem 0.65rem; border-radius: 999px; background: rgba(47, 214, 143, 0.16); border: 1px solid rgba(47, 214, 143, 0.5); color: #7ff0b8; font-size: 0.84rem; font-weight: 800; }
     .pc-robux-icon { vertical-align: -0.1em; }
-    .sp-old-rbx .pc-robux-icon, .sp-new-rbx .pc-robux-icon, .sp-save .pc-robux-icon { width: 0.95em; height: 0.95em; }
-    .sp-buy .button { width: 100%; justify-content: center; padding-block: 0.95rem; border-radius: 13px; font-size: 1.05rem; font-weight: 800; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35); transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.2s ease; }
-    .sp-buy .button:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35); }
+    .tc-rbx .pc-robux-icon, .tc-old .pc-robux-icon { width: 0.95em; height: 0.95em; }
+    .tc-buy .button { width: 100%; justify-content: center; padding-block: 0.9rem; border-radius: 13px; font-size: 1.02rem; font-weight: 800; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35); transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.2s ease, filter 0.2s ease; }
+    .tc-buy .button:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3), 0 14px 26px -12px rgba(74, 163, 255, 0.55); }
+    .tc-buy .button:active { transform: translateY(3px); filter: none; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35); }
+    .tc-card.is-popular .tc-buy .button { padding-block: 1.05rem; font-size: 1.1rem; }
 
+    /* Chips get a small check, so "Includes" reads as a list of what you get */
+    .tc-grid { --tc-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m3.5 8.5 3 3 6-7' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+    .tc-chips li { display: inline-flex; align-items: center; gap: 0.4em; }
+    .tc-chips li::before { content: ""; flex: none; width: 0.85em; height: 0.85em; background-color: var(--color-accent-bright); -webkit-mask: var(--tc-check) center / contain no-repeat; mask: var(--tc-check) center / contain no-repeat; }
+    .tc-card.is-popular .tc-chips li::before { background-color: #c9b3ff; }
+    .tc-note { margin: 1.2rem 0 0; text-align: center; color: var(--color-text-muted); font-size: 0.95rem; }
+    .tc-note a { color: var(--color-accent-bright); text-decoration: underline; text-underline-offset: 0.2em; }
+    .tc-note a:hover { text-decoration-thickness: 2px; }
 
-    /* ---- v8: closer to the product carousel ---- */
-    .sp-head { display: grid; gap: 0.1rem; }
-    .sp-specs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.8rem 0 0; padding: 0; list-style: none; }
-    .sp-specs li { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.7rem; border-radius: 999px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--color-text-muted); font-size: 0.82rem; font-weight: 700; }
-    .sp-specs svg { width: 0.95rem; height: 0.95rem; opacity: 0.85; }
-    .sp-from { color: var(--color-text-muted); font-size: 0.82rem; font-weight: 700; }
-    .sp-pop svg.sp-star { width: 0.9rem; height: 0.9rem; }
-    .sp-layer .sp-lnum { display: none; }
-    .sp-pchip b { display: none; }
-
-    /* ---- YouTuber card: channel look (red accent, play badge, subscribe row) ---- */
-    .sp-card.is-yt { --t: 255, 64, 64; }
-    .sp-card.is-yt .sp-pile { top: 2.9rem; bottom: 3.4rem; }
-    .sp-card.is-yt .sp-stage { background: radial-gradient(ellipse 60% 90% at 50% 120%, rgba(255, 40, 40, 0.3), transparent 70%), rgba(255, 255, 255, 0.02); }
-    .sp-yt-top { position: absolute; z-index: 125; top: 0.8rem; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.22rem 0.8rem 0.22rem 0.3rem; border-radius: 999px; background: rgba(6, 10, 20, 0.62); color: #fff; font-size: 0.82rem; font-weight: 800; }
-    .sp-yt-top .sp-yt-logo { display: grid; place-items: center; width: 1.7rem; height: 1.2rem; border-radius: 0.4rem; background: #ff1f1f; color: #fff; }
-    .sp-yt-top .sp-yt-logo svg { width: 0.7rem; height: 0.7rem; }
-    .sp-yt-top .sp-yt-sub { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.12rem 0.55rem; border-radius: 999px; background: #fff; color: #0b0b0b; font-size: 0.74rem; font-weight: 800; }
-    .sp-yt-top .sp-yt-sub svg { width: 0.8rem; height: 0.8rem; }
-    .sp-yt-stats { position: absolute; z-index: 125; right: 0.9rem; bottom: 3.1rem; display: grid; gap: 0.35rem; }
-    .sp-yt-stat { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.55rem; border-radius: 999px; background: rgba(6, 10, 20, 0.62); color: #fff; font-size: 0.74rem; font-weight: 800; }
-    .sp-yt-stat svg { width: 0.85rem; height: 0.85rem; color: #ff5a5a; }
-    .sp-card.is-yt .sp-pile .sp-tile[data-p="youtube-thumbnails"]::before { content: ""; position: absolute; z-index: 2; right: 0.3rem; bottom: 0.3rem; padding: 0.05rem 0.3rem; border-radius: 3px; background: rgba(0, 0, 0, 0.85); color: #fff; font-size: 0.62rem; font-weight: 800; content: "12:34"; }
-    .sp-card.is-yt .sp-tile[data-p="profile-pictures"] { border-radius: 50%; border: 2px solid #ff4040; }
-    @media (max-width: 760px) { .sp-yt-stats { display: none; } }
-
-    /* ---- v9: YouTube / Roblox brand marks, builder ---- */
-
-    /* ---- v10: tags, saved Robux, lighter render backing ---- */
-    .sp-ctag { justify-self: start; padding: 0.05rem 0.5rem; border-radius: 999px; background: rgba(var(--g), 0.16); color: rgb(var(--g)); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.02em; line-height: 1.5; }
-    .sp-chip[aria-selected="true"] .sp-ctag { background: rgba(255, 255, 255, 0.16); color: #fff; }
-    .sp-pop.is-tag { padding-left: 0.7rem; background: rgba(var(--t), 0.22); color: #fff; }
-    .sp-save-rbx { display: inline-flex; align-items: center; gap: 0.2rem; }
-    .sp-tile[data-p="renders"] { background: rgba(var(--t), 0.04); border-color: rgba(255, 255, 255, 0.05); box-shadow: 0 12px 18px -10px rgba(0, 0, 0, 0.3); }
-
-    /* ---- v11: picker icons (one meaningful icon per bundle) ---- */
-    .sp-cico { display: grid; flex: none; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 12px; background: rgba(var(--t), 0.16); color: rgb(var(--t)); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); transition: background-color 0.2s ease, color 0.2s ease; }
-    .sp-cico svg { display: block; width: 1.45rem; height: 1.45rem; }
-    .sp-chip[aria-selected="true"] .sp-cico { background: rgb(var(--t)); color: #06101f; }
-    .sp-chip[data-ico="youtube"] .sp-cico { background: rgba(255, 64, 64, 0.18); color: #ff4a4a; }
-    .sp-chip[data-ico="youtube"][aria-selected="true"] .sp-cico { background: #ff2d2d; color: #fff; }
-
-    /* ---- Phones: snapping picker row on top, price + button pinned to the bottom of the card ---- */
-    @media (max-width: 760px) {
-      .sp-shop { grid-template-columns: minmax(0, 1fr); gap: 0.9rem; }
-      .sp-chips { flex-direction: row; gap: 0.6rem; overflow-x: auto; padding-inline: calc(50% - 6.5rem); scroll-snap-type: x mandatory; scrollbar-width: none; }
-      .sp-chips::-webkit-scrollbar { display: none; }
-      .sp-chip { flex: none; width: 13rem; scroll-snap-align: center; }
-      .sp-card { overflow: clip; }
-      .sp-body { padding: 1.1rem 1.1rem 0; }
-      .sp-foot { position: sticky; bottom: 0; z-index: 140; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 0.8rem; margin: 0.2rem -1.1rem 0; padding: 0.8rem 1.1rem calc(0.8rem + env(safe-area-inset-bottom, 0px)); border-top: 1px solid rgba(255, 255, 255, 0.1); background: var(--color-surface); box-shadow: 0 -10px 20px -12px rgba(0, 0, 0, 0.8); }
-      .sp-new-usd { font-size: 1.8rem; }
-      .sp-new-rbx { font-size: 0.95rem; }
-      .sp-sub { font-size: 0.76rem; }
-      .sp-name { font-size: 1.45rem; }
+    /* ---- Tablets and phones: stack, featured card first ---- */
+    @media (max-width: 960px) {
+      .tc-grid { grid-template-columns: minmax(0, 1fr); max-width: 27rem; gap: 1.1rem; padding-block: 0.4rem; }
+      .tc-card.is-popular { order: -1; margin-block: 0; }
     }
-    @media (max-width: 520px) {
-      .sp-stage { height: 11.5rem; }
-      .sp-pile { bottom: 3.2rem; }
-      .sp-pchip { font-size: 0.74rem; }
-    }
-    @media (prefers-reduced-motion: reduce) { .sp-tile, .sp-body { animation: none; transition: none; } }
+    @media (max-width: 560px) { .tc-card.is-popular .tc-stage { height: 15.5rem; } .tc-stage { height: 11.5rem; } }
+    @media (prefers-reduced-motion: reduce) { .tc-card, .tc-tile { animation: none; transition: none; } }
     /* ---- Social Banners card: platform chips use the normal spec-chip look; only the icon is added ---- */
     .pc-specs-platforms { flex-wrap: nowrap; }
     .pc-specs-platforms li { display: inline-flex; align-items: center; gap: 0.35em; white-space: nowrap; }
@@ -217,7 +417,7 @@
         <nav class="site-nav" aria-label="Main navigation">
           <ul class="nav-list">
 
-            <!-- WORK mega menu (preview images are set in script.js) -->
+            <!-- WORK mega menu (the banner pictures that follow the hovered link are set in script.js) -->
             <li class="nav-item has-mega">
               <button class="nav-link nav-trigger" type="button" aria-expanded="false" aria-controls="mega-work">
                 Work <svg class="nav-chevron" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -228,52 +428,55 @@
                     <p class="mega-eyebrow">Browse the work</p>
                     <ul class="mega-links">
                   <li>
-                    <a class="mega-link" href="/work/#game-thumbnails" data-preview="thumbnails">
-                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></span>
+                    <a class="mega-link" href="/work/#all" data-preview="all-graphics">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 12.5 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg></span>
                       <span class="mega-link-body">
-                        <span class="mega-link-title">Thumbnails</span>
-                        <span class="mega-link-text">Game and YouTube thumbnails.</span>
+                        <span class="mega-link-title">All Graphics</span>
+                        <span class="mega-link-text">Every piece, all in one place.</span>
                       </span>
                       <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </a>
                   </li>
                   <li>
-                    <a class="mega-link" href="/work/#game-icons" data-preview="game-icons">
-                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></span>
+                    <a class="mega-link" href="/work/#game-thumbnails" data-preview="game-thumbnails">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="2.5" y="7" width="19" height="11" rx="5.5"/><path d="M7.5 10.5v4M5.5 12.5h4"/><circle cx="15.5" cy="11.5" r="0.9" fill="currentColor"/><circle cx="18" cy="13.5" r="0.9" fill="currentColor"/></svg></span>
                       <span class="mega-link-body">
-                        <span class="mega-link-title">Game Icons</span>
-                        <span class="mega-link-text">Small squares, big first impressions.</span>
+                        <span class="mega-link-title">Game Thumbnails</span>
+                        <span class="mega-link-text">Art that makes players press play.</span>
                       </span>
                       <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </a>
                   </li>
                   <li>
-                    <a class="mega-link" href="/work/#ui" data-preview="ui">
-                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M9 9v11"/></svg></span>
+                    <a class="mega-link" href="/work/#youtube-thumbnails" data-preview="youtube-thumbnails">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10 9.2 5 2.8-5 2.8z"/></svg></span>
                       <span class="mega-link-body">
-                        <span class="mega-link-title">UI</span>
-                        <span class="mega-link-text">Roblox interface and UI design.</span>
+                        <span class="mega-link-title">YouTube Thumbnails</span>
+                        <span class="mega-link-text">Covers that earn the click.</span>
                       </span>
                       <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </a>
                   </li>
                   <li>
-                    <a class="mega-link" href="/work/#more" data-preview="more">
-                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="6" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="18" cy="12" r="1.5" fill="currentColor"/></svg></span>
+                    <a class="mega-link" href="/work/#profile-pictures" data-preview="profile-pictures">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="10" r="3"/><path d="M6.8 18.5c1.2-2.6 3.1-3.8 5.2-3.8s4 1.2 5.2 3.8"/></svg></span>
                       <span class="mega-link-body">
-                        <span class="mega-link-title">More</span>
-                        <span class="mega-link-text">Everything else I make.</span>
+                        <span class="mega-link-title">Profile Pictures</span>
+                        <span class="mega-link-text">Avatars with real personality.</span>
                       </span>
                       <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </a>
                   </li>
                     </ul>
-                    <div class="mega-foot">
-                      <a class="mega-all" href="/work/">View all work <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                      <a class="mega-aside" href="/pricing/">
-                        <span class="mega-aside-text">Need something custom?</span>
-                        <span class="mega-aside-link">See pricing</span>
-                      </a>
+                    <!-- Bottom strip: status + Commission Me button. Status and wording are set in script.js (MEGA_STRIP) -->
+                    <div class="mega-foot mega-strip" data-mega-strip data-status="open">
+                      <p class="mega-strip-status">
+                        <span class="mega-strip-dot" aria-hidden="true"></span>
+                        <span class="mega-strip-text">Open for commissions</span>
+                        <span class="mega-strip-sep" aria-hidden="true">&middot;</span>
+                        <span class="mega-strip-meta">1&ndash;3 day delivery</span>
+                      </p>
+                      <a class="mega-all mega-strip-button" href="/pricing/">Commission Me <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
                     </div>
                     <!-- Large banner slot. Image path is set in script.js (MEGA_BANNER_DATA) -->
                     <figure class="mega-banner" aria-hidden="true">
@@ -323,18 +526,19 @@
 
     <!-- ===== HERO ===== -->
     <section class="page-hero pc-hero" aria-labelledby="page-title">
-      <!-- HERO ARTWORK: decorative image covering the right side, fading out where the headline starts. Swap the file to change it. -->
+      <!-- HERO ARTWORK: the rose-catching render (wide cut-out, transparent background) on the right, with a blue glow behind it,
+           a slow float and a few drifting sparkles. Swap the file in the <img> below to change it. -->
       <div class="pc-hero-visual" aria-hidden="true">
-        <img class="pc-hero-art" src="/images/hero-main-07.webp" alt="" width="1280" height="720" decoding="async">
+        <img class="pc-hero-art" src="/images/rose-catching.webp" alt="" width="1408" height="1012" decoding="async" fetchpriority="high">
       </div>
       <div class="container">
-        <h1 id="page-title" class="page-title">Your vision<span class="pc-dot" aria-hidden="true"></span> My next creation<span class="pc-dot" aria-hidden="true"></span></h1>
+        <h1 id="page-title" class="page-title">Pricing<span class="pc-dot" aria-hidden="true"></span></h1>
         <p class="page-text">
           Custom Roblox GFX and UI commissions, made around your game, your channel
           and your ideas. Browse the products below, or grab a bundle and save.
         </p>
         <div class="page-actions pc-actions">
-          <a class="button button-primary button-lg" href="#catalogue">Explore Pricing</a>
+          <a class="button button-primary button-lg" href="#estimate">Estimate your order</a>
           <a class="button button-secondary button-lg pc-bundles-btn" href="#bundles">See Bundles <span class="pc-bundles-save" data-bundles-save hidden></span></a>
           <!-- COMMISSION AVAILABILITY: sits next to the buttons.
                TO CHANGE THE STATUS: edit COMMISSION_STATUS at the top of the script at the bottom
@@ -346,6 +550,13 @@
             <span class="pc-status-text">Commissions are open.</span>
           </p>
         </div>
+        <!-- Quick facts (same facts as the FAQ and cards further down) -->
+        <ul class="pc-facts" aria-label="Quick facts">
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="8" cy="8" r="6.2"/><path d="M8 4.6V8l2.3 1.4"/></svg>1&ndash;3 day delivery</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 1.8h5l3 3V14H4z"/><path d="M9 1.8v3h3"/></svg>PSD on request</li>
+          <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="1.8" y="3.6" width="12.4" height="9" rx="1.8"/><path d="M1.8 6.6h12.4"/></svg>Pay with Robux, PayPal or gift cards</li>
+        </ul>
+        <p class="pc-pay-hint">Prices are shown in USD and Robux. Paying in Robux? <a href="#payments">Check the 30% gamepass tax note</a> under Payment Methods.</p>
       </div>
     </section>
 
@@ -361,14 +572,7 @@
       <div class="container">
         <div class="section-head" data-reveal>
           <h2 id="catalogue-title" class="section-title">Products</h2>
-          <div class="pc-head-aside">
-            <p class="services-lead">Starting prices. Every price is for one piece.</p>
-            <!-- Shared by every product, so it is not repeated on each card -->
-            <ul class="pc-includes" aria-label="Included with every order">
-              <li>PSD available upon request</li>
-              <li>Details confirmed with you before work starts</li>
-            </ul>
-          </div>
+          <div data-currency-toggle></div>
         </div>
       </div>
 
@@ -576,24 +780,92 @@
           <button class="pc-chip" type="button" data-chip aria-label="Go to Commission / Price Sheet Designs" aria-current="false"><span class="pc-chip-label">Commission / Price Sheet Designs</span></button>
         </div>
       </div>
-
-      <div class="container pc-extra">
-        <p class="pc-pay-hint">Prices are shown in USD and Robux. Paying in Robux? <a href="#payments">Check the 30% gamepass tax note</a> under Payment Methods.</p>
-      </div>
     </section>
 
     <!-- ===== BUNDLES =====
          Several pieces together for one price. The cards are built by the script at the bottom from
-         BUNDLES (edit them there only). Built like the product carousel: the open bundle is a slide (artwork, details, price), with arrows, a counter and one chip per bundle. -->
+         BUNDLES (edit them there only). Shown as three cards, the featured one in the middle: artwork collage, what is included, price and saving, button. -->
     <section class="pc-bundles" id="bundles" aria-labelledby="bundles-title">
       <div class="container">
         <div class="section-head" data-reveal>
           <h2 id="bundles-title" class="section-title">Bundles</h2>
+          <div class="pc-head-aside">
+            <p class="services-lead" data-bundles-lead>A matching set for one price, lower than buying each piece on its own.</p>
+          </div>
         </div>
-        <div class="sp-shop" data-shop data-reveal>
-          <div class="sp-chips" data-shop-tabs role="tablist" aria-orientation="vertical" aria-label="Bundles"></div>
-          <div class="sp-card" data-shop-panel id="sp-panel" role="tabpanel" tabindex="0"></div>
+        <div class="tc-grid" data-bundle-grid data-reveal></div>
+        <p class="tc-note" data-reveal>Need a different mix? <a href="#estimate">Build it in the order estimator</a> or <a href="/contact/?product=custom-request">discuss a custom bundle</a>.</p>
+      </div>
+    </section>
+
+    <!-- SECTION ORDER: bundles > order estimator > custom requests > how it works > read before ordering > payment methods > FAQ > closing call to action. -->
+
+    <!-- ===== ORDER ESTIMATOR =====
+         Built by the script at the bottom of the page. Prices come from PRICES and BUNDLES there, the add-ons from ADDONS (also there),
+         and the sale / welcome offer from script.js. The two offers are never combined. -->
+    <section class="pc-estimator" id="estimate" aria-labelledby="estimate-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <h2 id="estimate-title" class="section-title">Estimate your order</h2>
+          <p class="services-lead">Pick what you need, add extras and see your total. Bundle savings and offers are applied for you.</p>
+          <div data-currency-toggle></div>
         </div>
+        <div class="est" data-estimator data-reveal>
+          <div class="est-panel" data-est-main></div>
+          <aside class="est-summary" data-est-summary aria-label="Your estimate"></aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CUSTOM REQUESTS ===== -->
+    <section class="pc-custom" aria-labelledby="custom-title">
+      <div class="container">
+        <div class="pc-custom-panel" data-reveal>
+          <div>
+            <h2 id="custom-title" class="pc-custom-title">Custom requests are always welcome.</h2>
+            <p class="pc-custom-text">
+              Custom work is priced according to the most closely associated product above.
+              If your idea doesn&rsquo;t clearly fit one, let&rsquo;s discuss the project.
+            </p>
+          </div>
+          <a class="button button-secondary" href="/contact/?product=custom-request">Discuss a custom request <svg class="pc-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="process" aria-labelledby="process-title">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <h2 id="process-title" class="section-title">How It Works</h2>
+        </div>
+
+        <ol class="process-steps process-steps-4">
+          <li class="process-step" data-reveal>
+            <span class="process-num" aria-hidden="true">1</span>
+            <h3 class="process-title">Choose Your Product</h3>
+            <p class="process-text">Browse the products and bundles above and pick what fits your project. Custom requests are welcome too.</p>
+            <ul class="pc-specs process-meta" aria-label="Details"><li>Products or bundles</li></ul>
+          </li>
+          <li class="process-step" data-reveal data-reveal-index="1">
+            <span class="process-num" aria-hidden="true">2</span>
+            <h3 class="process-title">Share Your Vision</h3>
+            <p class="process-text">Contact me with your idea, references, and any important details.</p>
+            <ul class="pc-specs process-meta" aria-label="Details"><li>Via the Contact page</li></ul>
+          </li>
+          <li class="process-step" data-reveal data-reveal-index="2">
+            <span class="process-num" aria-hidden="true">3</span>
+            <h3 class="process-title">Confirm the Details</h3>
+            <p class="process-text">We&rsquo;ll discuss your requirements and confirm the project details. Work starts once the deposit is in.</p>
+            <ul class="pc-specs process-meta" aria-label="Details"><li>50% deposit to start</li></ul>
+          </li>
+          <li class="process-step" data-reveal data-reveal-index="3">
+            <span class="process-num" aria-hidden="true">4</span>
+            <h3 class="process-title">Get Your Creation</h3>
+            <p class="process-text">I&rsquo;ll create your custom design, usually within 1&ndash;3 days depending on complexity. The remaining balance is due before I deliver the finished GFX.</p>
+            <ul class="pc-specs process-meta" aria-label="Details"><li>1&ndash;3 days</li></ul>
+          </li>
+        </ol>
       </div>
     </section>
 
@@ -601,13 +873,13 @@
          Same plain style as the closing call to action. -->
     <section class="page-cta tos-teaser" aria-labelledby="tos-strip-title">
       <div class="container">
-        <div class="cta-panel" data-reveal>
-          <div>
-            <h2 id="tos-strip-title" class="cta-title">Read before ordering</h2>
-            <p class="cta-text">Every commission is subject to the Bcraft Designs Terms of Service. Please take a moment to understand the terms before commissioning.</p>
-            <p class="cta-text">Clear expectations. Better commissions.</p>
+        <div class="pc-tos" data-reveal>
+          <span class="pc-tos-icon" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 1.8h5l3 3V14H4z"/><path d="M9 1.8v3h3M6 8h4M6 10.6h4"/></svg></span>
+          <div class="pc-tos-copy">
+            <h2 id="tos-strip-title" class="pc-tos-title">Read before ordering</h2>
+            <p class="pc-tos-text">Every commission is subject to the Bcraft Designs Terms of Service. Please take a moment to understand the terms before commissioning. Clear expectations, better commissions.</p>
           </div>
-          <a class="button button-primary button-lg" href="/tos/">Read the Terms of Service &rarr;</a>
+          <a class="button button-secondary" href="/tos/">Read the Terms of Service <svg class="pc-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </div>
       </div>
     </section>
@@ -623,7 +895,7 @@
         <div class="payments-panel payments-panel-solo" data-reveal>
           <div class="payments-content">
             <h2 id="payments-title" class="payments-title">Payment Methods</h2>
-            <p class="payments-lead">Available payment methods.</p>
+            <p class="payments-lead">Pick whichever works best for you.</p>
             <ul class="pay-grid">
               <li class="pay-card pay-card--robux pay-card--featured">
                 <div class="pay-card-stage">
@@ -691,61 +963,19 @@
                 </div>
               </li>
             </ul>
-            <p class="pc-roblox-note">
-              <img class="pc-roblox-plus" src="https://static.wikia.nocookie.net/roblox/images/4/40/BuilderIcons-Filled_Regular_-_roblox_plus.svg/revision/latest/scale-to-width-down/213?cb=20261005191530" alt="Roblox Plus" width="20" height="20" loading="lazy" referrerpolicy="no-referrer">
-              <span>Robux payments need to cover the 30% Roblox gamepass tax, unless you have Roblox Plus. With Roblox Plus you don&rsquo;t need to cover it.</span>
-            </p>
-            <p class="payments-note">Looking to pay with another gift card? <a href="/contact/">Contact me</a> to discuss your options.</p>
+            <!-- Two short notes: the Robux gamepass tax and the deposit. -->
+            <div class="pay-notes">
+              <p class="pc-roblox-note">
+                <img class="pc-roblox-plus" src="https://static.wikia.nocookie.net/roblox/images/4/40/BuilderIcons-Filled_Regular_-_roblox_plus.svg/revision/latest/scale-to-width-down/213?cb=20261005191530" alt="Roblox Plus" width="20" height="20" loading="lazy" referrerpolicy="no-referrer">
+                <span><strong>Paying in Robux?</strong> Payments need to cover the 30% Roblox gamepass tax, unless you have Roblox Plus. With Roblox Plus you don&rsquo;t need to cover it.</span>
+              </p>
+              <p class="pc-roblox-note">
+                <svg class="pc-note-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 1.8l5 1.8v4c0 3-2.2 5.1-5 6.2-2.8-1.1-5-3.2-5-6.2v-4z"/><path d="M6 8l1.5 1.5L10.3 6.6"/></svg>
+                <span><strong>Deposit.</strong> I require a 50% deposit before starting work. The remaining balance is due before delivering the finished GFX.</span>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- ===== CUSTOM REQUESTS ===== -->
-    <section class="pc-custom" aria-labelledby="custom-title">
-      <div class="container">
-        <div class="pc-custom-panel" data-reveal>
-          <div>
-            <h2 id="custom-title" class="pc-custom-title">Custom requests are always welcome.</h2>
-            <p class="pc-custom-text">
-              Custom work is priced according to the most closely associated product above.
-              If your idea doesn&rsquo;t clearly fit one, let&rsquo;s discuss the project.
-            </p>
-          </div>
-          <a class="button button-secondary" href="/contact/?product=custom-request">Discuss a custom request <svg class="pc-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== HOW IT WORKS ===== -->
-    <section class="process" aria-labelledby="process-title">
-      <div class="container">
-        <div class="section-head" data-reveal>
-          <h2 id="process-title" class="section-title">How It Works</h2>
-        </div>
-
-        <ol class="process-steps process-steps-4">
-          <li class="process-step" data-reveal>
-            <span class="process-num" aria-hidden="true">1</span>
-            <h3 class="process-title">Choose Your Product</h3>
-            <p class="process-text">Browse the pricing carousel and select the service that fits your project. Custom requests are welcome too.</p>
-          </li>
-          <li class="process-step" data-reveal data-reveal-index="1">
-            <span class="process-num" aria-hidden="true">2</span>
-            <h3 class="process-title">Share Your Vision</h3>
-            <p class="process-text">Contact me with your idea, references, and any important details.</p>
-          </li>
-          <li class="process-step" data-reveal data-reveal-index="2">
-            <span class="process-num" aria-hidden="true">3</span>
-            <h3 class="process-title">Confirm the Details</h3>
-            <p class="process-text">We&rsquo;ll discuss your requirements and confirm the project details before proceeding.</p>
-          </li>
-          <li class="process-step" data-reveal data-reveal-index="3">
-            <span class="process-num" aria-hidden="true">4</span>
-            <h3 class="process-title">Get Your Creation</h3>
-            <p class="process-text">Once the arrangements are confirmed, I&rsquo;ll create your custom design.</p>
-          </li>
-        </ol>
       </div>
     </section>
 
@@ -759,35 +989,13 @@
         <div class="faq-list" data-faq data-reveal>
           <div class="faq-item">
             <h3 class="faq-q">
-              <button class="faq-trigger" type="button" id="faq-q1" aria-expanded="false" aria-controls="faq-a1">
-                <span class="faq-q-text">Can I request a custom design?</span>
-                <span class="faq-icon" aria-hidden="true"></span>
-              </button>
-            </h3>
-            <div class="faq-panel" id="faq-a1" role="region" aria-labelledby="faq-q1">
-              <div class="faq-panel-inner"><p class="faq-answer">Yes! Custom requests are welcome. Contact me with your idea, and the price will depend on the product or service it most closely matches.</p></div>
-            </div>
-          </div>
-          <div class="faq-item">
-            <h3 class="faq-q">
-              <button class="faq-trigger" type="button" id="faq-q2" aria-expanded="false" aria-controls="faq-a2">
-                <span class="faq-q-text">Are bulk orders available?</span>
-                <span class="faq-icon" aria-hidden="true"></span>
-              </button>
-            </h3>
-            <div class="faq-panel" id="faq-a2" role="region" aria-labelledby="faq-q2">
-              <div class="faq-panel-inner"><p class="faq-answer">Bulk order discounts are available for renders. Contact me to discuss your requirements.</p></div>
-            </div>
-          </div>
-          <div class="faq-item">
-            <h3 class="faq-q">
               <button class="faq-trigger" type="button" id="faq-q3" aria-expanded="false" aria-controls="faq-a3">
                 <span class="faq-q-text">How do I start a commission?</span>
                 <span class="faq-icon" aria-hidden="true"></span>
               </button>
             </h3>
             <div class="faq-panel" id="faq-a3" role="region" aria-labelledby="faq-q3">
-              <div class="faq-panel-inner"><p class="faq-answer">Choose a product from the pricing carousel and use its commission button to contact me. You can also contact me about a custom request.</p></div>
+              <div class="faq-panel-inner"><p class="faq-answer">Choose a product from the carousel or a bundle above and use its button to contact me. You can also contact me about a custom request.</p></div>
             </div>
           </div>
           <div class="faq-item">
@@ -803,6 +1011,17 @@
           </div>
           <div class="faq-item">
             <h3 class="faq-q">
+              <button class="faq-trigger" type="button" id="faq-q7" aria-expanded="false" aria-controls="faq-a7">
+                <span class="faq-q-text">Do you require a deposit?</span>
+                <span class="faq-icon" aria-hidden="true"></span>
+              </button>
+            </h3>
+            <div class="faq-panel" id="faq-a7" role="region" aria-labelledby="faq-q7">
+              <div class="faq-panel-inner"><p class="faq-answer">Yes &mdash; I require a 50% deposit before starting work, with the remaining balance due before delivering the finished GFX.</p></div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <h3 class="faq-q">
               <button class="faq-trigger" type="button" id="faq-q5" aria-expanded="false" aria-controls="faq-a5">
                 <span class="faq-q-text">How long does a commission take?</span>
                 <span class="faq-icon" aria-hidden="true"></span>
@@ -814,24 +1033,24 @@
           </div>
           <div class="faq-item">
             <h3 class="faq-q">
-              <button class="faq-trigger" type="button" id="faq-q6" aria-expanded="false" aria-controls="faq-a6">
-                <span class="faq-q-text">Can I ask a question before ordering?</span>
+              <button class="faq-trigger" type="button" id="faq-q2" aria-expanded="false" aria-controls="faq-a2">
+                <span class="faq-q-text">Are bulk orders available?</span>
                 <span class="faq-icon" aria-hidden="true"></span>
               </button>
             </h3>
-            <div class="faq-panel" id="faq-a6" role="region" aria-labelledby="faq-q6">
-              <div class="faq-panel-inner"><p class="faq-answer">Absolutely. Use the <a href="/contact/">Contact page</a> to discuss your idea or ask any questions before committing.</p></div>
+            <div class="faq-panel" id="faq-a2" role="region" aria-labelledby="faq-q2">
+              <div class="faq-panel-inner"><p class="faq-answer">Bulk order discounts are available for renders. Contact me to discuss your requirements. Looking for a set of different pieces? Check the Bundles above.</p></div>
             </div>
           </div>
           <div class="faq-item">
             <h3 class="faq-q">
-              <button class="faq-trigger" type="button" id="faq-q7" aria-expanded="false" aria-controls="faq-a7">
-                <span class="faq-q-text">Do you require a deposit?</span>
+              <button class="faq-trigger" type="button" id="faq-q1" aria-expanded="false" aria-controls="faq-a1">
+                <span class="faq-q-text">Can I request a custom design?</span>
                 <span class="faq-icon" aria-hidden="true"></span>
               </button>
             </h3>
-            <div class="faq-panel" id="faq-a7" role="region" aria-labelledby="faq-q7">
-              <div class="faq-panel-inner"><p class="faq-answer">Yes &mdash; I require a 50% deposit before starting work, with the remaining balance due once your order is delivered.</p></div>
+            <div class="faq-panel" id="faq-a1" role="region" aria-labelledby="faq-q1">
+              <div class="faq-panel-inner"><p class="faq-answer">Yes! Custom requests are welcome. Contact me with your idea, and the price will depend on the product or service it most closely matches.</p></div>
             </div>
           </div>
           <div class="faq-item">
@@ -843,6 +1062,17 @@
             </h3>
             <div class="faq-panel" id="faq-a8" role="region" aria-labelledby="faq-q8">
               <div class="faq-panel-inner"><p class="faq-answer">Please provide character references, poses, background ideas, models and any specific features you&rsquo;d like included.</p></div>
+            </div>
+          </div>
+          <div class="faq-item">
+            <h3 class="faq-q">
+              <button class="faq-trigger" type="button" id="faq-q6" aria-expanded="false" aria-controls="faq-a6">
+                <span class="faq-q-text">Can I ask a question before ordering?</span>
+                <span class="faq-icon" aria-hidden="true"></span>
+              </button>
+            </h3>
+            <div class="faq-panel" id="faq-a6" role="region" aria-labelledby="faq-q6">
+              <div class="faq-panel-inner"><p class="faq-answer">Absolutely. Use the <a href="/contact/">Contact page</a> to discuss your idea or ask any questions before committing.</p></div>
             </div>
           </div>
         </div>
@@ -971,64 +1201,38 @@
       };
 
       var PRICES = {
-        "game-thumbnails":    { usd: "$30", robux: "8K R$" },
-        "game-icons":         { usd: "$25", robux: "7.5K R$" },
-        "game-logos":         { usd: "",    robux: "" },   // set the Game Logos price here (shows "Price coming soon" until then)
-        "renders":            { usd: "$7",  robux: "2K R$", note: "Bulk Order Discounts Available!" },
-        "profile-pictures":   { usd: "$10", robux: "2.5K R$" },
-        "youtube-thumbnails": { usd: "$20", robux: "5K R$" },
-        "ads-posters":        { usd: "$20", robux: "5K R$" },
-        "youtube-banners":    { usd: "$20", robux: "5K R$" },
-        "commission-sheets":  { usd: "$20", robux: "5K R$" }
+        "game-thumbnails":    { usd: "$30", robux: "7900 R$" },
+        "game-icons":         { usd: "$25", robux: "6600 R$" },
+        "game-logos":         { usd: "$15", robux: "3900 R$" },
+        "renders":            { usd: "$7",  robux: "1800 R$", note: "Bulk Order Discounts Available!" },
+        "profile-pictures":   { usd: "$10", robux: "2600 R$" },
+        "youtube-thumbnails": { usd: "$20", robux: "5300 R$" },
+        "ads-posters":        { usd: "$20", robux: "5300 R$" },
+        "youtube-banners":    { usd: "$20", robux: "5300 R$" },
+        "commission-sheets":  { usd: "$20", robux: "5300 R$" }
       };
 
-      // BUNDLES: several pieces together. The cards in the Bundles section are built from this list.
+      // BUNDLES: several pieces together. The three cards in the Bundles section are built from this list, in this order.
+      //   The MIDDLE card is the big one, so keep the featured bundle (popular: true) second in the list.
       //   items       : { product: <a key from PRICES>, qty: <number>, art: [<image paths>] }
       //                 art is optional: one image per piece (a list shorter than qty repeats). Leave it out to use the product's own artwork.
       //   usd, robux  : the bundle price as text, like in PRICES. Left out (or "") shows "Price coming soon".
-      //   tag         : optional small label ("Popular", "Best Offer", ...) shown on the picker card and on the stage.
-      //   badge       : optional text for that badge (default "Popular").
-      //   popular     : true shows the gold "Popular" badge and premium styling (like the featured product cards). Only the Full Game Launch Bundle has it, with badge: "Best Value".
-      //   All bundles share one accent colour, so there is no tone any more.
-      //   The "Bought separately" price, the saving and the percent tag are worked out from PRICES.
-      //   These are EXAMPLES (names, texts and prices too): change or delete them, and add your own.
+      //   tag         : optional small label ("New", "Budget Pick", ...) shown on the card.
+      //   popular     : true makes it the featured card: bigger, soft violet border, star badge. badge: sets that badge text (default "Most Popular").
+      //   The "Bought separately" price, the saving and the percent badge are worked out from PRICES.
       var BUNDLES = [
-        { id: "creator-starter-pack", tag: "Popular", icon: "youtube", name: "Creator Starter Pack",
-          text: "For new YouTubers who want a full channel look from the very first upload.",
-          items: [ { product: "profile-pictures", qty: 1 }, { product: "youtube-banners", qty: 1 }, { product: "youtube-thumbnails", qty: 2, art: [ "/images/work/featured-thumbnail-01.webp", "/images/work/featured-thumbnail-02.webp" ] } ],
-          usd: "$60", robux: "15K R$" },
-        { id: "youtube-growth-pack", tag: "Great Value", icon: "growth", name: "YouTube Growth Pack",
-          text: "For growing channels that upload often and need thumbnails that stand out.",
-          items: [ { product: "youtube-banners", qty: 1 }, { product: "youtube-thumbnails", qty: 4, art: [ "/images/work/featured-thumbnail-01.webp", "/images/work/featured-thumbnail-02.webp" ] } ],
-          usd: "$80", robux: "20K R$" },
-        { id: "game-starter-pack", icon: "gamepad", name: "Game Starter Pack",
-          text: "For small games that need a solid first look: icon, thumbnail, profile picture and a render.",
-          items: [ { product: "game-icons", qty: 1 }, { product: "game-thumbnails", qty: 1, art: [ "/images/work/featured-gfx-01.webp", "/images/work/portfolio-thumbnail-01.webp", "/images/work/portfolio-thumbnail-02.webp" ] }, { product: "profile-pictures", qty: 1 }, { product: "renders", qty: 1, art: [ "/images/work/featured-gfx-02.webp", "/images/work/portfolio-gfx-01.webp", "/images/work/portfolio-render-03.webp" ] } ],
-          usd: "$60", robux: "16.5K R$" },
-        { id: "game-launch-pack", tag: "Popular", icon: "rocket", name: "Game Launch Pack",
-          text: "For Roblox developers ready to launch: icon, thumbnails and ads in one go.",
-          items: [ { product: "game-icons", qty: 1 }, { product: "game-thumbnails", qty: 2, art: [ "/images/work/featured-gfx-01.webp", "/images/work/portfolio-thumbnail-01.webp", "/images/work/portfolio-thumbnail-02.webp" ] }, { product: "ads-posters", qty: 2 } ],
-          usd: "$100", robux: "27K R$" },
-        { id: "full-game-launch-bundle", popular: true, badge: "Best Value", icon: "trophy", name: "Full Game Launch Bundle",
-          text: "For serious launches: everything your game needs in one set, at our biggest saving.",
-          items: [ { product: "game-icons", qty: 1 }, { product: "game-thumbnails", qty: 3, art: [ "/images/work/featured-gfx-01.webp", "/images/work/portfolio-thumbnail-01.webp", "/images/work/portfolio-thumbnail-02.webp" ] }, { product: "ads-posters", qty: 4 }, { product: "renders", qty: 3, art: [ "/images/work/featured-gfx-02.webp", "/images/work/portfolio-gfx-01.webp", "/images/work/portfolio-render-03.webp" ] } ],
-          usd: "$172.80", robux: "46K R$" },
-        { id: "promotion-pack", tag: "Best Offer", icon: "megaphone", name: "Promotion Pack",
-          text: "For game owners running a promo who need ads and thumbnails that grab attention.",
-          items: [ { product: "ads-posters", qty: 4 }, { product: "game-thumbnails", qty: 2, art: [ "/images/work/featured-gfx-01.webp", "/images/work/portfolio-thumbnail-01.webp", "/images/work/portfolio-thumbnail-02.webp" ] } ],
-          usd: "$112", robux: "29K R$" },
-        { id: "developer-branding-pack", icon: "code", name: "Developer Branding Pack",
-          text: "For developers building a personal brand across their profile, channel and portfolio.",
-          items: [ { product: "profile-pictures", qty: 1 }, { product: "youtube-banners", qty: 1 }, { product: "commission-sheets", qty: 1 }, { product: "renders", qty: 1, art: [ "/images/work/featured-gfx-02.webp", "/images/work/portfolio-gfx-01.webp", "/images/work/portfolio-render-03.webp" ] } ],
-          usd: "$47", robux: "12K R$" },
-        { id: "hire-me-kit", icon: "hire", name: "Hire Me Kit",
-          text: "For freelancers who want to get noticed and get booked.",
-          items: [ { product: "ads-posters", qty: 2 }, { product: "commission-sheets", qty: 1 }, { product: "profile-pictures", qty: 1 } ],
-          usd: "$58", robux: "14.5K R$" },
         { id: "render-pack", tag: "Budget Pick", icon: "render", name: "Render Pack",
           text: "For creators and devs who just need a clean, matching set of renders.",
           items: [ { product: "renders", qty: 3, art: [ "/images/work/featured-gfx-02.webp", "/images/work/portfolio-gfx-01.webp", "/images/work/portfolio-render-03.webp" ] } ],
-          usd: "$17", robux: "5K R$" }
+          usd: "$17", robux: "4500 R$" },
+        { id: "game-launch-pack", popular: true, badge: "Most Popular", icon: "rocket", name: "Game Launch Pack",
+          text: "For Roblox developers ready to launch: icon, thumbnails and ads in one go.",
+          items: [ { product: "game-icons", qty: 1 }, { product: "game-thumbnails", qty: 2, art: [ "/images/work/featured-gfx-01.webp", "/images/work/portfolio-thumbnail-01.webp", "/images/work/portfolio-thumbnail-02.webp" ] }, { product: "ads-posters", qty: 2 } ],
+          usd: "$100", robux: "26300 R$" },
+        { id: "creator-starter-pack", icon: "youtube", name: "YouTuber Starter Pack",
+          text: "For new YouTubers who want a full channel look from the very first upload.",
+          items: [ { product: "profile-pictures", qty: 1 }, { product: "youtube-banners", qty: 1 }, { product: "youtube-thumbnails", qty: 2, art: [ "/images/work/featured-thumbnail-01.webp", "/images/work/featured-thumbnail-02.webp" ] } ],
+          usd: "$60", robux: "15800 R$" }
       ];
 
       // ---- Price helpers (cards and bundles use these) ----
@@ -1051,7 +1255,7 @@
         if (text) node.textContent = text;
         return node;
       }
-      // Bundles: "8K R$" or a number -> "8.000" + Robux icon. Product cards pass asWritten and keep "8K".
+      // Product cards and bundles: "8K R$" or a number -> "8.000" + Robux icon. (Pass asWritten = true to keep the text exactly as typed.)
       function fillRobux(node, value, asWritten) {
         var n = typeof value === 'number' ? value : toNumber(value);
         node.textContent = (n === null || asWritten) ? String(value).replace(/\s*R\$\s*$/, '') : formatRobux(n);
@@ -1078,20 +1282,21 @@
         var p = PRICES[row.getAttribute('data-price-for')];
         if (!p || !p.usd) return;
         var usd = row.querySelector('[data-usd]');
-        usd.textContent = p.usd;
+        var usdN = toNumber(p.usd);
+        usd.textContent = usdN === null ? p.usd : formatUsd(usdN);   // "$30" -> "$30.00"
         usd.classList.remove('is-unset');
         row.classList.add('has-price');   // shows the small "From" label
         var robux = row.querySelector('[data-robux]');
-        if (p.robux) fillRobux(robux, p.robux, true);
+        if (p.robux) fillRobux(robux, p.robux);   // "8K R$" -> "8.000"
         var note = row.closest('.pc-slide').querySelector('[data-note]');
         if (p.note && note) { note.textContent = p.note; note.hidden = false; }
       });
 
-      // ---- Bundles: price-tag packs in a carousel, built from BUNDLES ----
+      // ---- Bundles: tier cards, built from BUNDLES ----
       // Own scope on purpose: nothing in here can clash with the names the product carousel below uses.
       (function () {
-        var shop = document.querySelector('[data-shop]');
-        if (!shop) return;
+        var grid = document.querySelector('[data-bundle-grid]');
+        if (!grid) return;
         // What the cards need to know about each product, read from the product cards above
         var productInfo = {};
         document.querySelectorAll('.pc-slide[data-product]').forEach(function (s) {
@@ -1105,10 +1310,9 @@
           };
         });
 
-        // Finds each product's artwork once and shares it with every piece and backdrop that needs it.
+        // Finds each product's artwork once and shares it with every piece that needs it.
         // Tries the path from the product card first, then the portfolio piece in data-pc-fallback.
-        // A product with no file at all
-        // is listed in the browser console, so you can see which image is missing.
+        // A product with no file at all is listed in the browser console, so you can see which image is missing.
         var artCache = {};
         function settleArt(entry) {
           var waiting = entry.waiting;
@@ -1144,79 +1348,26 @@
           if (entry.state === 'loading') entry.waiting.push(done); else done(entry);
         }
 
-        // Emblems: one per bundle. Roblox and YouTube are the brand marks (same paths as the nav and footer).
-        // "hire" and "render" are drawn for this site. To use another official logo, paste its <svg> as a new key here
-        // (viewBox 0 0 24 24, fill="currentColor") and set icon: "yourkey" on the bundle.
-        var BUNDLE_ICONS = {
-          // YouTube brand mark
-          youtube: '<svg viewBox="0 0 24 24" fill="currentColor" focusable="false"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
-          // Roblox brand mark
-          roblox: '<svg viewBox="0 0 24 24" fill="currentColor" focusable="false"><path d="M18.926 23.998 0 18.892 5.075 0 24 5.108ZM15.348 10.09l-5.282-1.453-1.414 5.273 5.282 1.453z"/></svg>',
-          // hire: a briefcase
-          hire: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="7.5" width="18" height="12" rx="2.5"/><path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5"/><path d="M3 13h18"/><path d="M10.5 13v1.6h3V13"/></svg>',
-          // render: a wireframe cube with a sparkle
-          render: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="m12 3 7.5 4.2v8.6L12 20 4.5 15.8V7.2z"/><path d="m4.5 7.2 7.5 4.3 7.5-4.3M12 11.5V20"/></svg>'
-        };
-        // Small icons for the piece labels, the contents list and the spec pills
-        var PRODUCT_ICONS = {
-          'profile-pictures': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="9" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>',
-          'youtube-banners': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="2.5" y="7" width="19" height="10" rx="2"/><path d="M2.5 14.5 8 11l4 2.5 3-2 6.5 3.5"/></svg>',
-          'youtube-thumbnails': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10.2 9.2 4.3 2.8-4.3 2.8z"/></svg>',
-          'game-thumbnails': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3.5 16 5-5 4 4 2.5-2.5 5.5 5"/></svg>',
-          'game-icons': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="4" y="4" width="16" height="16" rx="4.5"/><path d="m12 8.2 1.2 2.5 2.7.3-2 1.9.5 2.7-2.4-1.3-2.4 1.3.5-2.7-2-1.9 2.7-.3z"/></svg>',
-          'renders': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="m12 3 7.5 4.2v8.6L12 20 4.5 15.8V7.2z"/><path d="m4.5 7.2 7.5 4.3 7.5-4.3M12 11.5V20"/></svg>',
-          'ads-posters': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg>',
-          'commission-sheets': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>'
-        };
-        var I_IMG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5"/></svg>';
-        var I_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>';
-        var I_BELL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 21h4"/></svg>';
-        var I_EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg>';
-        var I_LIKE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M7.5 11 11 4.5a2 2 0 0 1 2.6 2.4L13 9.5h5.2a2 2 0 0 1 2 2.4l-1.2 6a2 2 0 0 1-2 1.6H7.5z"/><path d="M3.5 11h4v9h-4z"/></svg>';
-        var I_PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" focusable="false"><path d="M8 5.5v13l11-6.5z"/></svg>';
-        BUNDLE_ICONS.sparkle = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M11 4l1.9 5.1L18 11l-5.1 1.9L11 18l-1.9-5.1L4 11l5.1-1.9z"/><path d="M19 3.5v4M17 5.5h4M18.5 15v3.5M16.8 16.8h3.4"/></svg>';
-        BUNDLE_ICONS.trophy = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H4.5v1.5A3 3 0 0 0 8 10.5M16 6h3.5v1.5a3 3 0 0 1-3.500 3"/><path d="M12 13v4M8.5 20h7M9.5 17h5"/></svg>';
-        BUNDLE_ICONS.megaphone = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 10.500v3a1 1 0 0 0 1 1h2.500L16 19V5L7.500 9.500H5a1 1 0 0 0-1 1z"/><path d="M19 9.500a3.500 3.500 0 0 1 0 5"/><path d="M8 14.500l1 4.500h2.500l-.8-3.800"/></svg>';
-        BUNDLE_ICONS.gamepad = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M7.2 8h9.6a4.2 4.2 0 0 1 4.1 3.3l.9 4.2a2.4 2.4 0 0 1-4.1 2.1L16 15.8H8L6.3 17.6a2.4 2.4 0 0 1-4.1-2.1l.9-4.2A4.2 4.2 0 0 1 7.2 8Z"/><path d="M8 10.6v3M6.5 12.1h3"/><circle cx="15.6" cy="11.4" r=".6" fill="currentColor"/><circle cx="17.6" cy="12.9" r=".6" fill="currentColor"/></svg>';
-        BUNDLE_ICONS.growth = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3.5 17.5 9 12l3.5 3.5L20 8"/><path d="M14.5 8H20v5.500"/></svg>';
-        BUNDLE_ICONS.code = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="m8.5 7-5 5 5 5M15.5 7l5 5-5 5M13.500 5l-3 14"/></svg>';
-        BUNDLE_ICONS.rocket = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 2.500c3 2.300 4.500 5.400 4.500 9V15h-9v-3.500c0-3.600 1.500-6.700 4.500-9z"/><circle cx="12" cy="9.500" r="1.700"/><path d="M7.500 12.500 5 16l2.500-.7M16.500 12.500 19 16l-2.500-.7M10.500 18.500 12 21.500l1.500-3"/></svg>';
-        BUNDLE_ICONS.briefcase = BUNDLE_ICONS.hire; BUNDLE_ICONS.cube = BUNDLE_ICONS.render;   // old names still work
-
         var SHORT_NAMES = { 'commission-sheets': 'Commission Sheets', 'game-thumbnails': 'Game Thumbnails', 'game-icons': 'Game Icons' };
         var SINGLE_NAMES = { 'game-thumbnails': 'Game Thumbnail', 'game-icons': 'Game Icon', 'renders': 'Render', 'profile-pictures': 'Profile Picture', 'youtube-thumbnails': 'YouTube Thumbnail', 'youtube-banners': 'Social Banner', 'ads-posters': 'Ad / Poster', 'commission-sheets': 'Commission Sheet' };
         var ARROW = '<svg class="pc-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        var CHEV_L = '<svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        var CHEV_R = '<svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
         var STAR = '<svg class="sp-star" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6-5.9-3.3-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>';
 
-        // Hover effects that follow the pointer only run with a real mouse and when motion is allowed
-        var FINE = !!(window.matchMedia && matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches);
-
-        // Artwork sizing. Each piece takes its real width / height ratio from the loaded picture (so nothing is cropped),
-        // and its height is scaled so wide and square pieces look about equally big.
+        // Artwork preview. Each piece takes its real width / height ratio from the loaded picture, so nothing is cropped.
         var RATIO = { square: 1, poster: 4 / 3, wide: 1.6, banner: 3.2 };   // used until the picture has loaded
-        var RANK = { square: 4, poster: 3, wide: 2, banner: 1 };            // small pieces sit on top of big ones, and drift more on hover
-        var TILT = [-5, 3.5, -2.5, 5, -4];
-        var LIFT = [-9, 7, -4, 9, -6];
+        var FAN = { 1: { dx: [0], r: [0] }, 2: { dx: [-3, 3], r: [-4, 4] }, 3: { dx: [-4.3, 0, 4.3], r: [-6, 0, 6] } };   // dx in units of 1rem (1.2rem on the featured card)
         function kindOf(slug) {
           var info = productInfo[slug];
           return slug === 'youtube-banners' ? 'banner' : (info ? info.shape : 'wide');
         }
-        function sizeTile(tile, ratio) {
-          tile.style.setProperty('--ar', ratio.toFixed(4));
-          tile.style.setProperty('--hh', Math.round(84 / Math.sqrt(ratio)));
-        }
-
-        // One piece of artwork on the stage (the product name shows if its picture cannot be found)
         function makeTile(slug, override, kind) {
           var info = productInfo[slug] || { name: slug };
-          var tile = el('span', 'sp-tile');
+          var tile = el('span', 'tc-tile');
           tile.setAttribute('data-p', slug);
-          sizeTile(tile, RATIO[kind]);
+          tile.style.setProperty('--ar', RATIO[kind]);
           loadArt(slug, function (art) {
             if (art.state !== 'ready') { tile.classList.add('is-missing'); tile.textContent = info.name; return; }
-            if (art.w && art.h) sizeTile(tile, art.w / art.h);
+            if (art.w && art.h) tile.style.setProperty('--ar', (art.w / art.h).toFixed(4));
             var img = new Image();
             img.alt = '';
             img.decoding = 'async';
@@ -1225,29 +1376,9 @@
           }, override);
           return tile;
         }
-        // The small square picture in the contents list
-        function makeThumb(slug, override, stacked) {
-          var th = el('span', 'sp-lthumb' + (stacked ? ' is-stack' : ''));
-          loadArt(slug, function (art) {
-            if (art.state !== 'ready') return;
-            var img = new Image();
-            img.alt = '';
-            img.decoding = 'async';
-            img.src = art.url;
-            th.appendChild(img);
-          }, override);
-          return th;
-        }
-
-        // ---- Bundle slide: the open bundle, with a counter and one chip per bundle below ----
-        var DEFAULT_BUNDLE = 'creator-starter-pack';   // opens first on page load (any id from BUNDLES)
-        var chipsBox = shop.querySelector('[data-shop-tabs]');
-        var panel = shop.querySelector('[data-shop-panel]');
-        var posEl = shop.querySelector('[data-shop-pos]');
-        var totalEl = shop.querySelector('[data-shop-total]');
-        var data = [], tabs = [], bestPct = 0, current = -1;
 
         // Work out the totals for every bundle once
+        var data = [], bestPct = 0;
         BUNDLES.forEach(function (b) {
           var pieces = 0, regUsd = 0, regRbx = 0, usdOk = true, rbxOk = true;
           b.items.forEach(function (it) {
@@ -1265,240 +1396,1132 @@
           data.push(d);
         });
 
-        // Small helpers shared by the picker and the card
         function itemLabel(it) {
           var info = productInfo[it.product] || { name: it.product };
           return it.qty + '\u00d7 ' + (it.qty > 1 ? (SHORT_NAMES[it.product] || info.name) : (SINGLE_NAMES[it.product] || info.name));
         }
-        // Every piece of a bundle in order; n is the number of the contents row it belongs to
+        // Every piece of a bundle in order
         function piecesOf(b) {
           var out = [];
-          b.items.forEach(function (it, idx) {
-            for (var k = 0; k < it.qty; k++) out.push({ slug: it.product, art: it.art && it.art.length ? it.art[k % it.art.length] : '', n: idx + 1 });
+          b.items.forEach(function (it) {
+            for (var k = 0; k < it.qty; k++) out.push({ slug: it.product, art: it.art && it.art.length ? it.art[k % it.art.length] : '' });
           });
           return out;
         }
-        // The piece shown in front (and as the picker preview): the middle one
-        function heroOf(len) { return len >= 3 ? Math.floor(len / 2) : 0; }
+        // At most three pieces in the preview: all of them if there are three or fewer, else one per product
+        function previewOf(b) {
+          var all = piecesOf(b);
+          if (all.length <= 3) return all;
+          var seen = {}, out = [];
+          all.forEach(function (p) { if (!seen[p.slug] && out.length < 3) { seen[p.slug] = true; out.push(p); } });
+          return out;
+        }
 
-        // The open bundle
-        function renderPanel(d) {
+        function renderCard(d) {
           var b = d.b, pop = !!b.popular;
-          panel.textContent = '';
-          panel.className = 'sp-card' + (b.icon === 'youtube' ? ' is-yt' : '');
-          panel.setAttribute('aria-labelledby', 'sp-tab-' + b.id);
+          var card = el('article', 'tc-card' + (pop ? ' is-popular' : ''));
+          card.setAttribute('data-bundle', b.id);
+          card.setAttribute('aria-labelledby', 'tc-name-' + b.id);
 
-          // Stage: the pieces side by side, the middle one in front and a little bigger
-          var stage = el('div', 'sp-stage');
+          // Artwork preview
+          var stage = el('div', 'tc-stage');
           stage.setAttribute('aria-hidden', 'true');
-          var pile = el('div', 'sp-pile');
-          var pieces = piecesOf(b), hero = heroOf(pieces.length);
-          var cap = pieces.length === 1 ? 60 : Math.min(60, 100 / (1 + 0.5 * (pieces.length - 1)));
-          pile.style.setProperty('--pile-w', (pieces.length === 1 ? 16 : pieces.length === 2 ? 28 : pieces.length === 3 ? 36 : 42) + 'rem');
+          var pieces = previewOf(b), n = pieces.length, fan = FAN[Math.min(n, 3)], hero = n >= 3 ? 1 : 0;
           pieces.forEach(function (p, i) {
-            var kind = kindOf(p.slug), tile = makeTile(p.slug, p.art, kind);
-            tile.setAttribute('data-n', p.n);
-            tile.style.setProperty('--cap', cap.toFixed(1));
-            tile.style.setProperty('--f', pieces.length > 1 ? (i / (pieces.length - 1)).toFixed(3) : '0.5');
+            var tile = makeTile(p.slug, p.art, kindOf(p.slug));
             tile.style.setProperty('--i', i);
-            if (i === hero) {
-              tile.style.setProperty('--y', 50);
-              tile.style.setProperty('--r', 0);
-              tile.style.setProperty('--z', 90);
-              tile.style.setProperty('--base', 1.1);
-            } else {
-              tile.style.setProperty('--y', 50 + LIFT[i % LIFT.length]);
-              tile.style.setProperty('--r', TILT[i % TILT.length]);
-              tile.style.setProperty('--z', RANK[kind] * 10 + i);
-            }
-            pile.appendChild(tile);
+            tile.style.setProperty('--dx', fan.dx[i]);
+            tile.style.setProperty('--r', fan.r[i]);
+            tile.style.setProperty('--z', p.slug === 'profile-pictures' ? 7 : (i === hero ? 5 : 2));   // the profile picture always sits on top
+            if (n >= 3 && i === hero) tile.style.setProperty('--sc', 1.1);
+            stage.appendChild(tile);
           });
-          stage.appendChild(pile);
-
-          // Piece labels (numbers match the rows in the list)
-          var strip = el('div', 'sp-strip');
-          b.items.forEach(function (it, idx) {
-            var chip = el('span', 'sp-pchip');
-            chip.setAttribute('data-p', it.product);
-            chip.appendChild(document.createTextNode(itemLabel(it)));
-            strip.appendChild(chip);
-          });
-          stage.appendChild(strip);
-
-          if (b.icon === 'youtube') {
-            var top = el('div', 'sp-yt-top');
-            top.setAttribute('aria-hidden', 'true');
-            var logo = el('span', 'sp-yt-logo'); logo.innerHTML = I_PLAY; top.appendChild(logo);
-            top.appendChild(el('span', '', 'Your channel'));
-            var sub = el('span', 'sp-yt-sub'); sub.innerHTML = I_BELL; sub.appendChild(document.createTextNode('Subscribe')); top.appendChild(sub);
-            stage.appendChild(top);
-            var stats = el('div', 'sp-yt-stats');
-            stats.setAttribute('aria-hidden', 'true');
-            var v = el('span', 'sp-yt-stat'); v.innerHTML = I_EYE; v.appendChild(document.createTextNode('1.2M')); stats.appendChild(v);
-            var l = el('span', 'sp-yt-stat'); l.innerHTML = I_LIKE; l.appendChild(document.createTextNode('48K')); stats.appendChild(l);
-            stage.appendChild(stats);
-          }
-
           if (pop) {
-            var badge = el('span', 'sp-pop');
+            var badge = el('span', 'tc-badge is-popular');
             badge.innerHTML = STAR;
-            badge.appendChild(el('span', '', b.badge || 'Popular'));
+            badge.appendChild(el('span', '', b.badge || 'Most Popular'));
             stage.appendChild(badge);
           } else if (b.tag) {
-            var tg = el('span', 'sp-pop is-tag');
-            tg.appendChild(el('span', '', b.tag));
-            stage.appendChild(tg);
+            stage.appendChild(el('span', 'tc-badge', b.tag));
           }
-          if (d.pct > 0) stage.appendChild(el('span', 'sp-off', d.pct + '% off'));
-          panel.appendChild(stage);
-
-          // Hovering a row in the list lifts its pieces and numbers them (the only way to highlight them)
-          function light(slug) {
-            stage.classList.toggle('is-focus', !!slug);
-            stage.querySelectorAll('.sp-tile, .sp-pchip').forEach(function (t) { t.classList.toggle('is-lit', t.getAttribute('data-p') === slug); });
+          if (d.savedUsd > 0) stage.appendChild(el('span', 'tc-off cur-usd', 'Save ' + formatUsd(d.savedUsd)));
+          if (d.savedRbx > 0) {   // shown instead of the dollar badge when the page is set to Robux
+            var offR = el('span', 'tc-off cur-rbx');
+            fillRobux(offR, d.savedRbx);
+            offR.insertBefore(document.createTextNode('Save '), offR.firstChild);
+            stage.appendChild(offR);
           }
+          card.appendChild(stage);
 
-          var body = el('div', 'sp-body');
-          var head = el('div', 'sp-head');
-          head.appendChild(el('h3', 'sp-name', b.name));
-          if (b.text) head.appendChild(el('p', 'sp-text', b.text));
+          var body = el('div', 'tc-body');
+          var head = el('div', 'tc-head');
+          var h3 = el('h3', 'tc-name', b.name);
+          h3.id = 'tc-name-' + b.id;
+          head.appendChild(h3);
+          if (b.text) head.appendChild(el('p', 'tc-text', b.text));
           body.appendChild(head);
 
-          // Contents: one line per item
-          var list = el('ul', 'sp-layers');
-          list.setAttribute('aria-label', 'Included in this bundle');
-          b.items.forEach(function (it, idx) {
-            var p = PRICES[it.product] || {}, u = toNumber(p.usd);
-            var li = el('li', 'sp-layer');
-            li.tabIndex = 0;
-            li.addEventListener('pointerenter', function () { light(it.product); });
-            li.addEventListener('pointerleave', function () { light(''); });
-            li.addEventListener('focus', function () { light(it.product); });
-            li.addEventListener('blur', function () { light(''); });
-            var label = el('span', 'sp-lname');
-            label.appendChild(el('strong', '', itemLabel(it)));
-            if (it.qty > 1 && u !== null) label.appendChild(el('small', '', formatUsd(u) + ' each'));
-            li.appendChild(label);
-            li.appendChild(el('span', 'sp-lprice', u === null ? '\u2013' : formatUsd(u * it.qty)));
-            list.appendChild(li);
-          });
-          body.appendChild(list);
+          // What is included: small chips, one per item
+          var inc = el('div', 'tc-group');
+          inc.appendChild(el('span', 'tc-group-label', 'Includes'));
+          var chips = el('ul', 'pc-specs tc-chips');
+          chips.setAttribute('aria-label', 'Included in this bundle');
+          b.items.forEach(function (it) { chips.appendChild(el('li', '', itemLabel(it))); });
+          inc.appendChild(chips);
+          body.appendChild(inc);
 
-          // Footer: price, then the button
-          var foot = el('div', 'sp-foot');
+          // Footer: price, saving, button
+          var foot = el('div', 'tc-foot');
           var hasOldUsd = d.savedUsd > 0, hasOldRbx = d.savedRbx > 0;
-          var price = el('div', 'sp-price');
-          if (d.isPriced) price.appendChild(el('span', 'sp-from', 'Bundle price'));
-          var row = el('div', 'sp-price-row');
-          if (d.bu !== null) row.appendChild(el('span', 'sp-new-usd', formatUsd(d.bu)));
-          else if (!d.isPriced) row.appendChild(el('span', 'sp-new-usd is-unset', 'Price coming soon'));
-          if (d.br !== null) { var nr = el('span', 'sp-new-rbx'); fillRobux(nr, d.br); row.appendChild(nr); }
+          var price = el('div', 'tc-price');
+          if (d.isPriced) price.appendChild(el('span', 'tc-from', 'Bundle price'));
+          var row = el('div', 'tc-price-row');
+          if (d.bu !== null) row.appendChild(el('span', 'tc-usd cur-usd', formatUsd(d.bu)));
+          else if (!d.isPriced) row.appendChild(el('span', 'tc-usd is-unset', 'Price coming soon'));
+          if (d.br !== null) { var nr = el('span', 'tc-rbx cur-rbx'); fillRobux(nr, d.br); row.appendChild(nr); }
           price.appendChild(row);
           if (hasOldUsd || hasOldRbx) {
-            var sub = el('div', 'sp-sub');
-            if (hasOldUsd) sub.appendChild(el('s', 'sp-old-usd', formatUsd(d.regUsd)));
-            if (hasOldRbx) { var os = el('s', 'sp-old-rbx'); fillRobux(os, d.regRbx); sub.appendChild(os); }
-            if (d.pct > 0) sub.appendChild(el('span', 'sp-pct', '\u2212' + d.pct + '%'));
-            var sv = el('span', 'sp-save');
-            sv.appendChild(document.createTextNode('You save' + (hasOldUsd ? ' ' + formatUsd(d.savedUsd) : '')));
+            var sub = el('div', 'tc-sub');
+            if (hasOldUsd) sub.appendChild(el('s', 'tc-old cur-usd', formatUsd(d.regUsd)));
+            if (hasOldRbx) { var os = el('s', 'tc-old cur-rbx'); fillRobux(os, d.regRbx); sub.appendChild(os); }
+            if (hasOldUsd) sub.appendChild(el('span', 'tc-save cur-usd', 'You save ' + formatUsd(d.savedUsd)));
             if (hasOldRbx) {
-              if (hasOldUsd) sv.appendChild(document.createTextNode(' \u00b7'));
-              var sr = el('span', 'sp-save-rbx'); fillRobux(sr, d.savedRbx); sv.appendChild(sr);
+              var saveR = el('span', 'tc-save cur-rbx');
+              fillRobux(saveR, d.savedRbx);
+              saveR.insertBefore(document.createTextNode('You save '), saveR.firstChild);
+              sub.appendChild(saveR);
             }
-            sub.appendChild(sv);
             price.appendChild(sub);
           }
           foot.appendChild(price);
 
-          var buy = el('div', 'sp-buy');
+          var buy = el('div', 'tc-buy');
           var cta = el('a', 'button button-primary pc-button');
           cta.href = '/contact/?product=bundle-' + b.id;
-          cta.setAttribute('aria-label', 'Commission the ' + b.name + ' bundle');
-          cta.innerHTML = 'Commission ' + ARROW;
+          cta.setAttribute('aria-label', 'Get the ' + b.name + ' bundle');
+          cta.innerHTML = 'Get this bundle ' + ARROW;
           buy.appendChild(cta);
           foot.appendChild(buy);
           body.appendChild(foot);
-          panel.appendChild(body);
+          card.appendChild(body);
+          grid.appendChild(card);
         }
 
-        function select(i, focusTab) {
-          if (i !== current) {
-            var first = current === -1;
-            current = i;
-            tabs.forEach(function (t, j) {
-              t.setAttribute('aria-selected', j === i ? 'true' : 'false');
-              t.tabIndex = j === i ? 0 : -1;
-            });
-            if (posEl) posEl.textContent = i + 1;
-            renderPanel(data[i]);
-            // Phone layout (picker scrolls sideways): bring the open bundle to the middle
-            if (chipsBox.scrollWidth > chipsBox.clientWidth + 1) {
-              var c = tabs[i];
-              chipsBox.scrollTo({ left: c.offsetLeft - (chipsBox.clientWidth - c.offsetWidth) / 2, behavior: first ? 'auto' : 'smooth' });
-            }
-          }
-          if (focusTab) tabs[i].focus();
-        }
-
-        // One row per bundle in the picker: artwork preview (the icon shows until it loads), name, price
-        var bestMarked = false;
-        data.forEach(function (d, i) {
-          var b = d.b;
-          var chip = el('button', 'sp-chip' + (b.popular ? ' is-popular' : ''));
-          chip.type = 'button';
-          chip.id = 'sp-tab-' + b.id;
-          chip.setAttribute('role', 'tab');
-          chip.setAttribute('aria-controls', 'sp-panel');
-          chip.setAttribute('aria-selected', 'false');
-          chip.tabIndex = -1;
-          chip.setAttribute('data-ico', b.icon || '');
-
-          var ico = el('span', 'sp-cico');
-          ico.setAttribute('aria-hidden', 'true');
-          ico.innerHTML = BUNDLE_ICONS[b.icon] || BUNDLE_ICONS.render;
-          chip.appendChild(ico);
-
-          var txt = el('span', 'sp-ctext');
-          var tagText = b.badge || b.tag;
-          if (tagText) txt.appendChild(el('span', 'sp-ctag', tagText));
-          txt.appendChild(el('strong', '', b.name));
-          if (b.usd) txt.appendChild(el('small', '', b.usd));
-          chip.appendChild(txt);
-
-          var flags = el('span', 'sp-cflags');
-          if (!bestMarked && bestPct > 0 && d.pct === bestPct) {
-            bestMarked = true;
-            var best = el('span', 'sp-best', '\u2212' + d.pct + '%');
-            best.title = 'Best value';
-            flags.appendChild(best);
-          }
-          if (b.popular) { var st = el('span', ''); st.innerHTML = STAR; st.setAttribute('aria-hidden', 'true'); flags.appendChild(st); }
-          if (flags.firstChild) chip.appendChild(flags);
-
-          chip.addEventListener('click', function () { select(i, false); });
-          chipsBox.appendChild(chip);
-          tabs.push(chip);
-        });
-        if (totalEl) totalEl.textContent = data.length;
-
-        // Arrow keys / Home / End move between bundles
-        chipsBox.addEventListener('keydown', function (e) {
-          var n = tabs.indexOf(document.activeElement);
-          if (n < 0 || e.altKey || e.ctrlKey || e.metaKey) return;
-          var to = -1;
-          if (e.key === 'ArrowDown' || e.key === 'ArrowRight') to = (n + 1) % tabs.length;
-          else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') to = (n - 1 + tabs.length) % tabs.length;
-          else if (e.key === 'Home') to = 0;
-          else if (e.key === 'End') to = tabs.length - 1;
-          if (to > -1) { e.preventDefault(); select(to, true); }
-        });
+        data.forEach(renderCard);
 
         var saveTag = document.querySelector('[data-bundles-save]');
         if (saveTag && bestPct > 0) { saveTag.textContent = 'Save up to ' + bestPct + '%'; saveTag.hidden = false; }
+      })();
 
-        var start = 0;
-        data.forEach(function (d, i) { if (d.b.id === DEFAULT_BUNDLE) start = i; });
-        select(start, false);
+      // ---- Currency switch + order estimator ----
+      (function () {
+        // ===== Currency switch: shows both prices, only USD, or only Robux. It is remembered in the browser. =====
+        var CUR_KEY = 'bcraft-pricing-currency', CUR_MODES = ['both', 'usd', 'robux'], curMemory = null;
+        function curRead() { try { return window.localStorage.getItem(CUR_KEY); } catch (e) { return curMemory; } }
+        function curWrite(v) { curMemory = v; try { window.localStorage.setItem(CUR_KEY, v); } catch (e) {} }
+        var curNow = curRead();
+        if (CUR_MODES.indexOf(curNow) < 0) curNow = 'both';
+        document.documentElement.setAttribute('data-currency', curNow);
+        var curButtons = [], curSegs = [];
+        // Puts the sliding pill under the chosen option (it animates by itself once the control is ready)
+        function placeThumbs() {
+          curSegs.forEach(function (s) {
+            var on = s.seg.querySelector('button[aria-pressed="true"]');
+            if (!on || !on.offsetWidth) return;
+            s.thumb.style.width = on.offsetWidth + 'px';
+            s.thumb.style.transform = 'translateX(' + on.offsetLeft + 'px)';
+          });
+        }
+        function curApply(mode) {
+          curNow = mode;
+          curWrite(mode);
+          document.documentElement.setAttribute('data-currency', mode);
+          curButtons.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-cur') === mode ? 'true' : 'false'); });
+          placeThumbs();
+        }
+        document.querySelectorAll('[data-currency-toggle]').forEach(function (box) {
+          box.className = 'pc-currency';
+          box.appendChild(el('span', 'pc-currency-label', 'Show prices in'));
+          var seg = el('div', 'pc-seg');
+          seg.setAttribute('role', 'group');
+          seg.setAttribute('aria-label', 'Show prices in');
+          [['both', 'Both'], ['usd', 'USD'], ['robux', 'Robux']].forEach(function (m) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.setAttribute('data-cur', m[0]);
+            btn.setAttribute('aria-pressed', m[0] === curNow ? 'true' : 'false');
+            btn.appendChild(document.createTextNode(m[1]));
+            if (m[0] === 'robux') {
+              var ic = document.createElement('img');
+              ic.className = 'pc-robux-icon';
+              ic.src = ROBUX_ICON;
+              ic.alt = '';
+              btn.appendChild(ic);
+            }
+            btn.addEventListener('click', function () { curApply(m[0]); });
+            seg.appendChild(btn);
+            curButtons.push(btn);
+          });
+          var thumb = el('span', 'pc-seg-thumb');
+          thumb.setAttribute('aria-hidden', 'true');
+          seg.insertBefore(thumb, seg.firstChild);
+          box.appendChild(seg);
+          curSegs.push({ seg: seg, thumb: thumb });
+        });
+        placeThumbs();
+        window.requestAnimationFrame(function () {   // switch the slide animation on after the first placement, so it does not slide in on load
+          placeThumbs();
+          curSegs.forEach(function (s) { s.seg.classList.add('is-ready'); });
+        });
+        window.addEventListener('resize', placeThumbs);
+        window.addEventListener('load', placeThumbs);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeThumbs);
+        if (window.ResizeObserver) curSegs.forEach(function (s) { new ResizeObserver(placeThumbs).observe(s.seg); });
+
+        // ===== Order estimator =====
+        var root = document.querySelector('[data-estimator]');
+        if (!root) return;
+        var mainEl = root.querySelector('[data-est-main]'), sumEl = root.querySelector('[data-est-summary]');
+        if (!mainEl || !sumEl) return;
+
+        // ---- Settings (edit here) ----
+        var MAX_QTY = 20;               // most pieces of one product
+        var WELCOME_MIN_USD = 10;       // the welcome offer says "$10 minimum order"
+        var SALE_COVERS_ADDONS = true;  // true = the seasonal % also takes money off paid add-ons; false = only off the products
+        // Add-ons. scope "order" = once per order (a switch). scope "piece" = per piece (a counter, up to the number of pieces).
+        // usd 0 and robux 0 = FREE. usd null and robux null = "price to be discussed" (shown as such and NOT added to the total).
+        // Anything else is an extra charge. Robux = USD x 263.17 (7895 R$ per $30), rounded to the nearest 100.
+        var ADDONS = [
+          { id: 'psd',      name: 'PSD file',                note: 'Layered source file, on request',      scope: 'order', usd: 0,  robux: 0 },
+          { id: 'alpha',    name: 'Transparent background',  note: 'PNG without a background',             scope: 'order', usd: 0,  robux: 0 },
+          { id: 'brand',    name: 'Add my logo or username', note: 'Send it with your details',            scope: 'order', usd: 0,  robux: 0 },
+          { id: 'character', name: 'Character',                note: 'Add a character to a piece', scope: 'piece', usd: 3, robux: 800 },
+          { id: 'rush',     name: 'Rush delivery',           note: 'Moved to the front of the queue',      scope: 'order', usd: 10, robux: 2600 },
+          { id: 'variant',  name: 'Extra variation',         note: 'Another color or layout of a piece',   scope: 'piece', usd: 5,  robux: 1300 },
+          { id: 'revision', name: 'Extra revision round',    note: 'One more round of changes',            scope: 'order', usd: 5,  robux: 1300 }
+        ];
+
+        // ---- What can be ordered: the product cards above (name) + PRICES (price) ----
+        var products = [], byId = {};
+        document.querySelectorAll('.pc-slide[data-product]').forEach(function (s) {
+          var id = s.getAttribute('data-product'), p = PRICES[id] || {};
+          var item = { id: id, name: s.querySelector('.pc-name').textContent.trim(), usd: toNumber(p.usd), rbx: toNumber(p.robux) };
+          products.push(item);
+          byId[id] = item;
+        });
+
+        var qty = {}, extra = {}, isNew = false;
+        products.forEach(function (p) { qty[p.id] = 0; });
+        ADDONS.forEach(function (a) { extra[a.id] = 0; });
+        var ARROW_SVG = '<svg class="pc-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        var MINUS = '\u2212';
+
+        // ---- Offers (read from script.js) ----
+        function activeSale() {
+          var list = [];
+          try {
+            if (typeof HALLOWEEN_POPUP !== 'undefined') list.push(HALLOWEEN_POPUP);
+            if (typeof CHRISTMAS_POPUP !== 'undefined') list.push(CHRISTMAS_POPUP);
+            if (typeof SUMMER_POPUP !== 'undefined') list.push(SUMMER_POPUP);
+          } catch (e) {}
+          for (var i = 0; i < list.length; i++) {
+            var p = list[i];
+            if (p && p.enabled && Date.now() < new Date(p.endsAt).getTime()) {
+              var pct = parseFloat(p.percent);
+              if (!isNaN(pct) && pct > 0) return { name: p.eyebrow || 'Seasonal sale', pct: pct };
+            }
+          }
+          return null;
+        }
+        function welcomeOffer() {
+          try {
+            if (typeof WELCOME_OFFER !== 'undefined' && typeof welcomeOfferLive === 'function' && welcomeOfferLive()) {
+              return { usd: WELCOME_OFFER.discountUsd || 0, rbx: WELCOME_OFFER.robuxOff || 0 };
+            }
+          } catch (e) {}
+          return null;
+        }
+
+        // ---- Bundles are applied by themselves when the selection contains one ----
+        function applyBundles() {
+          var left = {};
+          products.forEach(function (p) { left[p.id] = qty[p.id]; });
+          var offers = [];
+          BUNDLES.forEach(function (b) {
+            var regU = 0, regR = 0, ok = true;
+            b.items.forEach(function (it) {
+              var pr = byId[it.product];
+              if (!pr || pr.usd === null || pr.rbx === null) { ok = false; return; }
+              regU += pr.usd * it.qty;
+              regR += pr.rbx * it.qty;
+            });
+            var bu = toNumber(b.usd), br = toNumber(b.robux);
+            if (!ok || bu === null || br === null || regU - bu <= 0) return;
+            offers.push({ b: b, saveU: regU - bu, saveR: regR - br });
+          });
+          offers.sort(function (x, y) { return y.saveU - x.saveU; });
+          var applied = [];
+          offers.forEach(function (o) {
+            var times = Infinity;
+            o.b.items.forEach(function (it) { times = Math.min(times, Math.floor((left[it.product] || 0) / it.qty)); });
+            times = Math.min(times, 1);   // every bundle counts once per order
+            if (!isFinite(times) || times < 1) return;
+            o.b.items.forEach(function (it) { left[it.product] -= it.qty * times; });
+            applied.push({ name: o.b.name, times: times, saveU: o.saveU * times, saveR: o.saveR * times });
+          });
+          return applied;
+        }
+
+        function pieceCount() {
+          var n = 0;
+          products.forEach(function (p) { if (p.usd !== null) n += qty[p.id]; });
+          return n;
+        }
+        function r2(x) { return Math.round(x * 100) / 100; }
+
+        // ---- The numbers ----
+        function calc() {
+          var r = { lines: [], bundles: [], adds: [], pending: [], note: '', disc: null, pieces: pieceCount() };
+          var baseU = 0, baseR = 0;
+          products.forEach(function (p) {
+            var n = qty[p.id];
+            if (!n || p.usd === null) return;
+            r.lines.push({ name: p.name, n: n, usd: p.usd * n, rbx: (p.rbx || 0) * n });
+            baseU += p.usd * n;
+            baseR += (p.rbx || 0) * n;
+          });
+          var bundleU = 0, bundleR = 0;
+          if (r.pieces) r.bundles = applyBundles();
+          r.bundles.forEach(function (b) { bundleU += b.saveU; bundleR += b.saveR; });
+          var addU = 0, addR = 0;
+          if (r.pieces) {
+            ADDONS.forEach(function (a) {
+              var n = extra[a.id];
+              if (!n) return;
+              var quote = isQuote(a);
+              r.adds.push({ name: a.name, n: n, scope: a.scope, free: isFree(a), quote: quote, usd: (a.usd || 0) * n, rbx: (a.robux || 0) * n });
+              if (quote) r.pending.push((n > 1 ? n + '\u00d7 ' : '') + a.name);
+              addU += (a.usd || 0) * n;
+              addR += (a.robux || 0) * n;
+            });
+          }
+          var subU = baseU - bundleU + addU, subR = baseR - bundleR + addR;
+          var sale = activeSale(), welcome = welcomeOffer();
+          var saleU = 0, saleR = 0, welU = 0, welR = 0;
+          if (r.pieces && sale) {
+            saleU = r2((SALE_COVERS_ADDONS ? subU : subU - addU) * sale.pct / 100);
+            saleR = Math.round((SALE_COVERS_ADDONS ? subR : subR - addR) * sale.pct / 100);
+          }
+          if (r.pieces && welcome && isNew && subU >= WELCOME_MIN_USD) { welU = welcome.usd; welR = welcome.rbx; }
+          // The welcome offer can never be combined with a seasonal offer: only the bigger saving is used.
+          if (welU > 0 && saleU > 0) {
+            if (welU > saleU) {
+              r.disc = { kind: 'welcome', label: 'Welcome offer', usd: welU, rbx: welR };
+              r.note = 'The welcome offer saves you more than the ' + sale.name + ' here, so it is applied instead of the sale.';
+            } else {
+              r.disc = { kind: 'sale', label: sale.name + ' (' + sale.pct + '% off)', usd: saleU, rbx: saleR };
+              r.note = 'The ' + sale.name + ' saves you more than the welcome offer here, so it is applied instead of the welcome offer.';
+            }
+          } else if (saleU > 0) {
+            r.disc = { kind: 'sale', label: sale.name + ' (' + sale.pct + '% off)', usd: saleU, rbx: saleR };
+          } else if (welU > 0) {
+            r.disc = { kind: 'welcome', label: 'Welcome offer', usd: welU, rbx: welR };
+          } else if (r.pieces && welcome && isNew && !sale && subU < WELCOME_MIN_USD) {
+            r.note = 'The welcome offer needs an order of at least $' + WELCOME_MIN_USD + '.';
+          }
+          var discU = r.disc ? Math.min(r.disc.usd, subU) : 0, discR = r.disc ? Math.min(r.disc.rbx, subR) : 0;
+          r.totalU = Math.max(0, r2(subU - discU));
+          r.totalR = Math.max(0, Math.round(subR - discR));
+          r.savedU = r2(bundleU + discU);
+          r.savedR = Math.round(bundleR + discR);
+          return r;
+        }
+
+        // ---- Small builders ----
+        function money(usd, rbx, sign) {
+          var wrap = el('span', 'est-money');
+          wrap.appendChild(el('span', 'cur-usd', (sign || '') + formatUsd(usd)));
+          var rb = el('span', 'cur-rbx est-rbx');
+          fillRobux(rb, rbx);
+          if (sign) rb.insertBefore(document.createTextNode(sign), rb.firstChild);
+          wrap.appendChild(rb);
+          return wrap;
+        }
+        function priceText(usd, rbx, prefix) {   // "$30.00 · 8.000 [icon]" for the small grey lines
+          var wrap = el('span', 'est-price');
+          wrap.appendChild(el('span', 'cur-usd', (prefix || '') + formatUsd(usd)));
+          wrap.appendChild(el('span', 'cur-usd cur-rbx-sep'));   // placeholder, replaced below
+          wrap.removeChild(wrap.lastChild);
+          var rb = el('span', 'cur-rbx est-rbx');
+          fillRobux(rb, rbx);
+          if (prefix) rb.insertBefore(document.createTextNode(prefix), rb.firstChild);
+          wrap.appendChild(document.createTextNode(' '));
+          wrap.appendChild(rb);
+          return wrap;
+        }
+        function stepper(onMinus, onPlus, label) {
+          var box = el('div', 'est-stepper');
+          var minus = el('button', 'est-step', MINUS);
+          minus.type = 'button';
+          minus.setAttribute('aria-label', 'One less ' + label);
+          var q = el('span', 'est-qty', '0');
+          var plus = el('button', 'est-step', '+');
+          plus.type = 'button';
+          plus.setAttribute('aria-label', 'One more ' + label);
+          minus.addEventListener('click', onMinus);
+          plus.addEventListener('click', onPlus);
+          box.appendChild(minus); box.appendChild(q); box.appendChild(plus);
+          return { box: box, minus: minus, plus: plus, q: q };
+        }
+
+        // ---- The left side (built once) ----
+        var rows = {}, addRows = {};
+        // 1. Start from a bundle
+        var blockStart = el('div', 'est-block');
+        blockStart.appendChild(el('p', 'est-label', 'Start from a bundle'));
+        var chips = el('div', 'est-chips');
+        BUNDLES.forEach(function (b) {
+          var chip = el('button', 'est-chip', b.name);
+          chip.type = 'button';
+          chip.addEventListener('click', function () { startBundle(b.id); });
+          chips.appendChild(chip);
+        });
+        blockStart.appendChild(chips);
+        mainEl.appendChild(blockStart);
+
+        // 2. Pieces
+        var blockPieces = el('div', 'est-block');
+        var lbl = el('p', 'est-label', 'Choose your pieces');
+        lbl.appendChild(el('small', '', 'Prices are for one piece. Each bundle saving applies once per order.'));
+        blockPieces.appendChild(lbl);
+        var list = el('ul', 'est-list');
+        products.forEach(function (p) {
+          var li = el('li', 'est-row');
+          var info = el('div', 'est-info');
+          info.appendChild(el('div', 'est-name', p.name));
+          var sub = el('div', 'est-sub');
+          if (p.usd === null) { sub.textContent = 'Price coming soon'; li.classList.add('is-disabled'); }
+          else sub.appendChild(priceText(p.usd, p.rbx || 0));
+          info.appendChild(sub);
+          li.appendChild(info);
+          if (p.usd !== null) {
+            var st = stepper(function () { qty[p.id] = Math.max(0, qty[p.id] - 1); sync(); },
+                             function () { qty[p.id] = Math.min(MAX_QTY, qty[p.id] + 1); sync(); }, p.name);
+            li.appendChild(st.box);
+            rows[p.id] = { li: li, st: st };
+          }
+          list.appendChild(li);
+        });
+        blockPieces.appendChild(list);
+        mainEl.appendChild(blockPieces);
+
+        // 3. Add-ons: a card that stands out (what is inside + a button), the list opens when it is pressed
+        function isQuote(a) { return a.usd === null || a.robux === null; }                    // price still to be discussed
+        function isFree(a) { return !isQuote(a) && !a.usd && !a.robux; }
+        var freeCount = ADDONS.filter(isFree).length;   // used by the add-ons teaser text
+        var blockAdd = el('div', 'est-block est-addblock');
+        var addCard = el('div', 'est-addcard');
+        var addIcon = el('span', 'est-addicon');
+        addIcon.setAttribute('aria-hidden', 'true');
+        addIcon.innerHTML = '<svg viewBox="0 0 24 24" focusable="false"><path d="M10 3l1.9 5.6L17.5 10.5l-5.6 1.9L10 18l-1.9-5.6L2.5 10.5l5.6-1.9z"/><path d="M19 14l.9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9z"/></svg>';
+        var addInfo = el('div', 'est-addinfo');
+        var addTitle = el('p', 'est-addtitle', 'Add-ons');
+        addInfo.appendChild(addTitle);
+        addInfo.appendChild(el('p', 'est-addsub', 'Make it yours with free extras and optional upgrades.'));
+        var viewBtn = el('button', 'est-viewbtn');
+        viewBtn.type = 'button';
+        viewBtn.setAttribute('aria-expanded', 'false');
+        viewBtn.setAttribute('aria-controls', 'est-addons-panel');
+        var viewText = el('span', 'est-viewtext', 'View add-ons');
+        var viewCount = el('span', 'est-viewcount');
+        viewCount.hidden = true;
+        viewBtn.appendChild(viewText);
+        viewBtn.appendChild(viewCount);
+        viewBtn.insertAdjacentHTML('beforeend', '<svg class="est-chev" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+        addCard.appendChild(addIcon);
+        addCard.appendChild(addInfo);
+        addCard.appendChild(viewBtn);
+        blockAdd.appendChild(addCard);
+        var collapse = el('div', 'est-collapse');
+        collapse.id = 'est-addons-panel';
+        var collapseInner = el('div', 'est-collapse-inner');
+        collapseInner.setAttribute('inert', '');
+        collapse.appendChild(collapseInner);
+        blockAdd.appendChild(collapse);
+        function setAddonsOpen(open) {
+          collapse.classList.toggle('is-open', open);
+          addCard.classList.toggle('is-open', open);
+          viewBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          viewText.textContent = open ? 'Hide add-ons' : 'View add-ons';
+          if (open) collapseInner.removeAttribute('inert'); else collapseInner.setAttribute('inert', '');
+          updateTeaser();
+        }
+        viewBtn.addEventListener('click', function () { setAddonsOpen(!collapse.classList.contains('is-open')); });
+        var addHint = el('p', 'est-hint', 'Pick a product first, then add extras.');
+        collapseInner.appendChild(addHint);
+        var addList = el('ul', 'est-list');
+        ADDONS.forEach(function (a) {
+          var free = isFree(a), quote = isQuote(a);
+          var li = el('li', 'est-row');
+          var info = el('div', 'est-info');
+          var nameEl = el('div', 'est-name', a.name);
+          if (free) nameEl.appendChild(el('span', 'est-free', 'Free'));
+          if (quote) nameEl.appendChild(el('span', 'est-quote', 'Price to be discussed'));
+          info.appendChild(nameEl);
+          var sub = el('div', 'est-sub');
+          sub.appendChild(document.createTextNode(a.note));
+          if (!free && !quote) {
+            sub.appendChild(document.createTextNode(' \u00b7 '));
+            var pr = priceText(a.usd, a.robux, '+');
+            pr.className += ' est-extra';
+            sub.appendChild(pr);
+            if (a.scope === 'piece') sub.appendChild(document.createTextNode(' each'));
+          }
+          info.appendChild(sub);
+          li.appendChild(info);
+          if (a.scope === 'piece') {
+            var st = stepper(function () { extra[a.id] = Math.max(0, extra[a.id] - 1); sync(); },
+                             function () { extra[a.id] = Math.min(pieceCount(), extra[a.id] + 1); sync(); }, a.name);
+            li.appendChild(st.box);
+            addRows[a.id] = { li: li, st: st, a: a };
+          } else {
+            var tg = el('label', 'est-toggle');
+            var cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.setAttribute('aria-label', a.name);
+            cb.addEventListener('change', function () { extra[a.id] = cb.checked ? 1 : 0; sync(); });
+            tg.appendChild(cb);
+            tg.appendChild(document.createElement('span'));
+            li.appendChild(tg);
+            addRows[a.id] = { li: li, cb: cb, a: a };
+          }
+          addList.appendChild(li);
+        });
+        collapseInner.appendChild(addList);
+        mainEl.appendChild(blockAdd);
+        // The card pulses twice the first time something is picked, and the sticky summary gets a shortcut, so the add-ons are noticed
+        var nudged = false;
+        var addTeaser = el('button', 'est-teaser');
+        addTeaser.type = 'button';
+        addTeaser.hidden = true;
+        addTeaser.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 3l1.9 5.6L17.5 10.5l-5.6 1.9L10 18l-1.9-5.6L2.5 10.5l5.6-1.9z"/><path d="M19 14l.9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9z"/></svg>';
+        var teaserText = el('span', '');
+        teaserText.appendChild(el('strong', '', 'Add-ons'));
+        teaserText.appendChild(document.createTextNode(freeCount ? ': ' + freeCount + ' are free. Take a look' : ': make it yours. Take a look'));
+        addTeaser.appendChild(teaserText);
+        addTeaser.insertAdjacentHTML('beforeend', '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+        addTeaser.addEventListener('click', function () {
+          setAddonsOpen(true);
+          addCard.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+        });
+        function updateTeaser() { addTeaser.hidden = !(pieceCount() > 0) || collapse.classList.contains('is-open'); }
+
+        // ===== The card buttons ("Commission" on a product, "Get this bundle") fill this form in =====
+        function startBundle(id) {   // replaces the selection with the pieces of that bundle
+          var b = null;
+          BUNDLES.forEach(function (x) { if (x.id === id) b = x; });
+          if (!b) return '';
+          products.forEach(function (p) { qty[p.id] = 0; });
+          b.items.forEach(function (it) { if (byId[it.product]) qty[it.product] = Math.min(MAX_QTY, it.qty); });
+          sync();
+          return b.name;
+        }
+        function addProduct(id) {   // makes sure there is at least one of that product (pressing twice does not double it)
+          var p = byId[id];
+          if (!p || p.usd === null) return '';   // "Price coming soon": nothing to estimate, so the normal contact link is used
+          if (!qty[id]) qty[id] = 1;
+          sync();
+          return p.name;
+        }
+        var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        var flashTimer = null, toastTimer = null;
+        function showEstimate() {
+          var sec = document.getElementById('estimate');
+          if (sec) sec.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+          root.classList.remove('is-flash');
+          void root.offsetWidth;
+          root.classList.add('is-flash');
+          window.clearTimeout(flashTimer);
+          flashTimer = window.setTimeout(function () { root.classList.remove('is-flash'); }, 1600);
+        }
+        var toast = el('div', 'est-toast');
+        toast.hidden = true;
+        toast.setAttribute('role', 'status');
+        var toastText = el('span', 'est-toast-text');
+        var toastLink = el('a', 'est-toast-link', 'Contact me directly');
+        var toastClose = el('button', 'est-toast-close', '\u00d7');
+        toastClose.type = 'button';
+        toastClose.setAttribute('aria-label', 'Close message');
+        toast.appendChild(toastText); toast.appendChild(toastLink); toast.appendChild(toastClose);
+        document.body.appendChild(toast);
+        function hideToast() { toast.hidden = true; window.clearTimeout(toastTimer); }
+        toastClose.addEventListener('click', hideToast);
+        root.addEventListener('click', hideToast);   // as soon as the visitor works in the estimate, the message gets out of the way
+        function showToast(name, contactHref) {
+          toastText.textContent = '';
+          toastText.appendChild(el('strong', '', name));
+          toastText.appendChild(document.createTextNode(' is in your estimate below. Prefer to talk first?'));
+          toastLink.href = contactHref || '/contact/';
+          toast.hidden = false;
+          toast.style.animation = 'none';
+          void toast.offsetWidth;
+          toast.style.animation = '';
+          window.clearTimeout(toastTimer);
+          toastTimer = window.setTimeout(hideToast, 9000);
+        }
+        document.addEventListener('click', function (e) {
+          if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;   // new-tab clicks keep working
+          var a = e.target.closest ? e.target.closest('.pc-slide .pc-button, .tc-card .tc-buy a') : null;
+          if (!a) return;
+          var slide = a.closest('.pc-slide'), card = a.closest('.tc-card'), name = '';
+          if (slide) name = addProduct(slide.getAttribute('data-product'));
+          else if (card) name = startBundle(card.getAttribute('data-bundle'));
+          if (!name) return;
+          e.preventDefault();
+          showEstimate();
+          showToast(name, a.getAttribute('href'));
+        });
+
+        // ---- The right side: slots that are filled again on every change ----
+        var sumTitle = el('h3', 'est-sum-title');
+        var sumTitleText = el('span', '', 'Your estimate');
+        var sumCount = el('small', '', '');
+        sumTitle.appendChild(sumTitleText);
+        sumTitle.appendChild(sumCount);
+        var sumBody = el('div', 'est-body');
+        var newBox = el('label', 'est-new');
+        var newCb = document.createElement('input');
+        newCb.type = 'checkbox';
+        newCb.addEventListener('change', function () { isNew = newCb.checked; newBox.classList.toggle('is-checked', isNew); sync(); });
+        var newMark = el('span', 'est-newbox');
+        newMark.setAttribute('aria-hidden', 'true');
+        newMark.innerHTML = '<svg viewBox="0 0 20 20" focusable="false"><path d="M5 10.5l3.2 3.2L15 6.8"/></svg>';
+        var newText = el('span', 'est-newtext');
+        newText.appendChild(el('strong', '', 'I\u2019m a new client'));
+        var newSub = el('small', 'est-newsub', '');
+        var newFine = el('small', 'est-newfine', 'Can\u2019t be combined with seasonal offers: the bigger saving is used.');
+        newText.appendChild(newSub);
+        newText.appendChild(newFine);
+        var newTag = el('span', 'est-newtag');
+        newBox.appendChild(newCb);
+        newBox.appendChild(newMark);
+        newBox.appendChild(newText);
+        newBox.appendChild(newTag);
+        var noteEl = el('p', 'est-note');
+        noteEl.setAttribute('role', 'status');
+        var totalBox = el('div', 'est-total');
+        totalBox.setAttribute('aria-live', 'polite');
+        var actions = el('div', 'est-actions');
+        var sendLink = el('a', 'button button-primary');
+        sendLink.innerHTML = 'Send this estimate ' + ARROW_SVG;
+        var copyBtn = el('button', 'button button-secondary', 'Copy summary');
+        copyBtn.type = 'button';
+        var resetBtn = el('button', 'est-reset', 'Start over');
+        resetBtn.type = 'button';
+        actions.appendChild(sendLink); actions.appendChild(copyBtn); actions.appendChild(resetBtn);
+        var direct = el('p', 'est-direct');
+        direct.appendChild(document.createTextNode('Prefer to talk first? '));
+        var directLink = el('a', '', 'Contact me directly');
+        directLink.href = '/contact/';
+        direct.appendChild(directLink);
+        var fine = el('p', 'est-fine', 'This is an estimate. I confirm the final price and details with you before work starts, and a 50% deposit starts the work.');
+        [sumTitle, sumBody, addTeaser, newBox, noteEl, totalBox, actions, direct, fine].forEach(function (n) { sumEl.appendChild(n); });
+
+        var lastText = '';
+        function buildText(r) {
+          var L = ['Order estimate from the pricing page:'];
+          r.lines.forEach(function (l) { L.push('- ' + l.n + 'x ' + l.name + ': ' + formatUsd(l.usd) + ' / ' + formatRobux(l.rbx) + ' Robux'); });
+          r.bundles.forEach(function (b) { L.push('- Bundle applied: ' + (b.times > 1 ? b.times + 'x ' : '') + b.name + ' (saves ' + formatUsd(b.saveU) + ')'); });
+          if (r.adds.length) {
+            L.push('Add-ons:');
+            r.adds.forEach(function (a) {
+              L.push('- ' + (a.n > 1 ? a.n + 'x ' : '') + a.name + ': ' + (a.quote ? 'price to be discussed' : a.free ? 'free' : '+' + formatUsd(a.usd) + ' / +' + formatRobux(a.rbx) + ' Robux'));
+            });
+          }
+          if (r.disc) L.push(r.disc.label + ': -' + formatUsd(r.disc.usd) + ' / -' + formatRobux(r.disc.rbx) + ' Robux');
+          L.push('Estimated total: ' + formatUsd(r.totalU) + ' (or ' + formatRobux(r.totalR) + ' Robux)');
+          if (r.pending.length) L.push('Not included in the total (price to be discussed): ' + r.pending.join(', '));
+          if (r.disc && r.disc.kind === 'welcome') L.push('I\u2019m a new client and would like to use the welcome offer.');
+          return L.join('\n');
+        }
+        function line(label, valueNode, good) {
+          var li = el('li', 'est-line' + (good ? ' is-good' : ''));
+          li.appendChild(el('span', '', label));
+          li.appendChild(valueNode);
+          return li;
+        }
+
+        function renderSummary() {
+          var r = calc();
+          sumCount.textContent = r.pieces ? r.pieces + (r.pieces === 1 ? ' piece' : ' pieces') : '';
+          sumBody.textContent = '';
+          totalBox.textContent = '';
+          var welcome = welcomeOffer(), sale = activeSale();
+          newBox.hidden = !(welcome && r.pieces);
+          if (welcome) {
+            newSub.textContent = 'Welcome offer on your first order, $' + WELCOME_MIN_USD + ' minimum';
+            newTag.textContent = '';
+            newTag.appendChild(el('span', 'cur-usd', '\u2212' + formatUsd(welcome.usd)));
+            var tagR = el('span', 'cur-rbx est-rbx');
+            fillRobux(tagR, welcome.rbx);
+            tagR.insertBefore(document.createTextNode('\u2212'), tagR.firstChild);
+            newTag.appendChild(tagR);
+          }
+          noteEl.hidden = !r.note;
+          noteEl.textContent = r.note;
+          actions.hidden = !r.pieces;
+          if (!r.pieces) {
+            sumBody.appendChild(el('p', 'est-empty', 'Nothing selected yet. Pick a product, start from a bundle, or press the button on any card above.'));
+            lastText = '';
+            return;
+          }
+          var ul = el('ul', 'est-lines');
+          r.lines.forEach(function (l) { ul.appendChild(line(l.n + '\u00d7 ' + l.name, money(l.usd, l.rbx))); });
+          r.bundles.forEach(function (b) { ul.appendChild(line((b.times > 1 ? b.times + '\u00d7 ' : '') + b.name + ' bundle', money(b.saveU, b.saveR, MINUS), true)); });
+          r.adds.forEach(function (a) {
+            var label = (a.n > 1 ? a.n + '\u00d7 ' : '') + a.name;
+            if (a.quote) { var qv = el('span', 'est-quote', 'To be discussed'); qv.style.marginLeft = '0'; ul.appendChild(line(label, qv, false)); }
+            else if (a.free) { var f = el('span', 'est-free', 'Free'); f.style.marginLeft = '0'; ul.appendChild(line(label, f, false)); }
+            else ul.appendChild(line(label, money(a.usd, a.rbx, '+')));
+          });
+          if (r.disc) ul.appendChild(line(r.disc.label, money(r.disc.usd, r.disc.rbx, MINUS), true));
+          sumBody.appendChild(ul);
+
+          totalBox.appendChild(el('span', 'est-total-label', 'Estimated total'));
+          var row = el('div', 'est-total-row');
+          row.appendChild(el('span', 'est-total-usd cur-usd', formatUsd(r.totalU)));
+          var tr = el('span', 'est-total-rbx cur-rbx');
+          fillRobux(tr, r.totalR);
+          row.appendChild(tr);
+          totalBox.appendChild(row);
+          if (r.savedU > 0) {
+            var sv = el('span', 'est-saved');
+            sv.appendChild(el('span', 'cur-usd', 'You save ' + formatUsd(r.savedU)));
+            var svr = el('span', 'cur-rbx est-rbx');
+            fillRobux(svr, r.savedR);
+            svr.insertBefore(document.createTextNode('You save '), svr.firstChild);
+            sv.appendChild(svr);
+            totalBox.appendChild(sv);
+          }
+          if (r.pending.length) totalBox.appendChild(el('span', 'est-pending', 'Not included: ' + r.pending.join(', ') + ' (price to be discussed)'));
+          lastText = buildText(r);
+          sendLink.href = '/contact/?estimate=' + encodeURIComponent(lastText);
+        }
+
+        function sync() {
+          var total = pieceCount();
+          products.forEach(function (p) {
+            var row = rows[p.id];
+            if (!row) return;
+            var n = qty[p.id];
+            row.st.q.textContent = n;
+            row.li.classList.toggle('is-on', n > 0);
+            row.st.minus.disabled = n <= 0;
+            row.st.plus.disabled = n >= MAX_QTY;
+          });
+          addHint.hidden = total > 0;
+          ADDONS.forEach(function (a) {
+            var row = addRows[a.id];
+            if (!total) extra[a.id] = 0;
+            row.li.classList.toggle('is-disabled', !total);
+            if (a.scope === 'piece') {
+              extra[a.id] = Math.min(extra[a.id], total);
+              row.st.q.textContent = extra[a.id];
+              row.st.minus.disabled = extra[a.id] <= 0;
+              row.st.plus.disabled = extra[a.id] >= total;
+            } else {
+              row.cb.checked = extra[a.id] > 0;
+              row.cb.disabled = !total;
+            }
+            row.li.classList.toggle('is-on', extra[a.id] > 0);
+          });
+          var addedCount = 0;
+          ADDONS.forEach(function (a) { if (extra[a.id] > 0) addedCount++; });
+          viewCount.textContent = addedCount + ' added';
+          viewCount.hidden = !addedCount;
+          if (total > 0 && !nudged && !collapse.classList.contains('is-open')) {
+            nudged = true;
+            addCard.classList.add('is-nudge');
+            window.setTimeout(function () { addCard.classList.remove('is-nudge'); }, 3600);
+          }
+          updateTeaser();
+          renderSummary();
+        }
+
+        copyBtn.addEventListener('click', function () {
+          if (!lastText) return;
+          function done() {
+            copyBtn.textContent = 'Copied!';
+            window.setTimeout(function () { copyBtn.textContent = 'Copy summary'; }, 1800);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(lastText).then(done, function () {});
+          } else {
+            var ta = document.createElement('textarea');
+            ta.value = lastText;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); done(); } catch (e) {}
+            document.body.removeChild(ta);
+          }
+        });
+
+        // ===== The estimate as a picture, in a pop-up (opens from "Send this estimate") =====
+        var iconCache = null;
+        function loadIcon(cb) {
+          if (iconCache !== null) { cb(iconCache || null); return; }
+          var im = new Image();
+          im.onload = function () { iconCache = im; cb(im); };
+          im.onerror = function () { iconCache = false; cb(null); };
+          im.src = ROBUX_ICON;
+        }
+        var logoCache = null;
+        function loadLogo(cb) {   // the logo of the site header, so the picture always matches the site
+          if (logoCache !== null) { cb(logoCache || null); return; }
+          var head = document.querySelector('.site-logo-image');
+          var im = new Image();
+          im.onload = function () { logoCache = im; cb(im); };
+          im.onerror = function () { logoCache = false; cb(null); };
+          im.src = (head && (head.currentSrc || head.src)) || '/images/logo.webp';
+        }
+        function ticketId(r) {
+          var s = JSON.stringify([r.lines, r.adds.map(function (a) { return a.name + a.n; }), r.totalU, r.totalR]), h = 5381;
+          for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+          var t = h.toString(36).toUpperCase();
+          return 'EST-' + ('000000' + t).slice(-6);
+        }
+        // A rounded ticket with a half-circle cut out of both sides at each tear line
+        function ticketPath(x, w, h, rad, ys, nr) {
+          x.beginPath();
+          x.moveTo(rad, 0);
+          x.lineTo(w - rad, 0);
+          x.arcTo(w, 0, w, rad, rad);
+          ys.forEach(function (y) { x.lineTo(w, y - nr); x.arc(w, y, nr, -Math.PI / 2, Math.PI / 2, true); });
+          x.lineTo(w, h - rad);
+          x.arcTo(w, h, w - rad, h, rad);
+          x.lineTo(rad, h);
+          x.arcTo(0, h, 0, h - rad, rad);
+          for (var i = ys.length - 1; i >= 0; i--) { x.lineTo(0, ys[i] + nr); x.arc(0, ys[i], nr, Math.PI / 2, -Math.PI / 2, true); }
+          x.lineTo(0, rad);
+          x.arcTo(0, 0, rad, 0, rad);
+          x.closePath();
+        }
+        function roundRect(x, px, py, w, h, rad) {
+          x.beginPath();
+          x.moveTo(px + rad, py);
+          x.arcTo(px + w, py, px + w, py + h, rad);
+          x.arcTo(px + w, py + h, px, py + h, rad);
+          x.arcTo(px, py + h, px, py, rad);
+          x.arcTo(px, py, px + w, py, rad);
+          x.closePath();
+        }
+        function fitText(x, text, maxW) {
+          if (x.measureText(text).width <= maxW) return text;
+          while (text.length > 1 && x.measureText(text + '\u2026').width > maxW) text = text.slice(0, -1);
+          return text + '\u2026';
+        }
+        function wrapLines(x, text, maxW) {
+          var words = text.split(' '), lines = [], cur = '';
+          words.forEach(function (w) {
+            var t = cur ? cur + ' ' + w : w;
+            if (x.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t;
+          });
+          if (cur) lines.push(cur);
+          return lines;
+        }
+        function drawTicket(r, icon, logo) {
+          var mode = document.documentElement.getAttribute('data-currency') || 'both';
+          var showU = mode !== 'robux', showR = mode !== 'usd';
+          var rowsData = [];
+          r.lines.forEach(function (l) { rowsData.push({ label: l.n + '\u00d7 ' + l.name, usd: l.usd, rbx: l.rbx, kind: 'item', sign: '' }); });
+          r.bundles.forEach(function (b) { rowsData.push({ label: b.name + ' bundle', usd: b.saveU, rbx: b.saveR, kind: 'good', sign: MINUS }); });
+          r.adds.forEach(function (a) { rowsData.push({ label: (a.n > 1 ? a.n + '\u00d7 ' : '') + a.name, usd: a.usd, rbx: a.rbx, kind: a.quote ? 'quote' : (a.free ? 'free' : 'extra'), sign: '+' }); });
+          if (r.disc) rowsData.push({ label: r.disc.label, usd: r.disc.usd, rbx: r.disc.rbx, kind: 'good', sign: MINUS });
+          var S = 2, W = 760, PAD = 44, ROW = 48;
+          var perf1 = 150, itemsTop = perf1 + 20, itemsBottom = itemsTop + rowsData.length * ROW, perf2 = itemsBottom + 26;
+          var totalTop = perf2 + 30, footTop = totalTop + 150, H = footTop + 128;
+          var c = document.createElement('canvas');
+          c.width = W * S;
+          c.height = H * S;
+          var x = c.getContext('2d');
+          x.scale(S, S);
+          var bodyFont = getComputedStyle(document.body).fontFamily || 'sans-serif';
+          var dispFont = (getComputedStyle(document.documentElement).getPropertyValue('--font-display') || '').trim() || bodyFont;
+          function spacing(px) { if ('letterSpacing' in x) x.letterSpacing = px + 'px'; }
+
+          // paper
+          ticketPath(x, W, H, 28, [perf1, perf2], 14);
+          x.save();
+          x.clip();
+          var g = x.createLinearGradient(0, 0, 0, H);
+          g.addColorStop(0, '#14224f'); g.addColorStop(0.35, '#0e1733'); g.addColorStop(1, '#080d1f');
+          x.fillStyle = g; x.fillRect(0, 0, W, H);
+          var glow = x.createRadialGradient(W * 0.85, 0, 0, W * 0.85, 0, 380);
+          glow.addColorStop(0, 'rgba(74,163,255,0.30)'); glow.addColorStop(1, 'rgba(74,163,255,0)');
+          x.fillStyle = glow; x.fillRect(0, 0, W, H);
+          x.fillStyle = 'rgba(255,255,255,0.045)';
+          for (var gx = 14; gx < W; gx += 22) for (var gy = 14; gy < H; gy += 22) x.fillRect(gx, gy, 1.6, 1.6);
+          x.fillStyle = 'rgba(255,255,255,0.03)'; x.fillRect(0, 0, W, perf1);
+          x.restore();
+          ticketPath(x, W, H, 28, [perf1, perf2], 14);
+          x.strokeStyle = 'rgba(125,175,255,0.38)'; x.lineWidth = 1.5; x.stroke();
+
+          // header
+          var brandX;
+          if (logo && logo.naturalWidth) {   // the real logo, kept in its own proportions (max 110 x 60), centred next to the name
+            var lsc = Math.min(110 / logo.naturalWidth, 60 / logo.naturalHeight), lw = logo.naturalWidth * lsc, lh = logo.naturalHeight * lsc;
+            x.drawImage(logo, PAD, 64 - lh / 2, lw, lh);
+            brandX = PAD + lw + 18;
+          } else {   // fallback if the logo file cannot be loaded: a simple "B" mark
+            var lg = x.createLinearGradient(PAD, 36, PAD + 56, 92);
+            lg.addColorStop(0, '#5aaeff'); lg.addColorStop(1, '#2563eb');
+            roundRect(x, PAD, 36, 56, 56, 16); x.fillStyle = lg; x.fill();
+            x.fillStyle = '#fff'; x.font = '800 32px ' + dispFont; x.textAlign = 'center'; x.textBaseline = 'middle';
+            x.fillText('B', PAD + 28, 65);
+            brandX = PAD + 74;
+          }
+          x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+          x.fillStyle = '#fff';
+          x.font = '800 27px ' + dispFont; x.fillText('Bcraft Designs', brandX, 62);
+          x.font = '500 15px ' + bodyFont; x.fillStyle = '#8fa2c9'; x.fillText('bcraftdesigns.com', brandX, 88);
+          x.textAlign = 'right';
+          x.font = '800 13px ' + bodyFont; x.fillStyle = '#7db8ff'; spacing(2.5); x.fillText('ORDER ESTIMATE', W - PAD, 54); spacing(0);
+          var id = ticketId(r);
+          x.font = '700 21px ui-monospace, Menlo, Consolas, monospace'; x.fillStyle = '#fff'; x.fillText(id, W - PAD, 86);
+          x.font = '500 14px ' + bodyFont; x.fillStyle = '#8fa2c9';
+          x.fillText(new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }), W - PAD, 112);
+          x.textAlign = 'left';
+
+          // tear lines
+          function perf(y) {
+            x.save(); x.setLineDash([8, 8]); x.strokeStyle = 'rgba(255,255,255,0.22)'; x.lineWidth = 1.5;
+            x.beginPath(); x.moveTo(30, y); x.lineTo(W - 30, y); x.stroke(); x.restore();
+          }
+          perf(perf1); perf(perf2);
+
+          // amounts, right-aligned: [usd]  [robux + icon]. Returns the width they take.
+          function amounts(y, usd, rbx, sign, size, colorU, colorR) {
+            var right = W - PAD, used = 0;
+            x.textBaseline = 'middle'; x.textAlign = 'right';
+            if (showR) {
+              var isz = size - 2;
+              if (icon) { x.drawImage(icon, right - isz, y - isz / 2, isz, isz); }
+              else { x.font = '800 ' + (size - 6) + 'px ' + bodyFont; x.fillStyle = colorR; x.fillText('R$', right, y); }
+              var iw = icon ? isz + 6 : x.measureText('R$').width + 6;
+              x.font = '700 ' + size + 'px ' + bodyFont; x.fillStyle = colorR;
+              var rt = (sign || '') + formatRobux(rbx);
+              x.fillText(rt, right - iw, y);
+              used = iw + x.measureText(rt).width;
+            }
+            if (showU) {
+              var ut = (sign || '') + formatUsd(usd);
+              x.font = '700 ' + size + 'px ' + bodyFont; x.fillStyle = colorU;
+              x.fillText(ut, right - used - (used ? 22 : 0), y);
+              used += x.measureText(ut).width + (used ? 22 : 0);
+            }
+            x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+            return used;
+          }
+          rowsData.forEach(function (row, i) {
+            var y = itemsTop + i * ROW + ROW / 2, good = row.kind === 'good';
+            var used;
+            if (row.kind === 'free' || row.kind === 'quote') {   // a small pill instead of a price: FREE (green) or TO DISCUSS (blue)
+              var qt = row.kind === 'quote', pw = qt ? 128 : 70;
+              roundRect(x, W - PAD - pw, y - 14, pw, 28, 14);
+              x.fillStyle = qt ? 'rgba(74,163,255,0.18)' : 'rgba(47,214,143,0.16)'; x.fill();
+              x.strokeStyle = qt ? 'rgba(125,184,255,0.7)' : 'rgba(47,214,143,0.6)'; x.lineWidth = 1.5; x.stroke();
+              x.fillStyle = qt ? '#9cc8ff' : '#7ff0b8'; x.font = '800 13px ' + bodyFont; x.textAlign = 'center'; x.textBaseline = 'middle'; spacing(1);
+              x.fillText(qt ? 'TO DISCUSS' : 'FREE', W - PAD - pw / 2, y + 1); spacing(0); x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+              used = pw;
+            } else {
+              used = amounts(y, row.usd, row.rbx, row.sign, 20, good ? '#7ff0b8' : '#ffffff', good ? '#7ff0b8' : '#ffa24a');
+            }
+            x.font = '600 20px ' + bodyFont; x.fillStyle = good ? '#7ff0b8' : '#dbe5fb'; x.textBaseline = 'middle';
+            x.fillText(fitText(x, row.label, W - 2 * PAD - used - 24), PAD, y); x.textBaseline = 'alphabetic';
+            if (i < rowsData.length - 1) { x.fillStyle = 'rgba(255,255,255,0.07)'; x.fillRect(PAD, itemsTop + (i + 1) * ROW, W - 2 * PAD, 1); }
+          });
+
+          // total
+          x.font = '800 13px ' + bodyFont; x.fillStyle = '#8fa2c9'; spacing(2.5); x.fillText('ESTIMATED TOTAL', PAD, totalTop + 14); spacing(0);
+          var by = totalTop + 78, cursor = PAD;
+          x.textBaseline = 'alphabetic';
+          if (showU) {
+            x.font = '800 58px ' + dispFont;
+            var tg = x.createLinearGradient(0, by - 50, 0, by);
+            tg.addColorStop(0, '#ffffff'); tg.addColorStop(1, '#cfe0ff');
+            x.fillStyle = tg;
+            var tu = formatUsd(r.totalU);
+            x.fillText(tu, PAD, by);
+            cursor = PAD + x.measureText(tu).width + 24;
+          }
+          var rsz = showU ? 28 : 58;
+          x.font = '800 ' + rsz + 'px ' + (showU ? bodyFont : dispFont);
+          if (showR) {
+            var tr = formatRobux(r.totalR);
+            x.fillStyle = showU ? '#ffa24a' : '#ffffff';
+            x.fillText(tr, cursor, by);
+            var tw = x.measureText(tr).width;
+            if (icon) { var isz2 = rsz * 0.86; x.drawImage(icon, cursor + tw + 8, by - isz2 * 0.86, isz2, isz2); }
+            else { x.fillText(' R$', cursor + tw, by); }
+          }
+          var saved = showU ? r.savedU : r.savedR;
+          if (saved > 0) {
+            var st = 'You saved ' + (showU ? formatUsd(r.savedU) : formatRobux(r.savedR) + ' Robux');
+            x.font = '800 17px ' + bodyFont;
+            var sw = x.measureText(st).width + 32;
+            roundRect(x, PAD, totalTop + 102, sw, 34, 17);
+            x.fillStyle = 'rgba(47,214,143,0.16)'; x.fill(); x.strokeStyle = 'rgba(47,214,143,0.6)'; x.lineWidth = 1.5; x.stroke();
+            x.fillStyle = '#7ff0b8'; x.textBaseline = 'middle'; x.fillText(st, PAD + 16, totalTop + 120); x.textBaseline = 'alphabetic';
+          }
+          // stamp
+          x.save();
+          x.translate(W - PAD - 92, totalTop + 62);
+          x.rotate(-0.2);
+          roundRect(x, -92, -30, 184, 60, 10);
+          x.strokeStyle = 'rgba(125,184,255,0.55)'; x.lineWidth = 3.5; x.stroke();
+          x.fillStyle = 'rgba(125,184,255,0.6)'; x.font = '800 24px ' + dispFont; x.textAlign = 'center'; x.textBaseline = 'middle'; spacing(2.5);
+          x.fillText('ESTIMATE', 1, 2); spacing(0);
+          x.restore();
+
+          // footer: barcode from the id + fine print
+          var seed = 0;
+          for (var k = 0; k < id.length; k++) seed = (seed * 31 + id.charCodeAt(k)) >>> 0;
+          function rnd() { seed ^= seed << 13; seed >>>= 0; seed ^= seed >>> 17; seed ^= seed << 5; seed >>>= 0; return seed / 4294967296; }
+          var bx = PAD;
+          x.fillStyle = 'rgba(255,255,255,0.62)';
+          while (bx < PAD + 190) { var bw = 1.5 + Math.floor(rnd() * 3) * 1.5; x.fillRect(bx, footTop + 6, bw, 46); bx += bw + 1.5 + Math.floor(rnd() * 3) * 1.5; }
+          x.font = '600 12px ui-monospace, Menlo, Consolas, monospace'; x.fillStyle = '#8fa2c9'; x.fillText(id, PAD, footTop + 72);
+          x.font = '500 14px ' + bodyFont; x.fillStyle = '#8fa2c9';
+          wrapLines(x, 'Estimate only. The final price and details are confirmed with you before work starts, and a 50% deposit starts the work.' + (r.pending.length ? ' Items marked TO DISCUSS are not in the total.' : ''), W - 2 * PAD - 230)
+            .forEach(function (ln, i) { x.fillText(ln, PAD + 230, footTop + 18 + i * 21); });
+          return { canvas: c, id: id };
+        }
+
+        // the pop-up (built once)
+        var modal = el('div', 'est-modal');
+        modal.hidden = true;
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        modal.setAttribute('aria-labelledby', 'est-modal-title');
+        var mBackdrop = el('div', 'est-modal-backdrop');
+        var mBox = el('div', 'est-modal-box');
+        var mClose = el('button', 'est-modal-close', '\u00d7');
+        mClose.type = 'button';
+        mClose.setAttribute('aria-label', 'Close');
+        var mTitle = el('h3', 'est-modal-title', 'Here is your estimate');
+        mTitle.id = 'est-modal-title';
+        var mLead = el('p', 'est-modal-lead', 'Save this picture and send it with your message, so I can see exactly what you picked.');
+        var mTicketWrap = el('div', 'est-ticket-wrap');
+        var mActions = el('div', 'est-modal-actions');
+        var mSave = el('a', 'button button-secondary', 'Save image');
+        var mShare = el('button', 'button button-secondary', 'Share');
+        mShare.type = 'button';
+        mShare.hidden = true;
+        var mCopy = el('button', 'button button-secondary', 'Copy summary');
+        mCopy.type = 'button';
+        var mGo = el('a', 'button button-primary est-modal-go');
+        mGo.innerHTML = 'Continue to contact ' + ARROW_SVG;
+        [mSave, mShare, mCopy, mGo].forEach(function (n) { mActions.appendChild(n); });
+        var mTip = el('p', 'est-modal-tip', 'Tip: on the contact page, attach the saved picture to your message. The text of your estimate is added for you.');
+        [mClose, mTitle, mLead, mTicketWrap, mActions, mTip].forEach(function (n) { mBox.appendChild(n); });
+        modal.appendChild(mBackdrop);
+        modal.appendChild(mBox);
+        document.body.appendChild(modal);
+
+        var lastFocus = null, shareFile = null;
+        function closeTicket() {
+          if (modal.hidden) return;
+          modal.hidden = true;
+          document.documentElement.classList.remove('est-modal-open');
+          document.removeEventListener('keydown', onModalKey);
+          if (lastFocus && lastFocus.focus) lastFocus.focus();
+        }
+        function onModalKey(e) {
+          if (e.key === 'Escape') { e.preventDefault(); closeTicket(); return; }
+          if (e.key !== 'Tab') return;
+          var f = Array.prototype.filter.call(modal.querySelectorAll('a[href], button'), function (n) { return n.offsetParent !== null && !n.disabled; });
+          if (!f.length) return;
+          var first = f[0], last = f[f.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+        mClose.addEventListener('click', closeTicket);
+        mBackdrop.addEventListener('click', closeTicket);
+        function copyText(btn, label) {
+          if (!lastText) return;
+          function done() { btn.textContent = 'Copied!'; window.setTimeout(function () { btn.textContent = label; }, 1800); }
+          if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(lastText).then(done, function () {});
+          else {
+            var ta = document.createElement('textarea');
+            ta.value = lastText; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); done(); } catch (e) {}
+            document.body.removeChild(ta);
+          }
+        }
+        mCopy.addEventListener('click', function () { copyText(mCopy, 'Copy summary'); });
+        mShare.addEventListener('click', function () {
+          if (!shareFile || !navigator.share) return;
+          navigator.share({ files: [shareFile], title: 'Order estimate', text: lastText }).catch(function () {});
+        });
+
+        function openTicket() {
+          var r = calc();
+          if (!r.pieces) return;
+          lastText = buildText(r);
+          lastFocus = document.activeElement;
+          function go() {
+            loadIcon(function (icon) { loadLogo(function (logo) {
+              var made = drawTicket(r, icon, logo), url = '';
+              try { url = made.canvas.toDataURL('image/png'); } catch (e) { url = ''; }
+              mTicketWrap.textContent = '';
+              var pic;
+              if (url) { pic = document.createElement('img'); pic.src = url; pic.alt = 'Your order estimate ' + made.id + ', total ' + formatUsd(r.totalU); }
+              else pic = made.canvas;
+              pic.className = 'est-ticket';
+              mTicketWrap.appendChild(pic);
+              mSave.hidden = !url;
+              if (url) { mSave.href = url; mSave.setAttribute('download', 'bcraft-' + made.id.toLowerCase() + '.png'); }
+              mGo.href = '/contact/?estimate=' + encodeURIComponent(lastText);
+              // phones: hand the picture straight to the share sheet (Messages, Discord ...) when the browser can do that
+              mShare.hidden = true;
+              shareFile = null;
+              if (url && navigator.canShare && navigator.share && made.canvas.toBlob) {
+                made.canvas.toBlob(function (blob) {
+                  if (!blob) return;
+                  try {
+                    var f = new File([blob], 'bcraft-' + made.id.toLowerCase() + '.png', { type: 'image/png' });
+                    if (navigator.canShare({ files: [f] })) { shareFile = f; mShare.hidden = false; }
+                  } catch (e) {}
+                }, 'image/png');
+              }
+              modal.hidden = false;
+              document.documentElement.classList.add('est-modal-open');
+              document.addEventListener('keydown', onModalKey);
+              mBox.scrollTop = 0;
+              mClose.focus();
+            }); });
+          }
+          if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+        }
+        sendLink.addEventListener('click', function (e) { e.preventDefault(); openTicket(); });
+
+        resetBtn.addEventListener('click', function () {
+          products.forEach(function (p) { qty[p.id] = 0; });
+          ADDONS.forEach(function (a) { extra[a.id] = 0; });
+          isNew = false;
+          newCb.checked = false;
+          newBox.classList.remove('is-checked');
+          sync();
+        });
+
+        sync();
+        // script.js (which holds the sale and welcome offer) runs after this script: look at the offers again once everything has loaded
+        document.addEventListener('DOMContentLoaded', sync);
+        window.addEventListener('load', sync);
       })();
 
       // Backdrop behind square artwork: a tiny copy of the image that the browser smooths when it is stretched.

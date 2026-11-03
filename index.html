@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#060a14">
@@ -215,12 +213,15 @@
                     </a>
                   </li>
                     </ul>
-                    <div class="mega-foot">
-                      <a class="mega-all" href="/work/">View all work <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-                      <a class="mega-aside" href="/pricing/">
-                        <span class="mega-aside-text">Need something custom?</span>
-                        <span class="mega-aside-link">See pricing</span>
-                      </a>
+                    <!-- Bottom strip: status + Commission Me button. Status and wording are set in script.js (MEGA_STRIP) -->
+                    <div class="mega-foot mega-strip" data-mega-strip data-status="open">
+                      <p class="mega-strip-status">
+                        <span class="mega-strip-dot" aria-hidden="true"></span>
+                        <span class="mega-strip-text">Open for commissions</span>
+                        <span class="mega-strip-sep" aria-hidden="true">&middot;</span>
+                        <span class="mega-strip-meta">1&ndash;3 day delivery</span>
+                      </p>
+                      <a class="mega-all mega-strip-button" href="/pricing/">Commission Me <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
                     </div>
                     <!-- Large banner slot. Image path is set in script.js (MEGA_BANNER_DATA) -->
                     <figure class="mega-banner" aria-hidden="true">
@@ -350,6 +351,7 @@
          To add your artwork, edit WORK_ITEMS in script.js and put the images in images/work/. -->
     <section class="section work" id="work" aria-labelledby="work-title">
       <div class="container">
+        <div class="work-track">
         <div class="section-head work-head" data-reveal>
           <h2 id="work-title" class="section-title">Featured Work</h2>
           <p class="work-lead">
@@ -359,6 +361,7 @@
         </div>
 
         <div class="work-grid" data-work-grid></div>
+        </div>
         <noscript><p class="x-posts-noscript">The gallery needs JavaScript. You can browse everything on the <a href="/work/">Work page</a>.</p></noscript>
 
         <div class="work-footer" data-reveal>

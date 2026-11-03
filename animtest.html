@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="color-scheme" content="dark">
+  <title>Scroll animation test | Bcraft Designs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600;700&display=swap">
+  <!-- Reuses your colours, fonts and background grid -->
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ==========================================================
+       SCROLL ANIMATION TEST PAGE
+       Every demo is pure CSS: the animation is tied to scroll position, not
+       time. Scroll slowly and it plays slowly; scroll back and it rewinds.
+       Without support (or with reduced motion on) each demo just shows its
+       finished state.
+       ========================================================== */
+    .at { position: relative; z-index: 1; font-family: var(--font-main, "Figtree", system-ui, sans-serif); color: var(--color-text, #f1f5fc); }
+    .at-wrap { width: min(100% - 2.5rem, 1100px); margin-inline: auto; }
+
+    .at-intro { min-height: 78vh; display: grid; align-content: center; gap: 1.2rem; }
+    .at-intro h1, .at-note h2 { font-family: var(--font-display, "Bricolage Grotesque", sans-serif); font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+    .at-intro h1 { font-size: clamp(2.6rem, 7vw, 5.5rem); max-width: 14ch; }
+    .at-intro p, .at-note p { max-width: 38rem; color: var(--color-text-muted, #9aa8c0); line-height: 1.6; }
+    .at-warn { display: none; padding: 0.8rem 1rem; border: 1px solid rgba(255, 138, 61, 0.5); border-radius: 12px; color: #ffa86b; max-width: 38rem; }
+    @supports not (animation-timeline: view()) { .at-warn { display: block; } }
+
+    .at-note { padding: 5rem 0 2rem; display: grid; gap: 0.8rem; }
+    .at-note h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+    .at-note strong { color: var(--color-orange-bright, #ffa86b); font-weight: 600; }
+
+    /* ---------- Demo 1: pinned scene, a thumbnail builds itself ---------- */
+    .at-scene { height: 400vh; position: relative; view-timeline: --scene block; }
+    .at-stage { position: sticky; top: 0; height: 100vh; display: grid; place-content: center; justify-items: center; gap: 1.4rem; }
+    .at-shot { position: relative; width: min(92vw, 960px); aspect-ratio: 16 / 9; overflow: hidden; border-radius: 18px; border: 1px solid rgba(var(--rgb-blue, 74, 163, 255), 0.3); background: #0b1226; container-type: inline-size; }
+    .at-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 70% 90% at 72% 55%, #5a2a86, transparent 70%), linear-gradient(135deg, #1a0f35, #3b1a1a 60%, #7a3410); }
+    .at-glow { position: absolute; inset: 0; background: radial-gradient(circle at 72% 50%, rgba(255, 150, 60, 0.75), transparent 38%); transform-origin: 72% 50%; }
+    .at-wire { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+    .at-wire * { fill: none; stroke: rgba(134, 197, 255, 0.75); stroke-width: 0.35; stroke-dasharray: 1; stroke-dashoffset: 0; vector-effect: non-scaling-stroke; }
+    .at-title { position: absolute; left: 6%; top: 50%; translate: 0 -50%; font-family: var(--font-display, "Bricolage Grotesque", sans-serif); font-weight: 800; font-size: 9cqi; line-height: 0.95; letter-spacing: -0.03em; color: #fff; text-shadow: 0 0.06em 0 #c4521a, 0 0 0.5em rgba(255, 140, 50, 0.6); }
+    .at-char { position: absolute; right: 16%; bottom: 0; width: 22%; aspect-ratio: 1 / 1.75; }
+    .at-char i { position: absolute; display: block; border-radius: 6%; }
+    .at-head { left: 25%; top: 0; width: 50%; height: 29%; background: #f2c14e;
+      background-image: radial-gradient(circle at 30% 48%, #1b1b1b 0 7%, transparent 8%), radial-gradient(circle at 70% 48%, #1b1b1b 0 7%, transparent 8%); }
+    .at-head::after { content: ""; position: absolute; left: 30%; right: 30%; bottom: 20%; height: 14%; border-bottom: 0.25cqi solid #1b1b1b; border-radius: 0 0 100% 100%; }
+    .at-torso { left: 20%; top: 31%; width: 60%; height: 38%; background: #ff8a3d; }
+    .at-arm { top: 31%; width: 17%; height: 38%; background: #f2c14e; }
+    .at-arm.l { left: 0; } .at-arm.r { right: 0; }
+    .at-leg { top: 70%; width: 29%; height: 30%; background: #1c64dc; }
+    .at-leg.l { left: 20%; } .at-leg.r { right: 20%; }
+    .at-spark { position: absolute; left: 72%; top: 46%; width: 2.2cqi; height: 2.2cqi; background: #ffa86b; border-radius: 3px; translate: var(--dx) var(--dy); rotate: var(--r); }
+
+    .at-cap-row { width: min(92vw, 960px); display: grid; gap: 0.7rem; }
+    .at-caps { display: grid; font-family: var(--font-display, "Bricolage Grotesque", sans-serif); font-weight: 700; font-size: 1.3rem; }
+    .at-caps span { grid-area: 1 / 1; opacity: 0; }
+    .at-caps span:last-child { opacity: 1; }
+    .at-bar { height: 4px; border-radius: 4px; background: rgba(200, 210, 226, 0.14); overflow: hidden; }
+    .at-bar b { display: block; height: 100%; background: var(--color-orange, #ff8a3d); transform-origin: left; }
+
+    /* ---------- Demo 2: numbers that count up ---------- */
+    @property --n { syntax: "<integer>"; initial-value: 0; inherits: false; }
+    .at-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 2rem; padding: 6rem 0 8rem; }
+    .at-stat { display: grid; gap: 0.3rem; }
+    .at-num { --n: var(--to); font-family: var(--font-display, "Bricolage Grotesque", sans-serif); font-weight: 800; font-size: clamp(3.4rem, 9vw, 6.5rem); line-height: 1; letter-spacing: -0.05em; counter-reset: n var(--n); }
+    .at-num::after { content: counter(n) var(--suffix, ""); }
+    .at-stat p { color: var(--color-text-muted, #9aa8c0); }
+
+    /* ---------- Demo 3: vertical scroll moves a gallery sideways ---------- */
+    .at-h { height: 300vh; position: relative; view-timeline: --h block; }
+    .at-hstage { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; align-items: center; }
+    .at-track { display: flex; gap: 1.5rem; width: max-content; padding-inline: 6vw; align-items: center; }
+    .at-track h2 { font-family: var(--font-display, "Bricolage Grotesque", sans-serif); font-weight: 800; font-size: clamp(3rem, 9vw, 7rem); letter-spacing: -0.04em; line-height: 0.95; width: min(70vw, 34rem); }
+    .at-card { flex: none; width: min(78vw, 46vh * 1.78, 640px); aspect-ratio: 16 / 9; border-radius: 16px; border: 1px solid rgba(var(--rgb-blue, 74, 163, 255), 0.25); display: grid; place-items: end start; padding: 1.2rem; font-family: var(--font-display, "Bricolage Grotesque", sans-serif); font-weight: 700; font-size: 1.4rem; }
+    .at-card:nth-of-type(1) { background: linear-gradient(135deg, #14306b, #0b1226); }
+    .at-card:nth-of-type(2) { background: linear-gradient(135deg, #5a2a86, #1a0f35); }
+    .at-card:nth-of-type(3) { background: linear-gradient(135deg, #7a3410, #1a0f35); }
+    .at-card:nth-of-type(4) { background: linear-gradient(135deg, #0f5a58, #0b1226); }
+    .at-card:nth-of-type(5) { background: linear-gradient(135deg, #1c64dc, #5a2a86); }
+
+    /* ---------- Demo 4: a statement that lights up word by word ---------- */
+    .at-words { font-family: var(--font-display, "Bricolage Grotesque", sans-serif); font-weight: 700; font-size: clamp(1.9rem, 5vw, 3.6rem); line-height: 1.12; letter-spacing: -0.03em; max-width: 22ch; padding: 30vh 0; view-timeline: --words block; }
+    .at-end { height: 40vh; }
+
+    /* ---------- The scroll-driven part ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      @supports (animation-timeline: view()) {
+        /* Demo 1. Keyframe percentages are positions within the whole scene's
+           scroll range; the stage is pinned from 20% to 80%, so everything
+           happens in that window. */
+        .at-wire, .at-bg, .at-char, .at-title, .at-glow, .at-spark, .at-caps span, .at-bar b, .at-wire * { animation-timeline: --scene; animation-timing-function: linear; animation-fill-mode: both; animation-duration: 1s; }
+
+        .at-wire { animation-name: at-wire-out; }
+        .at-wire * { animation-name: at-wire-draw; }
+        .at-bg { animation-name: at-bg-in; }
+        .at-char { animation-name: at-char-in; }
+        .at-title { animation-name: at-title-in; }
+        .at-glow { animation-name: at-glow-in; }
+        .at-spark { animation-name: at-spark-out; }
+        .at-bar b { animation-name: at-bar; }
+        .at-caps span:nth-child(1) { animation-name: at-cap1; }
+        .at-caps span:nth-child(2) { animation-name: at-cap2; }
+        .at-caps span:nth-child(3) { animation-name: at-cap3; }
+
+        @keyframes at-wire-draw { 0%, 20% { stroke-dashoffset: 1; } 32%, 100% { stroke-dashoffset: 0; } }
+        @keyframes at-wire-out  { 0%, 20% { opacity: 1; } 34% { opacity: 1; } 46%, 100% { opacity: 0; } }
+        @keyframes at-bg-in     { 0%, 34% { opacity: 0; } 48%, 100% { opacity: 1; } }
+        @keyframes at-char-in   { 0%, 46% { opacity: 0; transform: translateY(35%) scale(0.9); } 62%, 100% { opacity: 1; transform: none; } }
+        @keyframes at-title-in  { 0%, 60% { opacity: 0; transform: translateY(-30px) scale(1.25); } 70%, 100% { opacity: 1; transform: none; } }
+        @keyframes at-glow-in   { 0%, 62% { opacity: 0; transform: scale(0.5); } 78%, 100% { opacity: 1; transform: scale(1.05); } }
+        @keyframes at-spark-out { 0%, 68% { opacity: 0; translate: 0 0; } 74% { opacity: 1; } 80%, 100% { opacity: 1; translate: var(--dx) var(--dy); } }
+        @keyframes at-bar       { 0%, 20% { transform: scaleX(0); } 80%, 100% { transform: scaleX(1); } }
+        @keyframes at-cap1 { 0%, 38% { opacity: 1; } 44%, 100% { opacity: 0; } }
+        @keyframes at-cap2 { 0%, 38% { opacity: 0; } 44%, 58% { opacity: 1; } 64%, 100% { opacity: 0; } }
+        @keyframes at-cap3 { 0%, 58% { opacity: 0; } 64%, 100% { opacity: 1; } }
+
+        /* Demo 2: each number counts while it slides into view */
+        .at-num { animation: at-count linear both; animation-timeline: view(); animation-range: entry 10% entry 100%; }
+        @keyframes at-count { from { --n: 0; } to { --n: var(--to); } }
+
+        /* Demo 3: the track slides left while the stage is pinned (25% to 75%) */
+        .at-track { animation: at-slide linear both; animation-timeline: --h; }
+        @keyframes at-slide { 0%, 25% { transform: translateX(0); } 75%, 100% { transform: translateX(calc(-100% + 100vw)); } }
+
+        /* Demo 4: words light up one after another (--i is the word's position) */
+        .at-words span { animation: at-word linear both; animation-timeline: --words; animation-range: cover calc(22% + var(--i) * 1.6%) cover calc(30% + var(--i) * 1.6%); }
+        @keyframes at-word { from { opacity: 0.16; } to { opacity: 1; } }
+      }
+    }
+  </style>
+</head>
+<body>
+<main class="at">
+
+  <header class="at-wrap at-intro">
+    <h1>Scroll-driven animation test</h1>
+    <p>Four ways to make the page play like an animation while you scroll. Scroll slowly and watch, then scroll back up: each one rewinds. Under each title there is an idea for where it could live on the homepage.</p>
+    <p class="at-warn">This browser doesn’t support scroll-driven animations yet, so you’re seeing the finished state of each demo. Try a recent Chrome, Edge or Safari.</p>
+  </header>
+
+  <!-- ===== 1 ===== -->
+  <div class="at-wrap at-note">
+    <h2>A thumbnail builds itself</h2>
+    <p>The page pins in place and your scroll plays a sketch turning into a finished thumbnail: blueprint lines, colour, character, title, glow. It shows off your craft in a way a static image can’t.</p>
+    <p><strong>Could go:</strong> right after the hero, as a “how a design comes together” moment before Featured Work. Swap my placeholder art for one of your real pieces, split into layers.</p>
+  </div>
+  <section class="at-scene" aria-label="A thumbnail being built as you scroll">
+    <div class="at-stage">
+      <div class="at-shot">
+        <div class="at-bg"></div>
+        <div class="at-glow"></div>
+        <svg class="at-wire" viewBox="0 0 100 56" preserveAspectRatio="none" aria-hidden="true">
+          <rect x="3" y="3" width="94" height="50" rx="3" pathLength="1"/>
+          <path d="M3 28H97M50 3V53" pathLength="1"/>
+          <circle cx="72" cy="26" r="18" pathLength="1"/>
+          <path d="M6 20H44M6 28H36M6 36H40" pathLength="1"/>
+        </svg>
+        <div class="at-title">You<br>got…</div>
+        <div class="at-char" aria-hidden="true">
+          <i class="at-leg l"></i><i class="at-leg r"></i><i class="at-arm l"></i><i class="at-arm r"></i><i class="at-torso"></i><i class="at-head"></i>
+        </div>
+        <span class="at-spark" style="--dx:-9cqi;--dy:-12cqi;--r:20deg"></span>
+        <span class="at-spark" style="--dx:8cqi;--dy:-14cqi;--r:-30deg"></span>
+        <span class="at-spark" style="--dx:14cqi;--dy:-3cqi;--r:45deg"></span>
+        <span class="at-spark" style="--dx:-12cqi;--dy:4cqi;--r:10deg"></span>
+        <span class="at-spark" style="--dx:4cqi;--dy:-18cqi;--r:60deg"></span>
+      </div>
+      <div class="at-cap-row">
+        <div class="at-caps"><span>Sketch</span><span>Colour</span><span>Final polish</span></div>
+        <div class="at-bar"><b></b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 2 ===== -->
+  <div class="at-wrap at-note">
+    <h2>Numbers that count up</h2>
+    <p>Each figure counts from zero as it scrolls into view, tied to your scroll rather than a timer. The numbers below are placeholders.</p>
+    <p><strong>Could go:</strong> a slim strip between Featured Work and Reviews (projects delivered, happy clients, years designing), as proof right before the reviews.</p>
+  </div>
+  <section class="at-wrap at-stats">
+    <div class="at-stat"><div class="at-num" style="--to:120;--suffix:'+'"></div><p>Projects delivered</p></div>
+    <div class="at-stat"><div class="at-num" style="--to:45;--suffix:'+'"></div><p>Happy clients</p></div>
+    <div class="at-stat"><div class="at-num" style="--to:3"></div><p>Years designing</p></div>
+  </section>
+
+  <!-- ===== 3 ===== -->
+  <div class="at-wrap at-note">
+    <h2>Scroll down, gallery moves sideways</h2>
+    <p>The page pins and your vertical scroll slides a row of work across the screen. It turns a normal grid into something you travel through.</p>
+    <p><strong>Could go:</strong> as a teaser version of Featured Work (5 or 6 pieces) ending in the “View All Work” button, or as a way to show the thumbnail, logo and UI categories in a row.</p>
+  </div>
+  <section class="at-h" aria-label="Gallery that slides sideways as you scroll">
+    <div class="at-hstage">
+      <div class="at-track">
+        <h2>Featured Work.</h2>
+        <div class="at-card">Thumbnails</div>
+        <div class="at-card">Logos</div>
+        <div class="at-card">Game UI</div>
+        <div class="at-card">Banners</div>
+        <div class="at-card">Icon packs</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 4 ===== -->
+  <div class="at-wrap at-note">
+    <h2>A statement that lights up word by word</h2>
+    <p>A sentence starts dim and each word brightens in turn as you scroll past it, so people read it at their own pace.</p>
+    <p><strong>Could go:</strong> a one-line pitch between the hero and Featured Work, or as the opener of the About section.</p>
+  </div>
+  <section class="at-wrap">
+    <p class="at-words" aria-label="I design Roblox graphics that make people stop scrolling and start playing.">
+      <span style="--i:0">I</span> <span style="--i:1">design</span> <span style="--i:2">Roblox</span> <span style="--i:3">graphics</span> <span style="--i:4">that</span> <span style="--i:5">make</span> <span style="--i:6">people</span> <span style="--i:7">stop</span> <span style="--i:8">scrolling</span> <span style="--i:9">and</span> <span style="--i:10">start</span> <span style="--i:11">playing.</span>
+    </p>
+  </section>
+  <div class="at-end"></div>
+
+</main>
+</body>
+</html>

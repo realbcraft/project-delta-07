@@ -774,10 +774,11 @@ body::after {
   padding-top: 8px; /* invisible bridge so the menu does not close by accident */
   visibility: hidden;
   opacity: 0;
-  transform: translateY(-8px) scale(0.985);
+  transform: translateY(-10px) scale(0.97);
   transform-origin: 0 0; /* script.js moves this to the trigger */
   pointer-events: none;
-  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s linear 0.15s;
+  /* closing: quick, so the menu never lingers */
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s linear 0.12s;
 }
 
 .mega-services {
@@ -798,7 +799,8 @@ body::after {
   opacity: 1;
   transform: none;
   pointer-events: auto;
-  transition-delay: 0s;
+  /* opening: grows out of the nav item and settles softly (no bounce) */
+  transition: opacity 0.16s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s;
 }
 
 .mega-inner {
@@ -807,9 +809,7 @@ body::after {
   grid-template-columns: 1.2fr 0.8fr;
   gap: var(--space-3);
   padding: var(--space-3);
-  background-color: rgba(8, 14, 30, 0.93);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+  background-color: rgba(8, 14, 30, 0.95);   /* no blur behind it (it made opening laggy), so a touch more solid */
   border: 1px solid rgba(110, 170, 255, 0.16);
   border-radius: var(--radius-mega);
   box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.85), 0 0 70px -35px var(--color-accent-glow);
@@ -959,42 +959,6 @@ body::after {
 
 .mega-banner-image.is-loaded {
   opacity: 1;
-}
-
-/* Banner artwork for the hovered link: two spare layers (added by script.js) crossfade over the
-   normal banner, with a slight zoom-out as each picture settles. They sit below the seasonal
-   cobweb (.season-web, z-index 2), so that decoration stays visible on top of the pictures. */
-.mega-banner-swap {
-  transform: scale(1.04);
-  transition: opacity 0.38s ease, transform 0.7s ease;
-}
-
-.mega-banner-swap.is-visible {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* The link whose artwork is on the banner: a clear "this one" state (blue edge, bright title,
-   icon and arrow), so the link and the picture read as a pair. */
-.mega-work .mega-link.is-showing {
-  border-color: rgba(var(--rgb-blue), 0.38);
-  background-color: rgba(var(--rgb-blue), 0.1);
-  box-shadow: inset 3px 0 0 var(--color-accent-bright);
-}
-
-.mega-work .mega-link.is-showing .mega-link-title {
-  color: var(--color-accent-bright);
-}
-
-.mega-work .mega-link.is-showing .mega-link-icon {
-  color: var(--color-accent-bright);
-  opacity: 1;
-}
-
-.mega-work .mega-link.is-showing .mega-arrow {
-  color: var(--color-accent-bright);
-  opacity: 0.95;
-  transform: rotate(-45deg);
 }
 
 /* ----- Artwork preview (right side of the mega menu) ----- */
@@ -6619,9 +6583,6 @@ body::after {
     transition: opacity 0.35s ease, transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
-  .mega-work .mega-banner:hover .mega-banner-image {
-    transform: scale(1.04);
-  }
 }
 
 /* Phone menu: the heading and decor are skipped, the banner stays */
@@ -6639,10 +6600,6 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .mega-work .mega-banner-image {
     transition: opacity 0.15s ease;
-  }
-
-  .mega-work .mega-banner:hover .mega-banner-image {
-    transform: none;
   }
 
   .mega-work .mega-link:hover .mega-arrow,
@@ -8164,14 +8121,7 @@ body::after {
    a spinning icon and text / arrow slides, were removed so hover stays quiet.)
    ========================================================== */
 @media (min-width: 861px) {
-  .mega.is-open .mega-work .mega-link,
-  .mega-work.is-open .mega-link {
-    animation: mega-row-in 0.28s ease both;
-  }
-
-  .mega-work.is-open .mega-links li:nth-child(2) .mega-link { animation-delay: 0.04s; }
-  .mega-work.is-open .mega-links li:nth-child(3) .mega-link { animation-delay: 0.08s; }
-  .mega-work.is-open .mega-links li:nth-child(4) .mega-link { animation-delay: 0.12s; }
+  /* rows and banner appear together with the panel: no staggered delay */
 }
 
 @keyframes mega-row-in {
@@ -8189,7 +8139,9 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .mega-work.is-open .mega-link {
+  .mega-work.is-open .mega-link,
+  .mega-work.is-open .mega-banner,
+  .mega-work.is-open .mega-foot {
     animation: none;
   }
 }
@@ -10372,23 +10324,6 @@ body::after {
   font-size: 1rem;
 }
 
-@media (hover: hover) {
-  .perk-card:hover {
-    border-color: rgba(var(--rgb-blue), 0.5);
-    box-shadow: 0 30px 56px -30px rgba(0, 0, 0, 0.95);
-    transform: translateY(-4px);
-  }
-
-  .perk-card:nth-child(-n + 2):hover {
-    border-color: transparent;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 30px 56px -30px rgba(0, 0, 0, 0.95),
-      0 0 70px -30px rgba(var(--p1), 0.95),
-      0 0 70px -36px rgba(var(--p2), 0.85);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .perk-card,
   .perk-card:hover {
@@ -10689,12 +10624,6 @@ body::after {
   height: 100%;
 }
 
-@media (hover: hover) {
-  .perk-card[data-season]:hover {
-    border-color: rgba(var(--season), 0.6);
-  }
-}
-
 /* ----- Layout ----- */
 
 /* Tablets: two columns. The first two cards get a full row each. */
@@ -10991,15 +10920,6 @@ body.is-home .perks::before {
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 24px 50px -30px rgba(0, 0, 0, 0.9),
     0 0 54px -38px rgba(var(--p1), 0.55);
-}
-
-@media (hover: hover) {
-  .perk-card:nth-child(2):hover {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 30px 56px -30px rgba(0, 0, 0, 0.95),
-      0 0 60px -34px rgba(var(--p1), 0.7);
-  }
 }
 
 .perk-card:nth-child(2) .mock-stars {
@@ -15368,52 +15288,104 @@ html.welcome-modal-open {
   overflow-y: visible;
 }
 
+/* Hero artwork: wide cut-out (transparent webp) on the right, sized by its height so it never reaches the headline.
+   Effects: blue glow behind it, soft shadow, slow float + tiny tilt, a few drifting sparkles. */
 .pc-hero-visual {
   position: absolute;
-  /* starts at the very top of the page, behind the navbar */
+  /* starts at the very top of the page, behind the navbar; padding keeps the art centred in the visible hero */
   top: calc(var(--header-height) * -1);
   right: 0;
   bottom: 0;
   z-index: 0;
-  /* wide, so the fade has room to be long and gentle instead of a short edge */
-  width: 72%;
+  box-sizing: border-box;
+  width: 58%;
+  padding-top: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  isolation: isolate;
   pointer-events: none;
-  /* The fade lives on the whole container (picture AND its colour wash), so nothing inside can
-     show a box edge. The picture dissolves along a big oval centred near the top-right, with a
-     long eased fade at the bottom. The top and right stay solid and bleed behind the navbar. */
-  -webkit-mask-image: radial-gradient(ellipse 80% 105% at 82% 22%, #000 0%, #000 30%, rgba(0,0,0,.92) 40%, rgba(0,0,0,.75) 50%, rgba(0,0,0,.52) 60%, rgba(0,0,0,.30) 70%, rgba(0,0,0,.13) 81%, rgba(0,0,0,.04) 91%, transparent 100%), linear-gradient(to bottom, #000 0%, #000 48%, rgba(0,0,0,.78) 62%, rgba(0,0,0,.45) 76%, rgba(0,0,0,.15) 90%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image: radial-gradient(ellipse 80% 105% at 82% 22%, #000 0%, #000 30%, rgba(0,0,0,.92) 40%, rgba(0,0,0,.75) 50%, rgba(0,0,0,.52) 60%, rgba(0,0,0,.30) 70%, rgba(0,0,0,.13) 81%, rgba(0,0,0,.04) 91%, transparent 100%), linear-gradient(to bottom, #000 0%, #000 48%, rgba(0,0,0,.78) 62%, rgba(0,0,0,.45) 76%, rgba(0,0,0,.15) 90%, transparent 100%);
-  mask-composite: intersect;
+  /* only the very bottom fades out, so nothing shows a hard edge where the hero ends */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 84%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 84%, transparent 100%);
 }
 
-.pc-hero-art {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 70% center;
-  opacity: 0.92;
-  filter: saturate(1.05) contrast(1.05) brightness(0.95);
-}
-
-/* A cool blue wash so the artwork feels lit by the same light as the site (faded with the container) */
-.pc-hero-visual::after {
+/* The glow behind the art, centred on the rose + character */
+.pc-hero-visual::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 60% 70% at 85% 20%, rgba(60, 130, 255, 0.14), transparent 70%);
-  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 52% 54% at 52% 54%, rgba(60, 130, 255, 0.38), rgba(60, 130, 255, 0.12) 52%, transparent 78%),
+    radial-gradient(ellipse 66% 30% at 50% 93%, rgba(60, 130, 255, 0.14), transparent 70%);
 }
 
-/* Narrower screens: the artwork becomes a faint backdrop so the text stays readable */
+/* A few small sparkles drifting up in front of the art */
+.pc-hero-visual::after {
+  content: "";
+  position: absolute;
+  inset: 12% 4% 10% 8%;
+  z-index: 2;
+  background:
+    radial-gradient(circle at 12% 62%, rgba(190, 220, 255, 0.95) 0 1.6px, transparent 3.2px),
+    radial-gradient(circle at 24% 24%, rgba(190, 220, 255, 0.8) 0 1.2px, transparent 2.6px),
+    radial-gradient(circle at 41% 82%, rgba(190, 220, 255, 0.85) 0 1.4px, transparent 3px),
+    radial-gradient(circle at 58% 12%, rgba(190, 220, 255, 0.9) 0 1.8px, transparent 3.6px),
+    radial-gradient(circle at 73% 70%, rgba(190, 220, 255, 0.8) 0 1.3px, transparent 2.8px),
+    radial-gradient(circle at 88% 30%, rgba(190, 220, 255, 0.95) 0 1.6px, transparent 3.2px),
+    radial-gradient(circle at 94% 86%, rgba(190, 220, 255, 0.75) 0 1.2px, transparent 2.6px);
+  animation: pc-hero-sparkle 9s ease-in-out infinite;
+}
+
+.pc-hero-art {
+  position: relative;
+  display: block;
+  width: auto;
+  height: 80%;
+  max-width: 100%;
+  max-height: 36rem;
+  margin-right: 3%;
+  object-fit: contain;
+  object-position: center;
+  transform-origin: 55% 75%;
+  filter: drop-shadow(0 26px 30px rgba(0, 0, 0, 0.5)) drop-shadow(0 0 42px rgba(70, 140, 255, 0.26));
+  animation: pc-hero-float 8s ease-in-out infinite;
+}
+
+@keyframes pc-hero-float {
+  0%, 100% { transform: translateY(0) rotate(-0.8deg); }
+  50% { transform: translateY(-0.7rem) rotate(0.8deg); }
+}
+
+@keyframes pc-hero-sparkle {
+  0%, 100% { transform: translateY(0); opacity: 0.45; }
+  50% { transform: translateY(-1.1rem); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-hero-art, .pc-hero-visual::after { animation: none; }
+}
+
+/* Narrower screens: the art becomes a faint backdrop so the text stays readable */
 @media (max-width: 1100px) {
   .pc-hero-visual {
     width: 100%;
+    justify-content: center;
   }
 
   .pc-hero-art {
-    opacity: 0.22;
+    height: 74%;
+    margin-right: 0;
+    opacity: 0.24;
+  }
+
+  .pc-hero-visual::before {
+    opacity: 0.6;
+  }
+
+  .pc-hero-visual::after {
+    display: none;
   }
 }
 
@@ -15518,18 +15490,42 @@ html.welcome-modal-open {
 }
 
 /* ==========================================================
-   HERO HEADLINE "ROBLOX": HOVER WIPE
+   HERO HEADLINE "ROBLOX": BLINKING CARET + HOVER WIPE
    Idea from a Uiverse snippet (satyamchaudharydev), adapted: the word stays
-   solid white; on hover an icy-blue copy wipes in from the left with a bar
-   on its right edge and a soft glow. No JS: the copy is a ::after that reads
-   the word from data-text in index.html. Colours: --hfx-color, --hfx-glow.
+   solid white and an orange line blinks at its left edge, in front of the word, like the
+   cursor in a text field. On hover the caret is gone (no blinking while hovered) and an ORANGE copy of the word wipes in
+   from the left with a bar on its right edge and a soft glow. No JS: the copy
+   is a ::after that reads the word from data-text in index.html; the caret is
+   the ::before. Colours: --hfx-color, --hfx-glow. Blink speed: the 1.1s on
+   .hero-fx-word::before.
    ========================================================== */
 .hero-fx-word {
-  --hfx-color: var(--color-accent-bright);
-  --hfx-glow: rgba(var(--rgb-blue), 0.85);
+  --hfx-color: var(--color-orange);
+  --hfx-glow: rgba(var(--rgb-orange), 0.85);
   position: relative;
   display: inline-block;
   padding-right: 0.06em;
+}
+
+/* the blinking caret */
+.hero-fx-word::before {
+  content: "";
+  position: absolute;
+  top: 0.12em;
+  bottom: 0.12em;
+  left: 0;
+  width: 0.05em;
+  background-color: var(--hfx-color);
+  box-shadow: 0 0 10px var(--hfx-glow);
+  pointer-events: none;
+  /* it blinks at rest; after a hover it waits 0.55s (the wipe going back) before it blinks again */
+  opacity: 0;
+  animation: hfx-caret 1.1s steps(1, end) 0.55s infinite;
+}
+
+@keyframes hfx-caret {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
 .hero-fx-word::after {
@@ -15542,19 +15538,31 @@ html.welcome-modal-open {
   overflow: hidden;
   white-space: nowrap;
   color: var(--hfx-color);
-  border-right: 0.05em solid var(--hfx-color);
+  border-right: 0.05em solid transparent;
   pointer-events: none;
-  transition: width 0.5s ease, filter 0.5s ease;
+  transition: width 0.5s ease, filter 0.5s ease, border-color 0.2s ease;
 }
 
 @media (hover: hover) {
+  /* no blinking at all while the word is hovered */
+  .hero-fx-word:hover::before {
+    animation: none;
+    opacity: 0;
+  }
+
   .hero-fx-word:hover::after {
     width: 100%;
+    border-right-color: var(--hfx-color);
     filter: drop-shadow(0 0 23px var(--hfx-glow));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-fx-word::before {
+    animation: none;
+    opacity: 1;
+  }
+
   .hero-fx-word::after {
     transition: none;
   }
@@ -16013,30 +16021,23 @@ html.welcome-modal-open {
   font-size: 0.98rem;
   letter-spacing: 0;
 }
-.perks-more .perks-more-btn:is(:hover, :focus-visible) {
+/* No hover or click effects: nothing lifts, glows, shines, underlines or fades.
+   The keyboard focus ring stays. */
+.perks-more .perks-more-btn,
+.perks-more .perks-more-btn:is(:hover, :focus-visible, :active) {
   border: 0;
   background: none;
   box-shadow: none;
   transform: none;
-  color: #fff;
+  opacity: 1;
+  filter: none;
+  color: var(--color-accent-bright);
+  transition: none;
 }
-.perks-more .perks-more-btn:active { transform: none; opacity: 0.85; }
-.perks-more .perks-more-btn::after {              /* underline that draws in on hover */
-  content: "";
-  position: absolute;
-  inset: auto 0.35rem 0.2rem 0.35rem;
-  z-index: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 0.35s cubic-bezier(0.65, 0, 0.2, 1);
-}
-.perks-more .perks-more-btn:is(:hover, :focus-visible)::after { transform: scaleX(1); transition: transform 0.35s cubic-bezier(0.65, 0, 0.2, 1); }
+.perks-more .perks-more-btn::after { content: none; }
 .perks-more-chevron { flex: none; transition: transform 0.35s var(--spring); }
-.perks-more.is-peek .perks-more-btn:not(:hover):not(:focus-visible) .perks-more-chevron { animation: perks-bob 1.8s ease-in-out infinite; }
-.perks-more .perks-more-btn:is(:hover, :focus-visible) .perks-more-chevron { transform: translateY(2px); }
+.perks-more.is-peek .perks-more-btn .perks-more-chevron { animation: perks-bob 1.8s ease-in-out infinite; }
+.perks-more .perks-more-btn:is(:hover, :focus-visible, :active) .perks-more-chevron { transform: none; }
 .perks-more:not(.is-peek) .perks-more-btn .perks-more-chevron,
 .perks-more:not(.is-peek) .perks-more-btn:is(:hover, :focus-visible) .perks-more-chevron { transform: rotate(180deg); }
 @keyframes perks-bob { 0%, 100% { transform: translateY(-1px); } 50% { transform: translateY(3px); } }
@@ -16152,4 +16153,1492 @@ html.welcome-modal-open {
   background:
     url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='56'%20height='16'%20viewBox='0%200%2056%2016'%3E%20%3Cpath%20d='M0%209%20Q7%201%2014%209%20T28%209%20T42%209%20T56%209%20V16%20H0Z'%20fill='rgb(255,196,61)'%20fill-opacity='0.22'/%3E%3C/svg%3E") repeat-x 14px bottom / 56px 16px,
     url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='56'%20height='16'%20viewBox='0%200%2056%2016'%3E%20%3Cpath%20d='M0%209%20Q7%201%2014%209%20T28%209%20T42%209%20T56%209%20V16%20H0Z'%20fill='rgb(45,212,220)'%20fill-opacity='0.26'/%3E%3C/svg%3E") repeat-x 0 bottom / 56px 16px;
+}
+
+
+/* ==========================================================
+   WORK MENU: the buttons answer instantly, and the page dims behind the open menu
+   (kept at the end of the file so it wins over the older hover timings above)
+   ========================================================== */
+.mega-work .mega-link {
+  transition: background-color 0.06s ease, border-color 0.06s ease, box-shadow 0.06s ease;
+}
+
+.mega-work .mega-link-icon {
+  transition: color 0.06s ease, opacity 0.06s ease;
+}
+
+.mega-work .mega-link-title {
+  transition: color 0.06s ease;
+}
+
+.mega-work .mega-link .mega-arrow {
+  transition: opacity 0.06s ease, color 0.06s ease, transform 0.1s ease;
+}
+
+/* The dim: sits under the header (z-index 100) and over the page, and never catches the mouse */
+.mega-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(3, 7, 18, 0.3);          /* was 0.5: less dark */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: opacity;                      /* own layer: the fade costs no repaint */
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+
+.mega-backdrop.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+@media (max-width: 860px) {
+  .mega-backdrop { display: none; }
+}
+
+/* ==========================================================
+   WORK MENU: floating preview card
+   Shows the picture of the hovered button beside the menu (the banner stays as it is).
+   Desktop only; script.js places it and points it at the hovered button.
+   ========================================================== */
+.mega-float { display: none; }
+
+@media (min-width: 861px) {
+  .mega-float {
+    display: block;
+    position: fixed;
+    z-index: 101;
+    width: 280px;
+    padding: 8px 8px 10px;
+    border: 1px solid rgba(var(--rgb-blue), 0.3);
+    border-radius: var(--radius-card);
+    background: #0d1a2f;
+    box-shadow:
+      0 24px 48px -20px rgba(0, 0, 0, 0.9),
+      0 0 44px -14px rgba(var(--rgb-blue), 0.5);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(var(--float-shift, 0));
+    transition: opacity 0.12s ease, transform 0.18s ease, visibility 0s linear 0.12s;
+  }
+
+  .mega-float[data-side="right"] { --float-shift: -6px; }
+  .mega-float[data-side="left"]  { --float-shift: 6px; }
+
+  .mega-float.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  .mega-float-frame {
+    overflow: hidden;
+    border-radius: calc(var(--radius-card) - 4px);
+    background: rgba(var(--rgb-blue), 0.06);
+  }
+
+  .mega-float-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 320px;
+    object-fit: contain;
+  }
+
+  .mega-float-text {
+    display: grid;
+    gap: 2px;
+    padding: 8px 4px 0;
+  }
+
+  .mega-float-title {
+    color: var(--color-text);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .mega-float-desc {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    line-height: 1.3;
+  }
+
+  /* the pointer towards the hovered button */
+  .mega-float::before {
+    content: "";
+    position: absolute;
+    top: var(--float-pointer, 50%);
+    width: 12px;
+    height: 12px;
+    margin-top: -6px;
+    background: #0d1a2f;
+    border: 1px solid rgba(var(--rgb-blue), 0.3);
+    transform: rotate(45deg);
+  }
+
+  .mega-float[data-side="right"]::before {
+    left: -7px;
+    border-right: 0;
+    border-top: 0;
+  }
+
+  .mega-float[data-side="left"]::before {
+    right: -7px;
+    border-left: 0;
+    border-bottom: 0;
+  }
+
+  /* Speech-bubble tail on the bottom edge, pointing down at the side render (script.js sets
+     data-pointer="down" and --float-tail). It replaces the pointer on the card's side. */
+  .mega-float[data-pointer="down"]::before { display: none; }
+
+  .mega-float[data-pointer="down"]::after {
+    content: "";
+    position: absolute;
+    bottom: -7px;
+    left: var(--float-tail, 50%);
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    background: #0d1a2f;
+    border: 1px solid rgba(var(--float-rgb, var(--rgb-blue)), 0.34);
+    border-left: 0;
+    border-top: 0;
+    transform: rotate(45deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mega-float { transition: opacity 0.1s ease; transform: none; }
+}
+
+/* ==========================================================
+   WORK MENU: button fill
+   A coloured panel sits on the right side of each button. On hover / keyboard focus it grows
+   to fill the whole button (same shape and corners as the button). script.js adds the
+   .mega-deco element. Change the colour per button with --fill-rgb, and how far the panel
+   reaches at rest with --fill-start.
+   ========================================================== */
+.mega-deco { display: none; }
+
+@media (min-width: 861px) {
+  .mega-work .mega-link {
+    position: relative;
+    --fill-start: 58%;
+    --fill-rgb: 59, 130, 246;
+  }
+
+  .mega-work .mega-link[data-preview="all-graphics"]       { --fill-rgb: 59, 130, 246; }
+  .mega-work .mega-link[data-preview="game-thumbnails"]    { --fill-rgb: 139, 92, 246; }
+  .mega-work .mega-link[data-preview="youtube-thumbnails"] { --fill-rgb: 255, 30, 30; }
+  .mega-work .mega-link[data-preview="profile-pictures"]   { --fill-rgb: 236, 72, 153; }
+
+  /* keep the real content above the fill */
+  .mega-work .mega-link > :not(.mega-deco) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .mega-deco {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    border-radius: 11px;
+    pointer-events: none;
+  }
+
+  .mega-deco-fill {
+    position: absolute;
+    inset: 0;
+    background-color: rgb(var(--fill-rgb));
+    clip-path: polygon(calc(var(--fill-start) + 4%) 0, 100% 0, 100% 100%, var(--fill-start) 100%);
+    transition: clip-path 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .mega-work .mega-link:hover .mega-deco-fill,
+  .mega-work .mega-link:focus-visible .mega-deco-fill {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  /* text, icon and arrow turn white once the button is filled */
+  .mega-work .mega-link:hover .mega-link-title,
+  .mega-work .mega-link:focus-visible .mega-link-title,
+  .mega-work .mega-link:hover .mega-link-text,
+  .mega-work .mega-link:focus-visible .mega-link-text,
+  .mega-work .mega-link:hover .mega-link-icon,
+  .mega-work .mega-link:focus-visible .mega-link-icon,
+  .mega-work .mega-link:hover .mega-arrow,
+  .mega-work .mega-link:focus-visible .mega-arrow {
+    color: #fff;
+  }
+
+  /* YouTube logo: red with a white play button; on the red fill the colours swap */
+  .mega-link-icon .yt-bg   { fill: #ff0033; transition: fill 0.2s ease; }
+  .mega-link-icon .yt-play { fill: #fff;    transition: fill 0.2s ease; }
+
+  .mega-work .mega-link:hover .yt-bg,
+  .mega-work .mega-link:focus-visible .yt-bg   { fill: #fff; }
+  .mega-work .mega-link:hover .yt-play,
+  .mega-work .mega-link:focus-visible .yt-play { fill: #ff1e1e; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mega-deco-fill { transition: none; }
+}
+
+/* ==========================================================
+   WORK MENU: picture tiles
+   Each button is a small poster. The category's own picture fills the tile (the same width as the
+   picture in the hover card) and the icon, title and line sit on a soft dark fade at the bottom. Pictures
+   rest slightly dimmed and come to full colour on hover, with a slow zoom, a thin light line that
+   draws across the bottom and an arrow that slides in. No per-button colours: one quiet accent.
+   Tweak the shape with --tile-ratio (smaller second number = shorter tile) and which part of the
+   picture shows with --tile-focus. script.js adds the .mega-link-pic element with the picture.
+   Kept at the very end of the file so it wins over the older rules above.
+   ========================================================== */
+.mega-link-pic { display: none; }
+
+@media (min-width: 861px) {
+  .mega-work .mega-link[data-preview] {
+    --fill-rgb: 74, 163, 255;      /* the same for all four: the old per-button colours are retired */
+    --tile-ratio: 16 / 5.6;
+    --tile-focus: 50% 32%;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: none;
+    align-items: center;
+    align-content: end;
+    align-self: start;
+    aspect-ratio: var(--tile-ratio);
+    height: auto;
+    gap: 0 0.65rem;
+    padding: 0.6rem 0.85rem 0.65rem 0.7rem;
+    border: 1px solid rgba(var(--rgb-silver), 0.14);
+    border-radius: 14px;
+    background: #0b1426;
+    box-shadow: none;
+    transition: border-color 0.06s ease, transform 0.06s ease;
+  }
+
+  /* The picture and its fade */
+  .mega-work .mega-link[data-preview] .mega-link-pic {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(135deg, #14253f, #0b1426);
+  }
+
+  .mega-work .mega-link[data-preview] .mega-link-pic img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--tile-focus);
+    filter: saturate(0.8) brightness(0.72);
+    transform: scale(1.02);
+    opacity: 0;
+    transition: opacity 0.2s ease, filter 0.06s ease, transform 0.1s ease-out;
+  }
+
+  .mega-work .mega-link[data-preview] .mega-link-pic.is-ready img { opacity: 1; }
+
+  /* Profile Pictures: the picture is square, so the wide tile shows a strip of it. Aim the strip at
+     the face (the first number is left/right, the second is up/down: bigger = lower) */
+  .mega-work .mega-link[data-preview="profile-pictures"] { --tile-focus: 50% 100%; }
+
+  .mega-work .mega-link[data-preview] .mega-link-pic::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(6, 10, 20, 0.92) 0%, rgba(6, 10, 20, 0.55) 50%, rgba(6, 10, 20, 0.06) 100%);
+  }
+
+  /* Icon: a small glass chip to the left of the text */
+  .mega-work .mega-link[data-preview] > .mega-link-icon {
+    grid-area: auto;
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    justify-self: start;
+    width: 2rem;
+    height: 2rem;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    background: rgba(6, 10, 20, 0.62);
+    color: rgba(255, 255, 255, 0.92);
+    opacity: 1;
+    transform: none;
+    transition: background-color 0.06s ease, border-color 0.06s ease;
+  }
+
+  .mega-work .mega-link[data-preview] > .mega-link-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* YouTube logo in one neutral tone: a light badge with a dark play button */
+  .mega-work .mega-link[data-preview] .mega-link-icon .yt-bg   { fill: currentColor; }
+  .mega-work .mega-link[data-preview] .mega-link-icon .yt-play { fill: #0b1426; opacity: 1; }
+
+  /* Title and line, laid over the fade */
+  .mega-work .mega-link[data-preview] > .mega-link-body {
+    grid-area: auto;
+    position: relative;
+    z-index: 2;
+    min-width: 0;
+  }
+
+  .mega-work .mega-link[data-preview] .mega-link-title {
+    color: #fff;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .mega-work .mega-link[data-preview] .mega-link-text {
+    margin-top: 0.1rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.82rem;
+  }
+
+  /* Arrow: hidden at rest, slides in from the corner on hover */
+  .mega-work .mega-link[data-preview] > .mega-arrow {
+    grid-area: auto;
+    position: absolute;
+    top: 0.7rem;
+    right: 0.75rem;
+    z-index: 2;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    color: #fff;
+    opacity: 0;
+    filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.6));
+    transform: translate(-6px, 6px) rotate(-45deg);
+    transition: opacity 0.06s ease, transform 0.08s ease-out;
+  }
+
+  .mega-work .mega-link[data-preview] > .mega-arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* The thin light line along the bottom edge (drawn by the old fill element) */
+  .mega-work .mega-link[data-preview] .mega-deco {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .mega-work .mega-link[data-preview] .mega-deco-fill {
+    inset: auto 0 0 0;
+    height: 2px;
+    clip-path: none;
+    background: linear-gradient(90deg, rgba(var(--rgb-blue), 0), rgba(190, 220, 255, 0.95) 50%, rgba(var(--rgb-blue), 0));
+    opacity: 1;
+    transform: scaleX(0);
+    transition: transform 0.1s ease-out;
+  }
+
+  /* Hover / keyboard focus */
+  .mega-work .mega-link[data-preview]:hover,
+  .mega-work .mega-link[data-preview]:focus-visible {
+    border-color: rgba(var(--rgb-blue), 0.5);
+    background-color: #0b1426;
+    transform: translateY(-1px);
+  }
+
+  .mega-work .mega-link[data-preview]:hover .mega-link-pic img,
+  .mega-work .mega-link[data-preview]:focus-visible .mega-link-pic img {
+    filter: saturate(1) brightness(0.95);
+    transform: scale(1.07);
+  }
+
+  .mega-work .mega-link[data-preview]:hover > .mega-link-icon,
+  .mega-work .mega-link[data-preview]:focus-visible > .mega-link-icon {
+    border-color: rgba(var(--rgb-blue), 0.65);
+    background: rgba(var(--rgb-blue), 0.3);
+    color: #fff;
+  }
+
+  .mega-work .mega-link[data-preview]:hover .mega-link-title,
+  .mega-work .mega-link[data-preview]:focus-visible .mega-link-title { color: #fff; }
+
+  .mega-work .mega-link[data-preview]:hover .mega-link-text,
+  .mega-work .mega-link[data-preview]:focus-visible .mega-link-text { color: rgba(255, 255, 255, 0.85); }
+
+  .mega-work .mega-link[data-preview]:hover > .mega-arrow,
+  .mega-work .mega-link[data-preview]:focus-visible > .mega-arrow {
+    color: #fff;
+    opacity: 1;
+    transform: translate(0, 0) rotate(-45deg);
+  }
+
+  .mega-work .mega-link[data-preview]:hover .mega-deco-fill,
+  .mega-work .mega-link[data-preview]:focus-visible .mega-deco-fill { transform: scaleX(1); }
+
+  .mega-work .mega-link[data-preview]:focus-visible {
+    outline: 2px solid var(--color-accent-bright);
+    outline-offset: 2px;
+  }
+
+  /* Small tag next to a title ("New", "Most ordered"): set badge in MEGA_MENU_DATA */
+  .mega-link-badge {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.05rem 0.38rem;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font-size: 0.56rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    vertical-align: 2px;
+    white-space: nowrap;
+  }
+}
+
+/* On short screens the tiles are a little shorter */
+@media (min-width: 861px) and (max-height: 780px) {
+  .mega-work .mega-link[data-preview] { --tile-ratio: 16 / 5; }
+}
+
+
+/* ==========================================================
+   WORK MENU: preview card, banner, footer, entrance
+   Kept at the very end of the file so it wins over the older rules above.
+   ========================================================== */
+@media (min-width: 861px) {
+
+  /* ----- Preview card: wears the tone of the hovered ticket, crossfades between pictures.
+     The frame takes the exact shape of each picture (script.js sets its aspect-ratio). ----- */
+  .mega-float {
+    --float-rgb: 74, 163, 255;
+    border-color: rgba(var(--float-rgb), 0.34);
+    box-shadow:
+      0 24px 48px -20px rgba(0, 0, 0, 0.9),
+      0 0 44px -16px rgba(var(--float-rgb), 0.45);
+    transition: opacity 0.08s ease, transform 0.1s ease, visibility 0s linear 0.08s;
+  }
+
+  .mega-float::before {
+    border-color: rgba(var(--float-rgb), 0.34);
+    transition: top 0.08s ease-out;
+  }
+
+  /* The frame never changes: it always has the shape of a 16:9 thumbnail and the same width.
+     Thumbnails fill it exactly. Square pictures (icons) are fitted to that same width, so they are
+     trimmed at the top and bottom (--mega-float-focus picks which part stays: 50% 35% = a little above
+     the middle). To show a whole icon instead, set --mega-float-fit to contain: it is then centred
+     with a dark blurred copy of itself on both sides.
+     The card width is the 280px in the "floating preview card" section above. */
+  .mega-float-frame {
+    --mega-float-fit: cover;
+    --mega-float-focus: 50% 35%;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: rgba(var(--float-rgb), 0.06);
+  }
+
+  .mega-float-layer {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+  }
+
+  .mega-float-layer.is-front { opacity: 1; }
+
+  .mega-float-layer::before {
+    content: "";
+    position: absolute;
+    inset: -24px;
+    background: var(--bg) center / cover no-repeat;
+    filter: blur(18px) brightness(0.5) saturate(1.2);
+  }
+
+  /* ----- Picture pair: two pictures overlap like cards, one top left (behind) and one bottom right
+     (in front). They are listed as "images" in MEGA_MENU_DATA in script.js; one picture only = one
+     big picture.
+     --mega-pair-w   width of each picture as a share of the frame (bigger = more overlap) ----- */
+  .mega-float-frame { --mega-pair-w: 70%; }
+
+  .mega-float-track {
+    position: absolute;
+    inset: 0;
+  }
+
+  .mega-float-tile {
+    position: absolute;
+    width: var(--mega-pair-w);
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 10px 22px -8px rgba(0, 0, 0, 0.85);
+    transition: transform 0.18s ease;
+  }
+
+  .mega-float-tile:nth-child(1) { top: 8px; left: 8px; z-index: 1; transform: translate(-6px, -4px); }
+  .mega-float-tile:nth-child(2) { right: 8px; bottom: 8px; z-index: 2; transform: translate(6px, 4px); }
+
+  /* the pair slides together when its layer comes forward */
+  .mega-float-layer.is-front .mega-float-tile { transform: none; }
+
+  .mega-float-track.is-single .mega-float-tile {
+    inset: 0;
+    width: 100%;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* Square pictures (shape: "square" in MEGA_MENU_DATA): the pair is made of squares, so a whole
+     avatar shows instead of a wide strip of it. --mega-square-size is the side of each square. */
+  .mega-float-frame { --mega-square-size: 136px; }
+
+  .mega-float-track[data-shape="square"] .mega-float-tile {
+    width: var(--mega-square-size);
+    aspect-ratio: 1 / 1;
+  }
+
+  .mega-float-track[data-shape="square"] .mega-float-tile:nth-child(1) { top: 8px; }
+  .mega-float-track[data-shape="square"] .mega-float-tile:nth-child(2) { bottom: 8px; }
+
+  /* One square picture inside a pair of wide ones ("shapes" in MEGA_MENU_DATA, e.g. All Graphics):
+     only that tile is a 1:1 square, the other one keeps the thumbnail shape. */
+  .mega-float-track:not([data-shape="square"]) .mega-float-tile[data-shape="square"] {
+    width: var(--mega-square-size);
+    aspect-ratio: 1 / 1;
+  }
+
+  /* one square picture: centred, whole */
+  .mega-float-track.is-single[data-shape="square"] .mega-float-tile {
+    inset: 8px auto auto 50%;
+    width: calc(100% - 16px);
+    max-width: 141px;
+    height: auto;
+    margin-left: -70.5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    aspect-ratio: 1 / 1;
+    box-shadow: 0 10px 22px -8px rgba(0, 0, 0, 0.85);
+  }
+
+  .mega-float-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    object-fit: var(--mega-float-fit);
+    object-position: var(--mega-float-focus);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mega-float-tile { transition: none; }
+  }
+
+  .mega-float-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .mega-float-price {
+    color: color-mix(in srgb, rgb(var(--float-rgb)) 72%, #fff);
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .mega-float-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 4px;
+    color: color-mix(in srgb, rgb(var(--float-rgb)) 72%, #fff);
+    font-size: 0.74rem;
+    font-weight: 600;
+  }
+
+  /* ----- Banner: shorter, with a sale button on it -----
+     --mega-banner-ratio is the shape. 16 / 5 is the full original artwork; the smaller the
+     second number, the shorter the banner (the artwork is trimmed top and bottom). */
+  .mega-work .mega-banner {
+    --mega-banner-ratio: 16 / 4.2;
+    aspect-ratio: var(--mega-banner-ratio);
+  }
+
+  .mega-banner-cta {
+    --cta-rgb: 255, 255, 255;
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.6rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.38rem 0.8rem;
+    border: 1px solid rgba(var(--cta-rgb), 0.5);
+    border-radius: 999px;
+    background: rgba(6, 10, 20, 0.76);
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: background-color 0.06s ease, border-color 0.06s ease;
+  }
+
+  html[data-season="halloween"] .mega-banner-cta { --cta-rgb: 255, 138, 61; }
+  html[data-season="christmas"] .mega-banner-cta { --cta-rgb: 255, 99, 99; }
+  html[data-season="summer"]    .mega-banner-cta { --cta-rgb: 255, 196, 61; }
+
+  a.mega-banner-cta:hover,
+  a.mega-banner-cta:focus-visible {
+    border-color: rgba(var(--cta-rgb), 0.85);
+    background: rgba(var(--cta-rgb), 0.22);
+  }
+
+  a.mega-banner-cta:focus-visible {
+    outline: 2px solid rgba(var(--cta-rgb), 0.9);
+    outline-offset: 2px;
+  }
+
+  /* ----- "View all work": the same champagne gold as the featured ticket ----- */
+  .mega-work .mega-all {
+    transition: background-color 0.06s ease, border-color 0.06s ease, color 0.06s ease;
+    border-color: rgba(226, 187, 104, 0.36);
+    background-color: rgba(226, 187, 104, 0.1);
+    color: #f0d9a2;
+  }
+
+  .mega-work .mega-all:hover,
+  .mega-work .mega-all:focus-visible {
+    border-color: rgba(226, 187, 104, 0.58);
+    background-color: rgba(226, 187, 104, 0.18);
+    color: #f8e7bd;
+  }
+
+  .mega-work .mega-all:focus-visible { outline-color: #f0d9a2; }
+}
+
+
+/* ==========================================================
+   WORK MENU: bottom strip (replaces "View all work")
+   A status dot + short text on the left, the "Commission Me" button on the right.
+   The button is a .mega-all link, so it keeps that button's look. The status and the wording are
+   set in MEGA_STRIP in script.js. data-status is open, limited or closed.
+   ========================================================== */
+.mega-strip-status {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.5rem;
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+  line-height: 1.3;
+}
+
+.mega-strip-dot {
+  position: relative;
+  flex: none;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background-color: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent-glow);
+}
+
+/* a soft ring that grows and fades around the dot (transform + opacity only) */
+.mega-strip-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--color-accent);
+  opacity: 0;
+  animation: mega-strip-ring 2.6s ease-out infinite;
+}
+
+.mega-strip[data-status="limited"] .mega-strip-dot {
+  background-color: var(--color-orange);
+  box-shadow: none;
+}
+
+.mega-strip[data-status="limited"] .mega-strip-dot::after { border-color: var(--color-orange); }
+
+.mega-strip[data-status="closed"] .mega-strip-dot {
+  background-color: var(--color-text-muted);
+  box-shadow: none;
+}
+
+.mega-strip[data-status="closed"] .mega-strip-dot::after { animation: none; }
+
+.mega-strip-text {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.mega-strip-sep { opacity: 0.45; }
+
+.mega-strip-sep[hidden],
+.mega-strip-meta[hidden] { display: none; }
+
+@keyframes mega-strip-ring {
+  0%   { opacity: 0.7; transform: scale(1); }
+  70%, 100% { opacity: 0; transform: scale(2.6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mega-strip-dot::after { animation: none; }
+}
+
+/* ==========================================================
+   WORK MENU: side render
+   A transparent render that peeks out from behind the right edge of the menu (script.js adds
+   the .mega-side-render element and sets its size from MEGA_SIDE_RENDER at the top of script.js).
+   It sits behind the panel, so only the part beyond the right edge shows, and it slides out
+   when the menu opens. Desktop only.
+   ========================================================== */
+.mega-side-render { display: none; }
+
+@media (min-width: 861px) {
+  .mega-work { isolation: isolate; }
+
+  .mega-side-render {
+    display: block;
+    position: absolute;
+    left: 100%;
+    bottom: var(--side-bottom, 22px);
+    z-index: -1;
+    width: var(--side-w, 250px);
+    height: var(--side-h, 250px);
+    margin-left: calc(var(--side-tuck, 70px) * -1 - 3px);   /* the extra 3px keeps the flat edge hidden under the panel border */
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+    transform: translateX(calc(var(--side-tuck, 70px) * -0.4));
+    transition: opacity 0.14s ease, transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+    filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.45));
+  }
+
+  .mega-side-render img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .mega.is-open .mega-side-render.is-ready.has-room {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Idle motion: a very slow bob, only while the menu is open */
+  .mega.is-open .mega-side-render.is-ready.has-room img {
+    animation: mega-side-bob 6.5s ease-in-out infinite;
+  }
+
+  @keyframes mega-side-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(calc(var(--side-bob, 3px) * -1)); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mega-side-render { transition: none; }
+  .mega.is-open .mega-side-render.is-ready.has-room img { animation: none; }
+}
+
+
+/* ==========================================================
+   WORK MENU: "Commission Me" BUTTON HOVER ("Circle Fill")
+   Its own animation, different from the hero buttons (star burst / rolling text):
+   on hover an orange circle grows out of the arrow and floods the whole button, the
+   label turns dark and the arrow slides a little to the right. No JS and no extra
+   markup: it only styles the existing .mega-strip-button link (the circle is its
+   ::before). Change the circle's start point with left/top of ::before.
+   ========================================================== */
+.mega-work .mega-strip-button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 0.2s ease 0.12s, border-color 0.3s ease, box-shadow 0.35s ease;
+}
+
+/* the circle: a small orange dot that sits behind the arrow, ready to grow */
+.mega-work .mega-strip-button::before {
+  content: "";
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin-top: -0.8rem;
+  z-index: -1;
+  border-radius: 50%;
+  background: var(--color-orange);
+  transform: scale(0);
+  transition: transform 0.55s cubic-bezier(0.22, 0.9, 0.3, 1);
+  pointer-events: none;
+}
+
+.mega-work .mega-strip-button:hover,
+.mega-work .mega-strip-button:focus-visible {
+  border-color: var(--color-orange);
+  color: var(--color-orange-ink);
+  box-shadow: 0 0 18px rgba(var(--rgb-orange), 0.3);
+}
+
+.mega-work .mega-strip-button:hover::before,
+.mega-work .mega-strip-button:focus-visible::before {
+  transform: scale(22);
+}
+
+.mega-work .mega-strip-button:focus-visible {
+  outline-color: var(--color-orange-bright);
+}
+
+.mega-work .mega-strip-button .mega-arrow {
+  transition: transform 0.35s cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+
+.mega-work .mega-strip-button:hover .mega-arrow,
+.mega-work .mega-strip-button:focus-visible .mega-arrow {
+  color: inherit;
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mega-work .mega-strip-button::before,
+  .mega-work .mega-strip-button .mega-arrow { transition: none; }
+}
+
+
+/* ==========================================================
+   WORK MENU: banner sale button hover ("Claim 20% off")
+   A light streak sweeps across the pill, the pill fills with its sale colour and glows a little
+   (--cta-rgb: white normally, orange / red / yellow in the seasons), the arrow slides forward and
+   the button grows slightly. Pure CSS; the streak is a background layer, so nothing is clipped.
+   ========================================================== */
+@media (min-width: 861px) {
+  a.mega-banner-cta {
+    background-image: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, 0.45) 50%, transparent 62%);
+    background-size: 260% 100%;
+    background-position: 140% 0;
+    background-repeat: no-repeat;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease, transform 0.2s ease;
+  }
+
+  a.mega-banner-cta svg {
+    transition: transform 0.25s cubic-bezier(0.22, 0.9, 0.3, 1);
+  }
+
+  a.mega-banner-cta:hover,
+  a.mega-banner-cta:focus-visible {
+    background-color: rgba(var(--cta-rgb), 0.3);
+    background-image: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, 0.45) 50%, transparent 62%);
+    box-shadow: 0 0 18px rgba(var(--cta-rgb), 0.45);
+    transform: scale(1.05);
+    animation: mega-claim-shine 0.8s ease-out 1;
+  }
+
+  a.mega-banner-cta:hover svg,
+  a.mega-banner-cta:focus-visible svg {
+    transform: translateX(4px);
+  }
+
+  @keyframes mega-claim-shine {
+    from { background-position: 140% 0; }
+    to   { background-position: -40% 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    a.mega-banner-cta,
+    a.mega-banner-cta svg { transition: none; }
+    a.mega-banner-cta:hover,
+    a.mega-banner-cta:focus-visible { animation: none; transform: none; }
+    a.mega-banner-cta:hover svg,
+    a.mega-banner-cta:focus-visible svg { transform: none; }
+  }
+}
+
+
+/* ==========================================================
+   WORK MENU: square picture pair in the preview card (Profile Pictures)
+   Two smaller squares sit side by side like two photos laid on the table: slightly turned in
+   opposite directions, staggered (one high, one low), with a tiny overlap in the middle and
+   room around them. --mega-square-size is the side of each square. Desktop only.
+   ========================================================== */
+@media (min-width: 861px) {
+  .mega-float-frame { --mega-square-size: 112px; }
+
+  .mega-float-track[data-shape="square"] .mega-float-tile {
+    border-radius: 12px;
+    border-color: rgba(255, 255, 255, 0.28);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.9);
+  }
+
+  .mega-float-track[data-shape="square"] .mega-float-tile:nth-child(1) {
+    top: 12px;
+    left: 20px;
+    right: auto;
+    bottom: auto;
+    rotate: -5deg;
+  }
+
+  .mega-float-track[data-shape="square"] .mega-float-tile:nth-child(2) {
+    top: auto;
+    bottom: 12px;
+    right: 20px;
+    left: auto;
+    rotate: 4deg;
+  }
+
+  /* a square picture inside a wide pair (All Graphics) keeps its place, only the size follows */
+  .mega-float-track:not([data-shape="square"]) .mega-float-tile[data-shape="square"] {
+    border-radius: 10px;
+  }
+
+  /* a single square (the other picture is missing): centred and whole, no turn */
+  .mega-float-track.is-single[data-shape="square"] .mega-float-tile { rotate: none; }
+}
+
+
+/* ==========================================================
+   WORK MENU: opening animation of the pictures in the preview card
+   It used to be a transition that script.js set off by adding .is-front to a layer in the same
+   moment the pictures were created. When a picture came from the cache the browser never saw the
+   "before" state, so the slide-in was skipped most of the time (and a card that opened again on the
+   same link had nothing to play at all). Now it is a keyframe animation: it starts by itself every
+   time the card becomes visible and every time another link's pictures come to the front.
+   The back picture comes in from the top left, the front one from the bottom right, a moment later.
+   ========================================================== */
+@media (min-width: 861px) {
+  /* the old offsets and transition are replaced by the animation below */
+  .mega-float .mega-float-layer .mega-float-tile {
+    transform: none;
+    transition: none;
+  }
+
+  .mega-float.is-visible .mega-float-layer.is-front .mega-float-tile:nth-child(1) {
+    animation: mega-tile-in-a 0.42s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+  }
+
+  .mega-float.is-visible .mega-float-layer.is-front .mega-float-tile:nth-child(2) {
+    animation: mega-tile-in-b 0.42s cubic-bezier(0.22, 0.9, 0.3, 1) 0.07s both;
+  }
+
+  @keyframes mega-tile-in-a {
+    from { opacity: 0; transform: translate(-14px, -8px) scale(0.94); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @keyframes mega-tile-in-b {
+    from { opacity: 0; transform: translate(14px, 8px) scale(0.94); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mega-float.is-visible .mega-float-layer.is-front .mega-float-tile:nth-child(1),
+    .mega-float.is-visible .mega-float-layer.is-front .mega-float-tile:nth-child(2) {
+      animation: none;
+    }
+  }
+}
+
+
+/* ==========================================================
+   HERO: centred text block, calmer paragraph, clearer slideshow bars
+   1) Desktop: everything in the text block is centred (headline, paragraph, buttons, rating pill,
+      social icons), the same as on phones. The middle headline line loses its indent for that.
+   2) The paragraph is a little narrower and wraps in balanced lines (no lonely word at the end of a
+      line), and the dark scrim on the left reaches further in so the text stays clear of the busy
+      part of the artwork.
+   3) The slideshow bars at the bottom: thicker, in a small dark pill so they read against any
+      artwork, the filling bar is orange, and each bar is a bigger tap target.
+   ========================================================== */
+.hero-text {
+  text-wrap: balance;
+}
+
+@media (min-width: 960px) {
+  .hero > .hero-inner .hero-content {
+    text-align: center;
+  }
+
+  .hero-line-indent {
+    padding-left: 0;
+  }
+
+  .hero-text {
+    max-width: 27rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* the scrim stays darker for longer, so the centred text keeps its calm background */
+  .hero .hero-art-main::before {
+    background:
+      linear-gradient(180deg, rgba(6, 10, 20, 0.7), transparent 22%),
+      radial-gradient(ellipse 55% 80% at 82% 45%, rgba(var(--rgb-blue), 0.14), transparent 70%),
+      linear-gradient(90deg, rgba(6, 10, 20, 0.97) 0%, rgba(6, 10, 20, 0.9) 28%, rgba(6, 10, 20, 0.62) 46%, rgba(6, 10, 20, 0.22) 63%, transparent 84%);
+  }
+}
+
+.hero-dots {
+  bottom: 1.3rem;
+  gap: 0;
+  padding: 0 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background-color: rgba(6, 10, 20, 0.55);
+}
+
+.hero-dot {
+  width: 2.6rem;
+  height: 2rem;
+}
+
+.hero-dot::before,
+.hero-dot::after {
+  left: 0.25rem;
+  right: 0.25rem;
+  height: 5px;
+  margin-top: -2.5px;
+}
+
+.hero-dot::before {
+  background-color: rgba(255, 255, 255, 0.38);
+}
+
+.hero-dot:hover::before,
+.hero-dot.is-current::before {
+  background-color: rgba(255, 255, 255, 0.62);
+}
+
+.hero-dot::after {
+  background-color: var(--color-orange);
+  opacity: 1;
+}
+
+@media (max-width: 720px) {
+  .hero-dots {
+    bottom: 0.6rem;
+  }
+
+  .hero-dot {
+    width: 2.1rem;
+    height: 2.4rem;
+  }
+}
+
+/* ==========================================================
+   HERO -> FEATURED WORK: SCROLL-LINKED TRANSITION
+   As you scroll down, the hero artwork drifts slower than the page and
+   fades into the grid, the headline block lifts away a little faster, and
+   the "Featured Work" heading and intro text rise in with slightly different
+   timing. Pure CSS (no JavaScript): the animations are driven by scroll
+   position instead of time.
+
+   Only runs when the browser supports scroll-driven animations and the
+   visitor has not asked for reduced motion. Everywhere else the page simply
+   behaves as before.
+
+   DIALS: the three numbers marked "dial" below.
+   ========================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+
+    /* The hero is the "stage": its scroll progress drives the pieces inside it */
+    .hero {
+      view-timeline: --hero block;
+    }
+
+    @keyframes hero-art-away {
+      to {
+        opacity: 0.12;               /* dial: how far the art fades (0 = fully gone) */
+        transform: translateY(18%);  /* dial: how much slower it moves than the page */
+      }
+    }
+
+    @keyframes hero-text-away {
+      to {
+        opacity: 0;
+        transform: translateY(-48px); /* dial: extra lift of the headline block */
+      }
+    }
+
+    .hero > .hero-visual {
+      animation: hero-art-away linear both;
+      animation-timeline: --hero;
+      animation-range: exit 0% exit 100%;
+    }
+
+    .hero > .hero-inner {
+      animation: hero-text-away linear both;
+      animation-timeline: --hero;
+      animation-range: exit 0% exit 55%;
+    }
+
+    /* "Featured Work" heading and intro: rise into place while entering.
+       Applied to the children, so the existing .reveal fade on .work-head
+       keeps working untouched. */
+    @keyframes work-rise {
+      from { opacity: 0; transform: translateY(var(--rise, 56px)); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .work-head .section-title,
+    .work-head .work-lead {
+      animation: work-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+
+    .work-head .section-title { --rise: 64px; }
+    .work-head .work-lead     { --rise: 32px; animation-range: entry 10% entry 90%; }
+
+    /* The hairline at the bottom of the hero glows as you arrive at the next section */
+    @keyframes hero-line-glow {
+      from { opacity: 0.5; }
+      to   { opacity: 1; }
+    }
+
+    .hero::after {
+      animation: hero-line-glow linear both;
+      animation-timeline: --hero;
+      animation-range: exit 40% exit 100%;
+    }
+  }
+}
+
+
+/* ==========================================================
+   HERO ARTWORK: SOFT FADE INTO THE PAGE (desktop)
+   The bottom of the artwork dissolves, so the blueprint grid shows through
+   and the hero has no hard edge. Phones (720px and below) already have
+   their own fade further up in this file.
+
+   DIAL: --hero-fade-start is where the fade begins, measured from the top
+   of the hero. Lower = longer, softer fade (try 50%); higher = shorter
+   (try 80%); 100% = no fade.
+   ========================================================== */
+@media (min-width: 721px) {
+  .hero {
+    --hero-fade-start: 62%;
+  }
+
+  .hero > .hero-visual {
+    -webkit-mask-image: linear-gradient(to bottom, #000 var(--hero-fade-start), transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 var(--hero-fade-start), transparent 100%);
+  }
+}
+
+
+/* ==========================================================
+   FEATURED WORK OVERLAPS THE HERO
+   The "Featured Work" section is pulled up over the bottom of the hero, so
+   its heading sits on the fading artwork and the two sections read as one
+   continuous scene. The hero gets the same amount of extra bottom padding,
+   and the slideshow bars move up with it, so nothing inside the hero ends
+   up underneath the heading.
+
+   DIAL: --hero-overlap is how far the section reaches up into the hero.
+   0 = no overlap (back to normal). Try 3rem for subtle, 7rem for dramatic.
+   ========================================================== */
+:root {
+  --hero-overlap: 4.5rem;   /* on :root so the section after the hero can read it too */
+}
+
+.hero {
+  padding-bottom: calc(var(--space-5) + var(--hero-overlap));
+}
+
+.hero + .work {
+  margin-top: calc(var(--hero-overlap) * -1);
+  z-index: 1;
+}
+
+/* The hairline would cut straight through the heading now; the fade does its job */
+.hero::after {
+  display: none;
+}
+
+/* Slideshow bars: low in the hero (just above the next section) and quiet.
+   They come back to a clearer look when you point at them or tab to them. */
+.hero-dots {
+  bottom: 2.2rem;
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+}
+
+.hero-dots:hover,
+.hero-dots:focus-within {
+  opacity: 0.9;
+}
+
+@media (max-width: 720px) {
+  :root {
+    --hero-overlap: 2.5rem;
+  }
+
+  .hero-dots {
+    bottom: 1.8rem;
+  }
+}
+
+
+/* ==========================================================
+   FEATURED WORK: SIDEWAYS GALLERY (desktop), STEP 1
+   The section becomes a tall "scene". Inside it, the heading, the row of
+   work and the View All button are pinned to the screen, and scrolling down
+   slides the heading and the row to the left. When the last piece has arrived, the page
+   carries on to the next section. The pieces are the same ones script.js
+   already builds from WORK_ITEMS, so nothing about the images changes.
+
+   Only for wide, tall-enough screens that support scroll-driven animations
+   and have reduced motion off. Phones, tablets and everything else keep the
+   normal grid.
+
+   script.js measures how far the row has to travel and sets --work-travel
+   on the section (in px). The scene is exactly that much taller than the
+   screen, so one pixel of scrolling moves the row one pixel.
+
+   DIAL: --work-card-h is the height of the artwork. It fills the screen
+   height minus the heading and button, between 8rem and 20rem (raise the 31rem for smaller, lower it for bigger).
+   ========================================================== */
+@media (prefers-reduced-motion: no-preference) and (min-width: 960px) and (min-height: 600px) {
+  @supports (animation-timeline: view()) {
+    .work {
+      --work-card-h: clamp(8rem, calc(100svh - 31rem), 20rem);
+      height: calc(100svh + var(--work-travel, 150vh));
+      padding: 0;
+      view-timeline: --work block;
+    }
+
+    /* The pinned screen: full width, so the row can slide in from the right edge */
+    /* Directly under the hero: script.js measures how much empty space the
+       centred content leaves above itself (--work-lift) and the section is
+       pulled up by exactly that much, so the heading starts right under the
+       hero while the pinned screen is still centred. The empty top of the
+       screen lets clicks through to the hero. */
+    .hero + .work {
+      margin-top: calc((var(--hero-overlap) + var(--work-lift, 0px)) * -1);
+    }
+
+    .work {
+      margin-bottom: calc(var(--work-lift, 0px) * -1);
+    }
+
+    .work > .container {
+      pointer-events: none;
+      position: sticky;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100svh;
+      max-width: none;
+      margin: 0;
+      padding: calc(var(--header-height) + var(--space-2)) max(var(--container-padding), calc((100% - var(--container-width)) / 2 + var(--container-padding))) var(--space-3);
+      overflow: clip;
+      /* the soft blue glow that used to sit on the section itself */
+      background: radial-gradient(ellipse 50% 45% at 85% 20%, rgba(45, 110, 230, 0.09), transparent 70%);
+    }
+
+    .work::before {
+      display: none;
+    }
+
+    /* The track: the heading first, then the pieces, all in one line. This is
+       what slides, so the heading travels off to the left with the rest. */
+    .work-track,
+    .work-footer {
+      pointer-events: auto;
+    }
+
+    .work-track {
+      display: flex;
+      flex: none;
+      align-items: flex-start;
+      gap: var(--space-3);
+      width: max-content;
+      animation: work-slide linear both;
+      animation-timeline: --work;
+      animation-range: contain 0% contain 100%;
+    }
+
+    /* The grid steps aside: its pieces become part of the track */
+    .work-grid.portfolio-grid {
+      display: contents;
+    }
+
+    .work-head {
+      flex: none;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      align-self: center;
+      gap: var(--space-2);
+      width: min(24rem, 34vw);
+      margin: 0 var(--space-3) 0 0;
+    }
+
+    .work-head .section-title {
+      font-size: clamp(2.8rem, 5.2vw, 4.8rem);
+      animation: none;
+    }
+
+    .work-head .work-lead {
+      margin-left: 0;
+      animation: none;
+    }
+
+    .work-grid.portfolio-grid[data-layout] .portfolio-item {
+      flex: none;
+      width: calc(var(--work-card-h) * 16 / 9);
+    }
+
+    .work-grid.portfolio-grid[data-layout] .portfolio-item[data-shape="square"] {
+      width: var(--work-card-h);
+    }
+
+    .work-grid.portfolio-grid[data-layout] .portfolio-item[data-shape="square"] .portfolio-art {
+      flex: 0 0 auto;
+    }
+
+    .work-footer {
+      margin-top: var(--space-3);
+    }
+
+    @keyframes work-slide {
+      from { transform: translateX(0); }
+      to   { transform: translateX(calc(var(--work-travel, 0px) * -1)); }
+    }
+  }
+}
+
+
+/* ==========================================================
+   BEFORE / AFTER (homepage)
+   The scroll-driven reveal is gone: the slider is a normal section again and
+   is dragged by hand (script.js wires the handle). Only the registered
+   property stays, because the slider itself uses --pos.
+   ========================================================== */
+@property --pos { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
+
+
+/* ==========================================================
+   FEATURED WORK GALLERY: DEPTH AND PARALLAX (desktop)
+   Builds on the sideways gallery above. script.js reads where every card is
+   on the screen and hands each one two numbers:
+     --focus  1 in the middle of the screen, 0 at the edges
+     --px     how far the picture sits inside its frame (px)
+   - Depth: the piece in the middle is full size and bright; pieces towards
+     the edges are slightly smaller and dimmer.
+   - Parallax: the picture is a little larger than its frame and drifts
+     against the slide, so it moves slower than the frame (a window onto
+     the artwork).
+
+   Same conditions as the gallery. Everywhere else nothing here applies.
+
+   DIALS (on .work below):
+     --work-edge-scale   size of a card at the screen edge (1 = no change)
+     --work-edge-dim     brightness at the screen edge (1 = no dimming)
+     --work-zoom         how much larger the picture is than its frame
+   ========================================================== */
+@media (prefers-reduced-motion: no-preference) and (min-width: 960px) and (min-height: 600px) {
+  @supports (animation-timeline: view()) {
+    .work {
+      --work-edge-scale: 0.88;   /* dial */
+      --work-edge-dim: 0.5;      /* dial */
+      --work-zoom: 1.12;         /* dial: keep it at 1.1 or more, the drift needs the spare picture */
+    }
+
+    /* Depth */
+    .work-grid.portfolio-grid[data-layout] .portfolio-item {
+      scale: calc(var(--work-edge-scale) + (1 - var(--work-edge-scale)) * var(--focus, 1));
+      transform-origin: 50% 50%;
+      will-change: scale;
+    }
+
+    .work-grid.portfolio-grid[data-layout] .portfolio-item .portfolio-art,
+    .work-grid.portfolio-grid[data-layout] .portfolio-item .portfolio-caption {
+      opacity: calc(var(--work-edge-dim) + (1 - var(--work-edge-dim)) * var(--focus, 1));
+    }
+
+    /* Parallax: translate = the drift, scale = the spare picture around it */
+    .work-grid.portfolio-grid[data-layout] .portfolio-item:not([data-fit="contain"]) .work-image {
+      transform: translate3d(calc(var(--px, 0) * 1px), 0, 0);
+      scale: var(--work-zoom);
+      transition: opacity 0.6s ease, scale 0.6s ease;
+    }
+
+    .work-grid.portfolio-grid[data-layout] .portfolio-item:not([data-fit="contain"]):hover .work-image {
+      scale: calc(var(--work-zoom) + 0.04);
+    }
+  }
+}
+
+
+/* ==========================================================
+   FEATURED REVIEWS: links stay clickable
+   Anything in the reviews section other than the carousel (the "View all
+   reviews" link included) is lifted above the carousel, so the carousel's
+   wide, scrolling track can never sit on top of it and catch the click.
+   ========================================================== */
+.reviews > .container > :not(.review-carousel) {
+  position: relative;
+  z-index: 2;
+}
+
+.reviews > .container > :not(.review-carousel) a,
+.reviews > .container > :not(.review-carousel) button {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+
+/* ==========================================================
+   MEGA MENU: LESS WORK FOR THE BROWSER (no visual change)
+   - The panels get their own layer, so opening them is a cheap fade.
+   - The looping decorations (bat, ghost, status ring ...) stand still while
+     their menu is closed, instead of running unseen all the time. They
+     start moving again as soon as it opens.
+   ========================================================== */
+.mega {
+  will-change: opacity, transform;
+}
+
+.mega:not(.is-open) :is(*, *::before, *::after) {
+  animation-play-state: paused;
 }

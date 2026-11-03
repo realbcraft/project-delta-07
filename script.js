@@ -7,6 +7,7 @@
 //   images/avatars/       client profile pictures (reviews)
 //   images/decorations/   avatar decorations (socials page): socials-deco-<id>.webp
 //   images/work/          the work page: featured-*, portfolio-* and work-hero.webp
+//   images/mega-menu/    the Work menu banner pictures (one per link, see MEGA MENU below)
 //
 //   logo.webp                              the Bcraft Designs logo (header, footer)
 //
@@ -27,11 +28,11 @@
 //   work/portfolio-logo-01.webp ... -02.webp
 //   work/portfolio-ui-01.webp ... -02.webp
 //
-//   mega-work-banner-01.webp               Work mega menu, wide banner
-//   mega-work-gfx-01.webp                  Work mega menu previews
-//   mega-work-thumbnail-01.webp
-//   mega-work-logo-01.webp
-//   mega-work-ui-01.webp
+//   mega-work-banner-01.webp               Work mega menu, wide banner (shown when no link is hovered)
+//   mega-menu/all-graphics.webp            Work mega menu: the banner changes to one of these
+//   mega-menu/game-thumbnails.webp         while its link is hovered (600 x 600 px)
+//   mega-menu/youtube-thumbnails.webp
+//   mega-menu/profile-pictures.webp
 //
 //   social-gfx-01.webp                     homepage Socials: Roblox Community tile
 //   social-gfx-02.webp                     homepage Socials: YouTube tile
@@ -54,45 +55,74 @@
 // ==========================================================
 
 // ==========================================================
-// MEGA MENU ARTWORK PREVIEWS
-// NOTE: the preview panel on the right of the Work menu is currently removed
-// from the pages, so this list is not shown. It is kept in case you want it back.
-// This is where you add your real artwork.
+// MEGA MENU BANNER PICTURES (the Work menu)
+// While a link in the Work menu is hovered (or has keyboard focus), the wide banner underneath
+// is shown in a card beside the menu (the banner itself never changes). The card hides when the
+// mouse leaves the links. (The banner is MEGA_BANNER_DATA, just below.)
 //
-// For every category you can set:
-//   title       - name shown under the preview
-//   image       - path to your image inside the images folder
-//   description - optional short line under the title
+// For every link you can set:
+//   title       - name of the link (for your reference)
+//   image       - the picture, 600 x 600 px
+//   description - the short line under the link (the menu shows the one written in the page header)
+//   shape       - "square" for square pictures (profile pictures): the pair is shown as squares so
+//                 nothing is cropped. Leave it out for wide pictures (thumbnails, all graphics).
+//   images      - the TWO pictures shown together in the preview card (one behind, one in front).
+//                 The first one is the main picture of the preview. It only affects the preview
+//                 card: "image" (the picture used for the link's own background) stays as it is.
+//                 One path = one big picture.
+//   shapes      - optional, one entry per picture in "images": "square" makes that one picture a 1:1
+//                 square, "" keeps the thumbnail shape (used by All Graphics: one square + one thumbnail).
 //
-// Example: save your image as  images/mega-work-gfx-01.webp
-// and it shows up automatically (nothing breaks if the file is missing).
+// Save the pictures in  images/mega-menu/  with exactly these names:
+//   all-graphics.webp   game-thumbnails.webp   youtube-thumbnails.webp   profile-pictures.webp
+// Nothing breaks while a picture is missing: that link simply shows no card, and the
+// browser console (F12) says which file it could not find.
 //
-// The keys (thumbnails, game-icons, ui, more) must match the data-preview
-// attributes on the links in index.html. (Only the Work menu has
-// previews: Pricing is a normal link to pricing.html.) Don't rename them
-// unless you change both places.
+// The keys (all-graphics, game-thumbnails, youtube-thumbnails, profile-pictures) must match the
+// data-preview attributes on the links in the page header. Don't rename them unless you change
+// both places. (Only the Work menu has a banner: Pricing is a normal link.)
 // ==========================================================
+// Extra settings per link (all optional):
+//   category - the WORK category the preview card counts and prices ("" = every category)
+//   menuText - a shorter line for the button itself (about 28 characters, so it stays on one line)
+//   badge    - a tiny tag next to the title, e.g. "New" or "Most ordered" ("" = none)
+// The card also shows "<n> pieces" (counted from WORK) and "From $x" (lowest price in commissionPricing).
 const MEGA_MENU_DATA = {
   work: {
-    thumbnails: {
-      title: "Thumbnails",
-      image: "/images/mega-work-gfx-01.webp",
-      description: "Game and YouTube thumbnails."
+    "all-graphics": {
+      title: "All Graphics",
+      image: "/images/mega-menu/all-graphics.webp",
+      images: ["/images/mega-menu/all-graphics-02.webp", "/images/mega-menu/all-graphics.webp"],
+      shapes: ["", "square"],
+      description: "Every piece, all in one place.",
+      category: "",
+      badge: ""
     },
-    "game-icons": {
-      title: "Game Icons",
-      image: "/images/mega-work-thumbnail-01.webp",
-      description: "Small squares, big first impressions."
+    "game-thumbnails": {
+      title: "Game Thumbnails",
+      image: "/images/mega-menu/game-thumbnails.webp",
+      images: ["/images/mega-menu/game-thumbnails.webp", "/images/mega-menu/game-thumbnails-02.webp"],
+      description: "Art that makes players press play.",
+      category: "Game Thumbnails",
+      menuText: "Art that makes players play.",
+      badge: "Popular"
     },
-    ui: {
-      title: "UI",
-      image: "/images/mega-work-ui-01.webp",
-      description: "Roblox interface and UI design."
+    "youtube-thumbnails": {
+      title: "YouTube Thumbnails",
+      image: "/images/mega-menu/youtube-thumbnails.webp",
+      images: ["/images/mega-menu/youtube-thumbnails-02.webp", "/images/mega-menu/youtube-thumbnails.webp"],
+      description: "Covers that earn the click.",
+      category: "YouTube Thumbnails",
+      badge: ""
     },
-    more: {
-      title: "More",
-      image: "/images/mega-work-logo-01.webp",
-      description: "Everything else I make."
+    "profile-pictures": {
+      title: "Profile Pictures",
+      image: "/images/mega-menu/profile-pictures.webp",
+      images: ["/images/mega-menu/profile-pictures-02.webp", "/images/mega-menu/profile-pictures.webp"],
+      shape: "square",
+      description: "Avatars with real personality.",
+      category: "Profile Pictures",
+      badge: ""
     }
   }
 };
@@ -112,6 +142,50 @@ const MEGA_BANNER_DATA = {
 
 
 // ----------------------------------------------------------
+// MEGA MENU SIDE RENDER (a character peeking out from behind the right edge of the Work menu)
+// Save a transparent picture as images/mega-menu/side-render.png (change the extension below if
+// you save it as .webp). The flat edge on the left of the render hides behind the menu, so it
+// looks like the character is leaning out from behind it. Desktop only; it hides itself when
+// there is no room to the right of the menu, and nothing breaks if the file is missing.
+//   image  - path to the picture
+//   height - how tall it is, in px
+//   hidden - the share of the picture's width that is empty space left of the character (0.29 =
+//            29%). That part is tucked behind the menu so the character starts right at its edge.
+//            Raise it if you see a gap between the menu and the character, lower it if the
+//            character is cut off.
+//   reach  - how far right the artwork goes as a share of the picture's width (only used to
+//            decide if there is enough room on screen)
+//   bottom - how far above the bottom edge of the menu the picture ends, in px
+//   bob    - the slow idle up-and-down movement, in px. 2 to 3 is barely noticeable, 0 = off
+//   pointX - where the preview card's little tail points at him: a share of the part of him that
+//            sticks out of the menu, from the menu's edge (0.4 = about his head). The card is a
+//            speech bubble from him: the tail is on the card's bottom edge and points down at him.
+//   pointAt - only used when the card is too low for a tail underneath: the pointer on the card's
+//            side then aims at this share of his height from the top (0.4 = about chest height)
+//   seasonImage - a different picture per season. Leave "" to keep the normal one. Save the files
+//            next to the normal one; if a file is missing the normal picture is used.
+// The preview card stays where it was; its little tail points down at him (not at the button).
+// ----------------------------------------------------------
+const MEGA_SIDE_RENDER = {
+  work: {
+    image: "/images/mega-menu/side-render.png",
+    height: 250,
+    hidden: 0.29,
+    reach: 0.81,
+    bottom: 22,
+    bob: 3,
+    pointX: 0.4,
+    pointAt: 0.4,
+    seasonImage: {
+      halloween: "",   // e.g. "/images/mega-menu/side-render-halloween.png"
+      christmas: "",
+      summer: ""
+    }
+  }
+};
+
+
+// ----------------------------------------------------------
 // MEGA MENU TRIGGER LINKS
 // On desktop the menu opens on hover, and a click on the nav item itself
 // goes to this address. "#all" opens the portfolio with the filter on All.
@@ -119,6 +193,28 @@ const MEGA_BANNER_DATA = {
 // ----------------------------------------------------------
 const MEGA_TRIGGER_LINKS = {
   work: "/work/#all"
+};
+
+
+// ----------------------------------------------------------
+// MEGA MENU BOTTOM STRIP (replaces the old "View all work" button)
+// One line at the bottom of the Work menu: a status dot + short text on the left and a
+// "Commission Me" button on the right.
+//   status - "open" | "limited" | "closed"   (keep it the same as COMMISSION_STATUS on pricing.html)
+//   text   - the wording per status
+//   meta   - the small second part after the dot, e.g. the delivery time ("" = none)
+//   button - the button label, buttonLink - where it goes
+// ----------------------------------------------------------
+const MEGA_STRIP = {
+  status: "open",
+  text: {
+    open:    "Open for commissions",
+    limited: "Limited slots left",
+    closed:  "Commissions closed"
+  },
+  meta: "1\u20133 day delivery",
+  button: "Commission Me",
+  buttonLink: "/pricing/"
 };
 
 
@@ -465,7 +561,8 @@ const WORK = {
     { image: "/images/work/portfolio-game-thumbnail-03.webp",  id: 17 },
     { image: "/images/work/portfolio-game-thumbnail-04.webp",  id: 18 },
     { image: "/images/work/portfolio-game-thumbnail-05.webp",  id: 19 },
-    { image: "/images/work/portfolio-game-thumbnail-06.webp",  id: 20 }
+    { image: "/images/work/portfolio-game-thumbnail-06.webp",  id: 20 },
+    { image: "/images/work/portfolio-game-thumbnail-07.webp",  id: 21 }
   ],
   "Game Icons": [
     { image: "/images/work/featured-logo-01.webp",             id: 4,  featured: 5 }
@@ -953,14 +1050,15 @@ const SOCIAL_LINKS = {
 // card in pricing.html needs data-price-key set to that same key.)
 // ==========================================================
 const commissionPricing = {
-  renders:    { label: "Renders",                        category: "Renders",           base: 7,  robux: 2000, note: "Bulk order discounts available!" },
-  profile:    { label: "Profile Pictures",               category: "Profile Pictures",  base: 10, robux: 2500 },
-  thumbnails: { label: "Game Thumbnails",                category: "Game Thumbnails",   base: 30, robux: 8000 },
-  ytthumbs:   { label: "YouTube Thumbnails",             category: "YouTube Thumbnails", base: 20, robux: 5000 },
-  icons:      { label: "Game Icons",                     category: "Game Icons",        base: 25, robux: 7500 },
-  ads:        { label: "Ads & Posters",                  category: "Ads & Posters",     base: 20, robux: 5000 },
-  banners:    { label: "Social Banners",                category: "Social Banners",   base: 20, robux: 5000 },
-  sheets:     { label: "Commission/Price Sheet Designs", category: "Commission Sheets", base: 20, robux: 5000 }
+  renders:    { label: "Renders",                        category: "Renders",           base: 7,  robux: 1800, note: "Bulk order discounts available!" },
+  profile:    { label: "Profile Pictures",               category: "Profile Pictures",  base: 10, robux: 2600 },
+  thumbnails: { label: "Game Thumbnails",                category: "Game Thumbnails",   base: 30, robux: 7900 },
+  ytthumbs:   { label: "YouTube Thumbnails",             category: "YouTube Thumbnails", base: 20, robux: 5300 },
+  icons:      { label: "Game Icons",                     category: "Game Icons",        base: 25, robux: 6600 },
+  ads:        { label: "Ads & Posters",                  category: "Ads & Posters",     base: 20, robux: 5300 },
+  banners:    { label: "Social Banners",                category: "Social Banners",   base: 20, robux: 5300 },
+  sheets:     { label: "Commission/Price Sheet Designs", category: "Commission Sheets", base: 20, robux: 5300 },
+  logos:      { label: "Game Logos",                     category: "Game Logos",        base: 15, robux: 3900 }
 };
 
 const commissionSettings = {
@@ -1032,11 +1130,9 @@ function formatUsd(amount) {
   });
 }
 
-// 1300 -> "1.3K", 13000 -> "13K", 800 -> "800"
+// Dot as the thousands separator: 1500 -> "1.500", 26300 -> "26.300", 800 -> "800"
 function formatRobuxAmount(amount) {
-  return amount >= 1000
-    ? (Math.round(amount / 10) / 100).toLocaleString("en-US", { maximumFractionDigits: 2 }) + "K"
-    : amount.toLocaleString("en-US");
+  return String(Math.round(amount)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
 // Fills an element with: [optional prefix] [Robux icon] [amount]. Amount 0 = empty.
@@ -1198,7 +1294,18 @@ const megaMenus = Array.from(document.querySelectorAll(".nav-item.has-mega")).ma
 let activeMega = null;      // the mega menu that is currently open
 let megaPinned = false;     // true when opened by click / keyboard (stays open)
 let megaCloseTimer = 0;
+let megaOpenTimer = 0;
 const failedImages = new Set();
+
+// How the Work menu feels (milliseconds)
+const MEGA_OPEN_DELAY = 0;      // the menu opens the moment the mouse touches "Work"
+const MEGA_CLOSE_DELAY = 260;   // the menu stays this long after the mouse leaves, so a diagonal move into it is forgiven
+
+// A soft dim over the page while the Work menu is open (desktop only), so the menu stands out
+const megaBackdrop = document.createElement("div");
+megaBackdrop.className = "mega-backdrop";
+megaBackdrop.setAttribute("aria-hidden", "true");
+document.body.appendChild(megaBackdrop);
 
 const isDesktop = () => desktopQuery.matches;
 
@@ -1211,10 +1318,6 @@ const MEGA_EDGE = 16; // px, keep in sync with --mega-edge in style.css
 function positionMega(mega) {
   const parent = mega.panel.offsetParent;
   if (!parent) return;
-
-  const inner = mega.panel.querySelector(".mega-inner");
-  const innerStyle = getComputedStyle(inner);
-  const sideSpace = (parseFloat(innerStyle.paddingLeft) || 0) + (parseFloat(innerStyle.borderLeftWidth) || 0);
 
   const parentLeft = parent.getBoundingClientRect().left;
   const trigger = mega.trigger.getBoundingClientRect();
@@ -1248,14 +1351,6 @@ function loadBanner(mega) {
   if (mega.bannerLoaded) return;
   mega.bannerLoaded = true;
 
-  // Warm up the pictures that the banner shows while a link is hovered
-  if (isDesktop()) {
-    const pictures = MEGA_MENU_DATA[mega.name] || {};
-    Object.keys(pictures).forEach((key) => {
-      if (pictures[key].image) new Image().src = pictures[key].image;
-    });
-  }
-
   const data = MEGA_BANNER_DATA[mega.name];
   const image = mega.panel.querySelector(".mega-banner-image");
   if (!data || !data.image || !image) return;
@@ -1269,77 +1364,395 @@ function loadBanner(mega) {
   image.src = data.image;
 }
 
-// ----- Banner follows the hovered link -----
-// The wide banner under "View all work" crossfades to the artwork of the link under the mouse
-// (the pictures come from MEGA_MENU_DATA at the top of this file) and fades back to the normal
-// banner when the mouse leaves the list of links. Two spare picture layers are added to the
-// banner by this code, so no HTML change is needed.
-function getBannerLayers(mega) {
-  if (mega.bannerLayers) return mega.bannerLayers;
-  const base = mega.panel.querySelector(".mega-banner-image");
-  if (!base) return null;
-  mega.bannerLayers = [0, 1].map(() => {
-    const layer = document.createElement("img");
-    layer.className = "mega-banner-image mega-banner-swap";
-    layer.alt = "";
-    layer.decoding = "async";
-    base.parentNode.appendChild(layer);
-    return layer;
+// ----- Work menu: new icons + floating preview card -----
+// The wide banner under the buttons never changes. The picture of the hovered button
+// (MEGA_MENU_DATA at the top of this file) shows in a small card beside the menu. The card
+// stays in the same spot for every button; only its pointer moves to the hovered button.
+// Pictures: 600 x 600 px. The card keeps each picture's own shape (no cropping).
+const MEGA_ICONS = {
+  "all-graphics": '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
+  "game-thumbnails": '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
+  "youtube-thumbnails": '<path class="yt-bg" stroke="none" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8z"/><path class="yt-play" stroke="none" d="M9.6 15.6V8.4l6.2 3.6z"/>',
+  "profile-pictures": '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/>'
+};
+
+function applyMegaIcons(mega) {
+  mega.links.forEach((link) => {
+    const paths = MEGA_ICONS[link.dataset.preview];
+    if (!paths) return;
+    let icon = link.querySelector(".mega-link-icon");
+    if (!icon) {
+      icon = document.createElement("span");
+      icon.className = "mega-link-icon";
+      icon.setAttribute("aria-hidden", "true");
+      link.insertBefore(icon, link.firstChild);
+    }
+    icon.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + paths + '</svg>';
   });
-  mega.bannerLayer = 0;   // which of the two layers is in front
-  return mega.bannerLayers;
 }
 
-function showBanner(mega, key) {
-  const data = MEGA_MENU_DATA[mega.name] && MEGA_MENU_DATA[mega.name][key];
-  const layers = getBannerLayers(mega);
-  if (!data || !data.image || !layers) return;
-  if (mega.bannerKey === key) return;
-  mega.bannerKey = key;
-
-  // Highlight the link whose artwork is showing
+// Colour fill on each button: a coloured panel on the right side that grows to fill the whole
+// button on hover / focus (the shape, colours and animation are CSS, see
+// "WORK MENU: button fill" in style.css). This adds the element for it.
+function applyMegaDecor(mega) {
   mega.links.forEach((link) => {
-    link.classList.toggle("is-showing", link.dataset.preview === key);
+    if (link.querySelector(".mega-deco")) return;
+    const deco = document.createElement("span");
+    deco.className = "mega-deco";
+    deco.setAttribute("aria-hidden", "true");
+    deco.innerHTML = '<span class="mega-deco-fill"></span>';
+    link.appendChild(deco);
   });
+}
 
-  const current = layers[mega.bannerLayer];
-  const next = layers[1 - mega.bannerLayer];
+// Side render: sits behind the menu panel and slides out from behind its right edge
+function fitMegaSideRender(mega) {
+  const cfg = MEGA_SIDE_RENDER[mega.name];
+  const wrap = mega.panel.querySelector(".mega-side-render");
+  const img = wrap && wrap.querySelector("img");
+  if (!cfg || !img || !img.naturalWidth) return;
+  const h = cfg.height || 250;
+  const w = h * img.naturalWidth / img.naturalHeight;
+  wrap.style.setProperty("--side-h", h + "px");
+  wrap.style.setProperty("--side-w", Math.round(w) + "px");
+  wrap.style.setProperty("--side-tuck", Math.round(w * (cfg.hidden || 0)) + "px");
+  wrap.style.setProperty("--side-bottom", (cfg.bottom || 0) + "px");
+  wrap.style.setProperty("--side-bob", (cfg.bob || 0) + "px");
+  // how far the artwork sticks out past the menu's right edge (the preview card sits after that)
+  mega.sideBox = {
+    h: h,
+    bottom: cfg.bottom || 0,
+    stickOut: w * ((cfg.reach || 1) - (cfg.hidden || 0)) - 3
+  };
+  // enough room on screen? (the menu's right edge + the part of the artwork that sticks out)
+  const panel = mega.panel.getBoundingClientRect();
+  const stickOut = w * ((cfg.reach || 1) - (cfg.hidden || 0));
+  wrap.classList.toggle("has-room", isDesktop() && panel.right + stickOut <= window.innerWidth - 8);
+}
 
-  const reveal = () => {
-    if (mega.bannerKey !== key) return;   // the mouse already moved on
-    mega.bannerLayer = 1 - mega.bannerLayer;
-    // new picture in front, old one right behind it; both stay below the seasonal cobweb (z-index 2)
-    next.style.zIndex = "1";
-    current.style.zIndex = "0";
-    next.classList.add("is-visible");
-    // The old picture stays underneath until the new one is fully in, so the banner never
-    // dips back to the normal image in the middle of a crossfade
-    setTimeout(() => {
-      if (current !== layers[mega.bannerLayer]) current.classList.remove("is-visible");
-    }, 450);
+function applyMegaSideRender(mega) {
+  const cfg = MEGA_SIDE_RENDER[mega.name];
+  if (!cfg || !cfg.image || mega.sideRenderFailed) return;
+  let wrap = mega.panel.querySelector(".mega-side-render");
+  if (!wrap) {
+    wrap = document.createElement("div");
+    wrap.className = "mega-side-render";
+    wrap.setAttribute("aria-hidden", "true");
+    const img = document.createElement("img");
+    img.alt = "";
+    img.decoding = "async";
+    img.draggable = false;
+    img.onload = () => {
+      wrap.classList.add("is-ready");
+      fitMegaSideRender(mega);
+    };
+    // a seasonal picture (MEGA_SIDE_RENDER.work.seasonImage) wins while its season is on
+    const seasonal = (cfg.seasonImage && CURRENT_SEASON && cfg.seasonImage[CURRENT_SEASON]) || "";
+    let triedSeasonal = !!seasonal;
+    img.onerror = () => {
+      if (triedSeasonal) {            // seasonal file missing: use the normal picture
+        triedSeasonal = false;
+        img.src = cfg.image;
+        return;
+      }
+      mega.sideRenderFailed = true;
+      wrap.remove();
+      console.warn("Work menu: side render not found. Save it as " + cfg.image);
+    };
+    img.src = seasonal || cfg.image;
+    wrap.appendChild(img);
+    mega.panel.insertBefore(wrap, mega.panel.firstChild);
+    if (img.complete && img.naturalWidth) img.onload();
+    return;
+  }
+  fitMegaSideRender(mega);
+}
+
+const megaCard = document.createElement("div");
+megaCard.className = "mega-float";
+megaCard.setAttribute("aria-hidden", "true");
+megaCard.innerHTML =
+  '<div class="mega-float-frame">' +
+    '<span class="mega-float-layer is-front"><span class="mega-float-track"></span></span>' +
+    '<span class="mega-float-layer"><span class="mega-float-track"></span></span>' +
+  '</div>' +
+  '<div class="mega-float-text">' +
+    '<div class="mega-float-row"><strong class="mega-float-title"></strong><span class="mega-float-price"></span></div>' +
+    '<span class="mega-float-desc"></span>' +
+    '<span class="mega-float-hint">Click to browse <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>' +
+  '</div>';
+document.body.appendChild(megaCard);
+const megaCardLayers = Array.from(megaCard.querySelectorAll(".mega-float-layer"));
+const megaCardTitle = megaCard.querySelector(".mega-float-title");
+const megaCardPrice = megaCard.querySelector(".mega-float-price");
+const megaCardDesc = megaCard.querySelector(".mega-float-desc");
+const megaCardFailed = new Set();
+let megaCardKey = null;
+let megaCardFront = 0;       // which of the two stacked layers is showing (each layer holds the picture pair)
+let megaSwapId = 0;          // makes sure a slow picture never overwrites a newer one
+let megaCardToken = 0;       // makes sure a slow picture never overwrites a newer one
+let megaCardHideTimer = 0;
+const MEGA_CARD_HIDE_DELAY = 80;    // ms: the card waits a moment before hiding, so a quick slip off the buttons does not make it flicker
+
+// The lowest price for a category (from commissionPricing further up this file)
+function megaStats(data) {
+  const category = data.category || "";
+  let from = 0;
+  Object.keys(commissionPricing).forEach((name) => {
+    const product = commissionPricing[name];
+    if (category && product.category !== category) return;
+    if (product.base > 0 && (!from || product.base < from)) from = product.base;
+  });
+  return { from: from };
+}
+
+// The button text, the small tags and the staggered entrance (safe to run every time the menu opens)
+function applyMegaContent(mega) {
+  const pictures = MEGA_MENU_DATA[mega.name] || {};
+  mega.links.forEach((link, index) => {
+    link.style.setProperty("--i", index);
+    const data = pictures[link.dataset.preview];
+    if (!data) return;
+    if (data.menuText) {
+      const text = link.querySelector(".mega-link-text");
+      if (text) text.textContent = data.menuText;
+    }
+    // The picture behind the tile (desktop only, see "picture tiles" in style.css)
+    if (data.image && !link.querySelector(".mega-link-pic")) {
+      const pic = document.createElement("span");
+      pic.className = "mega-link-pic";
+      pic.setAttribute("aria-hidden", "true");
+      const img = document.createElement("img");
+      img.alt = "";
+      img.decoding = "async";
+      img.onload = () => pic.classList.add("is-ready");
+      img.onerror = () => img.remove();   // missing picture: the tile keeps its dark gradient
+      img.src = data.image;
+      pic.appendChild(img);
+      link.insertBefore(pic, link.firstChild);
+      if (img.complete && img.naturalWidth) pic.classList.add("is-ready");
+    }
+    const title = link.querySelector(".mega-link-title");
+    if (title && data.badge && !title.querySelector(".mega-link-badge")) {
+      const badge = document.createElement("span");
+      badge.className = "mega-link-badge";
+      badge.textContent = data.badge;
+      title.appendChild(badge);
+    }
+  });
+}
+
+// A button on the banner while a sale is running: "Claim 20% off" (it follows the season popup that is on)
+function applyMegaBannerCta(mega) {
+  const banner = mega.panel.querySelector(".mega-banner");
+  if (!banner || banner.querySelector(".mega-banner-cta")) return;
+  const sale = [HALLOWEEN_POPUP, CHRISTMAS_POPUP, SUMMER_POPUP].find((popup) => {
+    return popup.enabled && Date.now() < new Date(popup.endsAt).getTime();
+  });
+  if (!sale) return;
+  // If the whole banner is already a link, a link cannot sit inside it: use a plain label instead
+  const inLink = banner.tagName === "A" || !!banner.closest("a");
+  const cta = document.createElement(inLink ? "span" : "a");
+  cta.className = "mega-banner-cta";
+  if (!inLink) cta.href = sale.buttonLink;
+  cta.innerHTML = "Claim " + sale.percent + " " + sale.off +
+    ' <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
+  banner.appendChild(cta);
+}
+
+// The bottom strip: status dot + text and the "Commission Me" button (wording and status: MEGA_STRIP)
+function applyMegaStrip(mega) {
+  const strip = mega.panel.querySelector("[data-mega-strip]");
+  if (!strip || strip.dataset.ready) return;
+  strip.dataset.ready = "1";
+  const status = MEGA_STRIP.text[MEGA_STRIP.status] ? MEGA_STRIP.status : "open";
+  strip.dataset.status = status;
+  const text = strip.querySelector(".mega-strip-text");
+  const meta = strip.querySelector(".mega-strip-meta");
+  const sep = strip.querySelector(".mega-strip-sep");
+  const button = strip.querySelector(".mega-strip-button");
+  if (text) text.textContent = MEGA_STRIP.text[status];
+  if (meta) meta.textContent = MEGA_STRIP.meta || "";
+  if (sep) sep.hidden = !MEGA_STRIP.meta;
+  if (meta) meta.hidden = !MEGA_STRIP.meta;
+  if (button) {
+    button.firstChild.textContent = MEGA_STRIP.button + " ";
+    button.href = MEGA_STRIP.buttonLink;
+  }
+}
+
+function warmMegaPictures(mega) {
+  if (mega.picturesWarm) return;
+  mega.picturesWarm = true;
+  const pictures = MEGA_MENU_DATA[mega.name] || {};
+  Object.keys(pictures).forEach((key) => {
+    megaImages(pictures[key]).forEach((src) => { new Image().src = src; });
+  });
+}
+
+function placeMegaCard(mega, link) {
+  const panel = mega.panel.getBoundingClientRect();
+  const row = link.getBoundingClientRect();
+  const gap = 14;
+  const edge = 12;
+  const width = megaCard.offsetWidth;
+  const height = megaCard.offsetHeight;
+  const cfg = MEGA_SIDE_RENDER[mega.name];
+  const wrap = mega.panel.querySelector(".mega-side-render");
+  const box = wrap && wrap.classList.contains("is-ready") && wrap.classList.contains("has-room") ? mega.sideBox : null;
+
+  const room = { right: window.innerWidth - panel.right - edge, left: panel.left - edge };
+
+  let side = null;
+  if (room.right >= width + gap) side = "right";
+  else if (room.left >= width + gap) side = "left";
+  if (!side) return false;   // no free space beside the menu: no card
+
+  const left = side === "right" ? panel.right + gap : panel.left - gap - width;
+  // Same spot for every button: the card sits at the top of the menu
+  const wanted = panel.top + 8;
+  const top = Math.min(Math.max(wanted, edge), Math.max(edge, window.innerHeight - height - edge));
+  // The little pointer aims at the side render when it is showing, otherwise at the hovered button
+  let aim = row.top + row.height / 2;
+  if (box) aim = panel.bottom - box.bottom - box.h + box.h * ((cfg && cfg.pointAt) || 0.4);
+  const pointer = Math.min(Math.max(aim - top, 22), height - 22);
+
+  // With the render showing and the card sitting above him, the card gets a tail on its bottom edge
+  // that points down at him, like a speech bubble. Otherwise the pointer stays on the card's side.
+  let down = false;
+  let tail = 0;
+  if (box) {
+    const artTop = panel.bottom - box.bottom - box.h;
+    if (top + height <= artTop + box.h * 0.5) {
+      const headX = panel.right + box.stickOut * ((cfg && cfg.pointX) || 0.4);
+      tail = Math.min(Math.max(headX - left, 24), width - 24);
+      down = true;
+    }
+  }
+  megaCard.dataset.pointer = down ? "down" : "side";
+  megaCard.style.setProperty("--float-tail", Math.round(tail) + "px");
+
+  megaCard.style.left = Math.round(left) + "px";
+  megaCard.style.top = Math.round(top) + "px";
+  megaCard.style.setProperty("--float-pointer", Math.round(pointer) + "px");
+  megaCard.dataset.side = side;
+  return true;
+}
+
+// The pictures of a link: its "images" list (the pair), or the single "image"
+function megaImages(data) {
+  const list = Array.isArray(data.images) && data.images.length ? data.images : [data.image];
+  return list.filter(Boolean);
+}
+
+// Builds the picture pair on the hidden layer (the first two pictures of the link), then fades
+// that layer in over the one showing. A picture that cannot be loaded is left out (the other one
+// then fills the card); only when none of them loads is the card skipped. Calls done(true) when
+// at least one picture has loaded.
+function swapMegaCardImages(srcs, shape, shapes, done) {
+  const key = srcs.join("|") + "#" + (shape || "") + "#" + (shapes || []).join(",");
+  const front = megaCardLayers[megaCardFront];
+  if (front.dataset.key === key) { done(true); return; }
+  const back = megaCardLayers[1 - megaCardFront];
+  const track = back.querySelector(".mega-float-track");
+  const id = ++megaSwapId;
+  const all = srcs.slice(0, 2);              // two pictures show as a pair; one picture fills the card
+  if (shape) track.dataset.shape = shape; else delete track.dataset.shape;
+  let pending = all.length;
+  const results = [];
+  const tiles = [];
+
+  const finish = () => {
+    if (id !== megaSwapId) return;          // a newer picture was asked for meanwhile
+    const good = [];
+    all.forEach((src, i) => { if (results[i]) good.push(i); });
+    if (!good.length) { done(false); return; }
+    // leave out the pictures that are missing, so the remaining one fills the card
+    all.forEach((src, i) => { if (!results[i]) tiles[i].remove(); });
+    track.classList.toggle("is-single", good.length === 1);
+    if (good.length === 1) delete tiles[good[0]].dataset.shape;
+    back.style.setProperty("--bg", 'url("' + all[good[0]] + '")');
+    back.dataset.key = key;
+    front.classList.remove("is-front");
+    back.classList.add("is-front");
+    megaCardFront = 1 - megaCardFront;
+    done(true);
   };
 
-  next.onload = reveal;
-  next.onerror = () => {};   // picture missing: just keep showing what is there
-  if (next.getAttribute("src") !== data.image) {
-    next.src = data.image;
-  } else if (next.complete && next.naturalWidth) {
-    reveal();
-  }
+  track.textContent = "";
+  track.classList.remove("is-single");
+  all.forEach((src, index) => {
+    const tile = document.createElement("span");
+    tile.className = "mega-float-tile";
+    if (shapes && shapes[index]) tile.dataset.shape = shapes[index];   // one picture of the pair can be square
+    tiles[index] = tile;
+    track.appendChild(tile);
+    let settled = false;
+    const settle = (ok) => {
+      if (settled) return;
+      settled = true;
+      results[index] = ok;
+      if (!ok && !megaCardFailed.has(src)) {
+        megaCardFailed.add(src);
+        console.warn("Work menu: picture not found. Save it as " + src);
+      }
+      if (--pending === 0) finish();
+    };
+    if (megaCardFailed.has(src)) { settle(false); return; }   // already known to be missing
+    const img = document.createElement("img");
+    img.className = "mega-float-image";
+    img.alt = "";
+    img.decoding = "async";
+    img.onload = () => settle(true);
+    img.onerror = () => settle(false);
+    tile.appendChild(img);
+    img.src = src;
+    if (img.complete && img.naturalWidth) settle(true);
+  });
 }
 
-function resetBanner(mega) {
-  mega.bannerKey = null;
-  clearTimeout(mega.bannerIntent);
-  mega.links.forEach((link) => link.classList.remove("is-showing"));
-  if (mega.bannerLayers) {
-    mega.bannerLayers.forEach((layer) => layer.classList.remove("is-visible"));
-  }
+function showMegaCard(mega, link) {
+  clearTimeout(megaCardHideTimer);
+  const key = link.dataset.preview;
+  const data = MEGA_MENU_DATA[mega.name] && MEGA_MENU_DATA[mega.name][key];
+  const images = data ? megaImages(data) : [];
+  if (!data || !images.length || images.every((src) => megaCardFailed.has(src))) { hideMegaCard(true); return; }
+
+  const token = ++megaCardToken;
+  megaCardKey = key;
+
+  const stats = megaStats(data);
+  megaCardTitle.textContent = data.title || "";
+  megaCardDesc.textContent = data.description || "";
+  megaCardPrice.textContent = stats.from ? "From " + commissionSettings.currency + stats.from : "";
+
+  swapMegaCardImages(images, data.shape, data.shapes, (ok) => {
+    if (token !== megaCardToken) return;
+    if (!ok) {
+      hideMegaCard(true);
+      return;
+    }
+    if (placeMegaCard(mega, link)) megaCard.classList.add("is-visible");
+    else megaCard.classList.remove("is-visible");
+  });
+}
+
+// Pass true to hide at once. Otherwise it waits a moment, and moving onto another button cancels it.
+function hideMegaCard(immediate) {
+  clearTimeout(megaCardHideTimer);
+  const run = () => {
+    megaCardKey = null;
+    megaCardToken++;
+    megaCard.classList.remove("is-visible");
+  };
+  if (immediate === true) run();
+  else megaCardHideTimer = setTimeout(run, MEGA_CARD_HIDE_DELAY);
 }
 
 // ----- Open / close -----
 function hideMega(mega) {
-  resetBanner(mega);
+  hideMegaCard(true);
+  megaBackdrop.classList.remove("is-visible");
   mega.item.classList.remove("is-open");
   mega.panel.classList.remove("is-open");
   mega.trigger.setAttribute("aria-expanded", "false");
@@ -1347,14 +1760,23 @@ function hideMega(mega) {
 
 function openMega(mega, pinned) {
   clearTimeout(megaCloseTimer);
+  clearTimeout(megaOpenTimer);
   if (activeMega && activeMega !== mega) hideMega(activeMega);
   if (isDesktop()) positionMega(mega);
   loadBanner(mega);
+  warmMegaPictures(mega);
+  applyMegaIcons(mega);
+  applyMegaContent(mega);
+  applyMegaBannerCta(mega);
+  applyMegaStrip(mega);
+  applyMegaDecor(mega);
+  applyMegaSideRender(mega);
   activeMega = mega;
   megaPinned = pinned;
   mega.item.classList.add("is-open");
   mega.panel.classList.add("is-open");
   mega.trigger.setAttribute("aria-expanded", "true");
+  if (isDesktop()) megaBackdrop.classList.add("is-visible");
   if (isDesktop() && mega.links.length) {
     showPreview(mega, mega.links[0].dataset.preview, true);
   }
@@ -1362,6 +1784,7 @@ function openMega(mega, pinned) {
 
 function closeMega(returnFocus) {
   clearTimeout(megaCloseTimer);
+  clearTimeout(megaOpenTimer);
   if (!activeMega) return;
   const mega = activeMega;
   hideMega(mega);
@@ -1435,16 +1858,19 @@ megaMenus.forEach((mega) => {
   // Hover (desktop)
   mega.item.addEventListener("mouseenter", () => {
     if (!isDesktop()) return;
-    clearTimeout(megaCloseTimer);
-    if (activeMega !== mega) openMega(mega, false);
+    clearTimeout(megaCloseTimer);          // coming back (or moving into the panel) keeps it open
+    if (activeMega === mega) return;
+    clearTimeout(megaOpenTimer);
+    openMega(mega, false);
   });
 
   mega.item.addEventListener("mouseleave", () => {
+    clearTimeout(megaOpenTimer);           // the mouse only passed by: never open
     if (!isDesktop() || activeMega !== mega || megaPinned) return;
     clearTimeout(megaCloseTimer);
     megaCloseTimer = setTimeout(() => {
       if (activeMega === mega && !megaPinned) closeMega(false);
-    }, 180);
+    }, MEGA_CLOSE_DELAY);
   });
 
   // Click or Enter/Space on the nav item
@@ -1500,30 +1926,32 @@ megaMenus.forEach((mega) => {
 
   // Change the artwork preview when a category is hovered or focused
   mega.links.forEach((link) => {
-    const show = (instant) => {
+    const show = () => {
       if (!isDesktop()) return;
       showPreview(mega, link.dataset.preview, false);
-      // Keyboard focus swaps the banner at once; a mouse waits a moment so sweeping down
-      // the list does not flicker through every picture
-      clearTimeout(mega.bannerIntent);
-      if (instant) {
-        showBanner(mega, link.dataset.preview);
-      } else {
-        mega.bannerIntent = setTimeout(() => showBanner(mega, link.dataset.preview), 70);
-      }
+      showMegaCard(mega, link);
     };
-    link.addEventListener("mouseenter", () => show(false));
-    link.addEventListener("focus", () => show(true));
+    link.addEventListener("mouseenter", show);
+    link.addEventListener("focus", show);
   });
 
-  // Back to the normal banner when the mouse or keyboard leaves the list of links
+  // The card goes away when the mouse or keyboard leaves the list of links
   const linkList = mega.panel.querySelector(".mega-links");
   if (linkList) {
-    linkList.addEventListener("mouseleave", () => resetBanner(mega));
+    linkList.addEventListener("mouseleave", hideMegaCard);
     linkList.addEventListener("focusout", (event) => {
-      if (!linkList.contains(event.relatedTarget)) resetBanner(mega);
+      if (!linkList.contains(event.relatedTarget)) hideMegaCard();
     });
   }
+});
+
+// ----- Menu pictures: loaded in a quiet moment after the page is ready -----
+// (so the very first hover on a button already has its picture)
+window.addEventListener("load", () => {
+  if (!isDesktop()) return;
+  const warmAll = () => megaMenus.forEach(warmMegaPictures);
+  if ("requestIdleCallback" in window) requestIdleCallback(warmAll, { timeout: 4000 });
+  else setTimeout(warmAll, 2500);
 });
 
 // ----- Mobile menu button -----
@@ -1650,6 +2078,108 @@ window.addEventListener("resize", () => {
 
     grid.appendChild(card);
   });
+})();
+
+// ==========================================================
+// FEATURED WORK: SIDEWAYS GALLERY (homepage, desktop)
+// style.css pins the section and slides the track (heading + pieces) sideways while
+// you scroll. All this does is measure how far the track has to travel and
+// hand that number to the CSS as --work-travel, so the section is exactly
+// tall enough. It re-measures when the window or the row changes size.
+// ==========================================================
+(function () {
+  const section = document.querySelector(".work");
+  const track = section && section.querySelector(".work-track");
+  const stage = section && section.querySelector(":scope > .container");
+  if (!track || !stage) return;
+
+  function measure() {
+    const cs = getComputedStyle(stage);
+    const visible = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const travel = Math.max(0, Math.ceil(track.scrollWidth - visible));
+    section.style.setProperty("--work-travel", travel + "px");
+
+    // Empty space the centred content leaves above itself on the pinned screen
+    const footer = stage.querySelector(".work-footer");
+    if (footer) {
+      const content = footer.offsetTop + footer.offsetHeight - track.offsetTop;
+      const free = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - content;
+      section.style.setProperty("--work-lift", Math.max(0, Math.floor(free / 2)) + "px");
+    }
+  }
+
+  measure();
+  window.addEventListener("resize", measure);
+  window.addEventListener("load", measure);
+  if ("ResizeObserver" in window) new ResizeObserver(measure).observe(track);
+})();
+
+// ==========================================================
+// FEATURED WORK GALLERY: DEPTH AND PARALLAX (homepage, desktop)
+// Works together with the sideways gallery above and the block at the end of
+// style.css. While the gallery is on:
+//   - every piece gets --focus (1 in the middle of the screen, 0 at the edges):
+//     the CSS makes the middle piece full size and bright, the edges smaller and dimmer
+//   - every piece gets --px: the picture drifts inside its frame, so it moves
+//     slower than the frame (a window onto the artwork)
+// Nothing is added to the page's look outside the gallery layout.
+// ==========================================================
+(function () {
+  const section = document.querySelector(".work");
+  const track = section && section.querySelector(".work-track");
+  const grid = section && section.querySelector("[data-work-grid]");
+  if (!section || !track || !grid) return;
+
+  const supported = !!(window.CSS && CSS.supports && CSS.supports("animation-timeline: view()"));
+  const query = window.matchMedia("(min-width: 960px) and (min-height: 600px) and (prefers-reduced-motion: no-preference)");
+  const active = () => supported && query.matches;
+
+  // ----- Depth + parallax -----
+  const FOCUS_FLAT = 0.3;    // the middle of the screen: this much of a card's width counts as "centre"
+  const DRIFT = 0.07;        // how much of the distance from the centre the picture shifts
+  const DRIFT_MAX = 0.05;    // never more than this share of the frame width (the spare picture is 6%)
+  let queued = false;
+
+  function update() {
+    queued = false;
+    if (!active()) return;
+    const bounds = section.getBoundingClientRect();
+    if (bounds.bottom < 0 || bounds.top > window.innerHeight) return;
+
+    const half = window.innerWidth / 2;
+    const cards = Array.prototype.slice.call(grid.querySelectorAll(".portfolio-item"));
+
+    // read everything first ...
+    const values = cards.map((card) => {
+      const box = card.getBoundingClientRect();
+      const width = card.offsetWidth;
+      const offset = box.left + box.width / 2 - half;
+      const away = Math.min(1, Math.max(0, Math.abs(offset) - width * FOCUS_FLAT) / half);
+      const focus = 1 - away * away * (3 - 2 * away);
+      const limit = width * DRIFT_MAX;
+      const shift = Math.max(-limit, Math.min(limit, -offset * DRIFT));
+      return [focus, shift];
+    });
+
+    // ... then write
+    cards.forEach((card, i) => {
+      card.style.setProperty("--focus", values[i][0].toFixed(3));
+      card.style.setProperty("--px", values[i][1].toFixed(1));
+    });
+  }
+
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  }
+
+  schedule();
+  window.addEventListener("scroll", schedule, { passive: true });
+  window.addEventListener("resize", schedule);
+  window.addEventListener("load", schedule);
+  if (query.addEventListener) query.addEventListener("change", schedule);
+  if ("ResizeObserver" in window) new ResizeObserver(schedule).observe(track);
 })();
 
 
@@ -4184,7 +4714,7 @@ function buildSalePopup(cfg, STORAGE_KEY, theme) {
     tab.tabIndex = showTab ? 0 : -1;
   }
 
-  // "$5 off or [Robux] 1.5K" is one line: it gets the largest size that still fits
+  // "$5 off or [Robux] 1.500" is one line: it gets the largest size that still fits
   const dealBox = card.querySelector(".welcome-offer-deal");
   const textBox = card.querySelector(".welcome-offer-text");
   function fitDeal() {
@@ -4526,6 +5056,40 @@ function buildSalePopup(cfg, STORAGE_KEY, theme) {
     if (!area) return false;
     if (!area.value.trim()) {
       area.value = cfg.dmMessage;
+      area.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    return true;
+  }
+  if (fill()) return;
+  // The form may be built after the page loads: look for it for a few seconds
+  const looking = new MutationObserver(() => { if (fill()) looking.disconnect(); });
+  looking.observe(document.body, { childList: true, subtree: true });
+  window.setTimeout(() => looking.disconnect(), 5000);
+})();
+
+
+// ==========================================================
+// ORDER ESTIMATE: PRE-FILLED MESSAGE ON THE CONTACT PAGE
+// The "Send this estimate" button of the order estimator on the pricing page opens /contact/?estimate=<summary>.
+// Here the message box of the form gets that summary (above anything already written in it), so the visitor
+// only has to add their details and press send. It does nothing on other pages or without ?estimate=.
+// ==========================================================
+(function () {
+  const page = window.location.pathname.replace(/\/+$/, "").split("/").pop().replace(/\.html$/i, "").toLowerCase();
+  if (page !== "contact") return;
+  let summary = "";
+  try { summary = new URL(window.location.href).searchParams.get("estimate") || ""; } catch (error) { return; }
+  summary = summary.trim().slice(0, 1500);
+  if (!summary) return;
+  let done = false;
+
+  function fill() {
+    const area = document.querySelector("main form textarea") || document.querySelector("form textarea");
+    if (!area) return false;
+    if (!done) {
+      done = true;
+      const existing = area.value.trim();
+      area.value = existing && existing.indexOf(summary) === -1 ? summary + "\n\n" + existing : (existing || summary);
       area.dispatchEvent(new Event("input", { bubbles: true }));
     }
     return true;
@@ -5345,7 +5909,8 @@ const HOME_HOVER_FX = true;
     };
 
     let b = 0;
-    document.querySelectorAll(".button").forEach((button) => {
+    // (the Your Perks "View more" button is left plain on purpose)
+    document.querySelectorAll(".button:not(.perks-more-btn)").forEach((button) => {
       const badge = button.querySelector(".season-badge");
       dress(button, "button", badge ? badge.classList.contains("is-right") : b % 2 === 0);
       b += 1;
