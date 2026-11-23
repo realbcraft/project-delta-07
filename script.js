@@ -625,7 +625,8 @@ const WORK = {
   "Renders": [
     { image: "/images/work/featured-gfx-02.webp",              id: 6,  featured: 7 },
     { image: "/images/work/portfolio-gfx-01.webp",             id: 7 },
-    { image: "/images/work/portfolio-render-03.webp",          id: 21 }
+    { image: "/images/work/portfolio-render-03.webp",          id: 21 },
+    { image: "/images/work/portfolio-render-04.webp",          id: 28 }
   ],
   "YouTube Thumbnails": [
     { image: "/images/work/featured-thumbnail-01.webp",        id: 2,  featured: 2 },
