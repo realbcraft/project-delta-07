@@ -88,6 +88,44 @@
 //   badge    - a tiny tag next to the title, e.g. "New" or "Most ordered" ("" = none)
 // The card also shows "<n> pieces" (counted from WORK) and "From $x" (lowest price in commissionPricing).
 const MEGA_MENU_DATA = {
+  // Pricing menu. Same fields as Work, plus:
+  //   priceKey - "products" | "bundles" shows "From $x" (follows the currency switch) on the card; "" = no price.
+  // The row texts and the "Save up to x%" / product-count tags are filled in from /pricing-data.js.
+  // Pictures reuse the pricing page artwork: swap in your own (any path) whenever you like.
+  pricing: {
+    "products": {
+      title: "Products",
+      images: ["/images/price-game-thumbnails-01.webp", "/images/price-youtube-thumbnails-01.webp"],
+      description: "Every design, with the price up front.",
+      priceKey: "products",
+      badge: ""
+    },
+    "bundles": {
+      title: "Bundles",
+      images: ["/images/work/featured-gfx-01.webp", "/images/work/portfolio-thumbnail-01.webp"],
+      description: "Matching sets that cost less together.",
+      priceKey: "bundles",
+      badge: ""
+    },
+    "payment": {
+      title: "Payment Methods",
+      // Placeholder pictures (the two the Bundles card uses). Swap in your own payment pictures any time:
+      //   images: ["/images/your-first-picture.webp", "/images/your-second-picture.webp"]
+      images: ["/images/work/featured-gfx-01.webp", "/images/work/portfolio-thumbnail-01.webp"],
+      description: "Pick whichever works best for you.",
+      menuText: "Ways to pay, Robux included.",
+      priceKey: "",
+      badge: ""
+    },
+    "estimator": {
+      title: "Estimator",
+      images: ["/images/price-renders-01.webp", "/images/price-ads-posters-01.webp"],
+      description: "Pick what you need and see the total.",
+      menuText: "Build your total in seconds.",
+      priceKey: "",
+      badge: ""
+    }
+  },
   work: {
     "all-graphics": {
       title: "All Graphics",
@@ -135,6 +173,7 @@ const MEGA_MENU_DATA = {
 //   image - path to the picture inside the images folder
 // ----------------------------------------------------------
 const MEGA_BANNER_DATA = {
+  // pricing: no picture here. The Pricing menu banner shows your featured bundle (see applyMegaFeature).
   work: {
     image: "/images/mega-work-banner-01.webp"
   }
@@ -167,7 +206,8 @@ const MEGA_BANNER_DATA = {
 // The preview card stays where it was; its little tail points down at him (not at the button).
 // ----------------------------------------------------------
 const MEGA_SIDE_RENDER = {
-  work: {
+  // OFF: the Work menu side render is switched off. Rename "workOff" back to "work" to bring it back.
+  workOff: {
     image: "/images/mega-menu/side-render.png",
     height: 250,
     hidden: 0.29,
@@ -192,7 +232,8 @@ const MEGA_SIDE_RENDER = {
 // (On a phone, tapping the item still opens its list of links.)
 // ----------------------------------------------------------
 const MEGA_TRIGGER_LINKS = {
-  work: "/work/#all"
+  work: "/work/#all",
+  pricing: "/pricing/"
 };
 
 
@@ -562,10 +603,12 @@ const WORK = {
     { image: "/images/work/portfolio-game-thumbnail-04.webp",  id: 18 },
     { image: "/images/work/portfolio-game-thumbnail-05.webp",  id: 19 },
     { image: "/images/work/portfolio-game-thumbnail-06.webp",  id: 20 },
-    { image: "/images/work/portfolio-game-thumbnail-07.webp",  id: 21 }
+    { image: "/images/work/portfolio-game-thumbnail-07.webp",  id: 21 },
+    { image: "/images/work/portfolio-game-thumbnail-08.webp",  id: 28 }
   ],
   "Game Icons": [
-    { image: "/images/work/featured-logo-01.webp",             id: 4,  featured: 5 }
+    { image: "/images/work/featured-logo-01.webp",             id: 4,  featured: 5 },
+    { image: "/images/work/game-icon-02.webp",                 id: 27 }
   ],
   "Profile Pictures": [
     { image: "/images/work/featured-pfp-01.webp",              id: 26, featured: 4 },
@@ -731,7 +774,14 @@ function copyText(text) {
 //   youtuber  - true = YouTuber badge next to the name
 //   featured  - true = may appear in the homepage carousel (the first
 //               REVIEWS_FEATURED_LIMIT featured ones are used)
-//   category / projectImage / placeholder - optional, not used by these reviews
+//   projectImages - optional: the work you made for this client, shown as small pictures on the corner of the
+//               review. It is a list, so one review can have a thumbnail AND a game icon:
+//                 projectImages: [ { type: "thumbnail", src: "/images/review-work/Name/thumbnail.webp" },
+//                                  { type: "icon",      src: "/images/review-work/Name/icon.webp" } ]
+//               type "thumbnail" is 16:9 (the default), type "icon" is square.
+//               Optional for each picture: alt (description), fit: "contain" (do not crop it)
+//   game      - optional: { name, url }  the game the work was made for ("Made for <name>" under the name)
+//   category / projectImage / projectType / projectFit / placeholder - older single-picture fields, still work
 //
 // ORDER: the 3 highlighted reviews (Scott, Nadz, HobPlayzRoblox) come
 // first, the other 26 follow in a fixed shuffled order.
@@ -739,7 +789,40 @@ function copyText(text) {
 const REVIEW_CATEGORIES = ["GFX", "Thumbnails", "Logos", "UI", "Branding", "Other"];
 const REVIEWS_FEATURED_LIMIT = 6;
 
+// Homepage strip "Games I've worked on". Every game that has a review (the "game" field in REVIEWS)
+// is added automatically. Use this list for games that have no review yet. Example:
+//   { name: "Game Name", url: "https://www.roblox.com/games/123456789",
+//     image: "/images/games/game-name.webp",        // 16:9 (1920 x 1080); optional
+//     description: "One or two sentences.",          // optional
+//     creator: "Studio Name",                        // optional
+//     players: "2.4K", favorites: "18K", visits: "3.1M", likes: "94%", genre: "Adventure" }  // all optional
+// If a game is in both places, the two entries are merged (this list wins).
+const WORKED_ON_GAMES = [
+  // ---- TEST GAMES: remove these two entries when you are done testing the carousel ----
+  { name: "Test Obby", url: "https://www.roblox.com/games/", image: "/images/logo.webp", imageFit: "contain",
+    description: "A second test game, only here to try out the carousel.",
+    players: "850", visits: "420K", likes: "88%", genre: "Obby" },
+  { name: "Test Tycoon", url: "https://www.roblox.com/games/", image: "/images/logo.webp", imageFit: "contain",
+    description: "A third test game, only here to try out the carousel.",
+    players: "5.1K", visits: "12M", likes: "96%", genre: "Tycoon" },
+  // ---- END TEST GAMES ----
+];
+
 const REVIEWS = [
+  {
+    id: 30,
+    name: "HDR",
+    pageOrder: 0,                   // 0 = first on the reviews page (the newest review)
+    rating: 5,
+    text: "You're very talented and that you know what you're doing.",
+    avatar: "/images/avatars/HDR.webp",
+    game: { name: "Heist Showdown", url: "https://www.roblox.com/games/115276350266504/Heist-Showdown" },
+    // The work made for this client: a thumbnail AND a game icon (shown as two small pictures on the corner)
+    projectImages: [
+      { type: "thumbnail", src: "/images/review-work/HDR/thumbnail.webp", alt: "Game thumbnail made for HDR" },
+      { type: "icon",      src: "/images/review-work/HDR/icon.webp",      alt: "Game icon made for HDR" }
+    ]
+  },
   {
     id: 1,
     name: "Scott",
@@ -924,7 +1007,8 @@ const REVIEWS = [
     rating: 4,
     text: "The Thumbnails Were Great, Captivating and Full Of Bright Colous. Bcraft Did Exactly What I Said !! Plus The Delivery Was Always On Time.",
     avatar: "/images/avatars/Shadow_Hunter.webp",
-    featured: true
+    featured: true,
+    marquee: true
   },
   {
     id: 21,
@@ -1154,8 +1238,8 @@ function setRobux(node, amount, prefix) {
 // A sticky card in the bottom-right corner of every page, stacked right
 // above the sale popup (and its small tab). It starts minimized as a small
 // tab; clicking the tab opens the card. The card's button opens a small
-// "how to redeem" window: the offer is redeemed by DM.
-// The offer does not change any price on the site.
+// "how to redeem" window. Its button opens the estimator on the pricing page and ticks
+// "I'm a new client" there (that is where the discount comes off the total).
 // The card is built by script.js (see "WELCOME OFFER CARD" near the end),
 // so no page needs extra HTML.
 //
@@ -1163,8 +1247,10 @@ function setRobux(node, amount, prefix) {
 //   discountUsd  - dollars taken off the order total (shown on the card)
 //   robuxOff     - Robux taken off when paying in Robux (0 = no Robux part)
 //   endsAt       - optional end, e.g. "2026-11-30T23:59:59" (null = no end)
-//   dmLink       - where the "DM me" button in the redeem window goes. The contact
-//                  page fills its message box when the link ends in ?offer=welcome
+//   estimatorLink - where the "Use it now" button in the redeem window goes. The pricing page
+//                  scrolls to the estimator and ticks "I'm a new client" (with a little show)
+//                  when the link ends in ?offer=welcome. On the pricing page itself it does that right away.
+//   dmLink       - the contact page fills its message box when a link ends in ?offer=welcome
 //   dmMessage    - the line the contact page pre-fills in the message box
 //   image        - your GFX render (the shopping bag). A transparent .webp / .png.
 //                  Its bottom edge always sits exactly on the bottom edge of the
@@ -1188,13 +1274,9 @@ function setRobux(node, amount, prefix) {
 //                  "off"    = no notice
 //   contactText  - the wording of that notice (shown in the small "i" reminder)
 //   eyebrow / amountNote / sub / terms / buttonText / tabText - the wording of the card
-//   pathSteps    - the three tiny labels on the card (DM me > Mention it > Done)
+//   pathSteps    - the three tiny labels on the card (Estimator > Pick pieces > Saved)
 //   modalTitle / modalText / modalSteps / modalButtonText / modalCloseText -
 //                  the wording of the redeem window
-//   modalEmailText / emailLink / emailSubject - the second contact option in the redeem
-//                  window ("Email me"). emailLink is a mailto: link with YOUR address
-//                  (empty = the button is hidden). The e-mail opens with the subject and
-//                  the dmMessage line already filled in.
 //   delay        - milliseconds before the tab slides in on a page
 // ==========================================================
 const WELCOME_OFFER = {
@@ -1202,6 +1284,7 @@ const WELCOME_OFFER = {
   discountUsd: 5,
   robuxOff: 1500,
   endsAt: null,
+  estimatorLink: "/pricing/?offer=welcome#estimate",
   dmLink: "/contact/?offer=welcome",
   dmMessage: "Hi! I\u2019d like to redeem the welcome offer.",
   image: "/images/welcome-offer-01.webp",
@@ -1216,19 +1299,16 @@ const WELCOME_OFFER = {
   sub: "your first order",
   terms: "New clients only \u00b7 $10 minimum order \u00b7 TOS apply",
   buttonText: "Redeem",
-  pathSteps: ["DM me", "Mention it", "Done"],
+  pathSteps: ["Estimator", "Pick pieces", "Saved"],
   tabText: "$5.00 off",
   modalTitle: "A little gift for you",
-  modalText: "New here? Mention it when you message me and I\u2019ll take it off your first order.",
+  modalText: "New here? Use it in the estimator: \u201cI\u2019m a new client\u201d gets ticked for you and it comes off your first order.",
   modalSteps: [
-    "Send me a DM",
-    "Mention the gift",
-    "I take it off"
+    "Open the estimator",
+    "Pick your pieces",
+    "Discount applied"
   ],
-  modalButtonText: "DM me",
-  modalEmailText: "Email me",
-  emailLink: "mailto:YOUR-EMAIL@example.com",   // <-- put your real e-mail address here
-  emailSubject: "Welcome offer",
+  modalButtonText: "Use it now",
   modalCloseText: "Not now",
   delay: 5000,
   nudge: true,
@@ -1370,6 +1450,10 @@ function loadBanner(mega) {
 // stays in the same spot for every button; only its pointer moves to the hovered button.
 // Pictures: 600 x 600 px. The card keeps each picture's own shape (no cropping).
 const MEGA_ICONS = {
+  "payment": '<rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/>',
+  "products": '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+  "bundles": '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  "estimator": '<rect width="16" height="20" x="4" y="2" rx="2"/><path d="M8 6h8"/><path d="M16 14v4"/><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/>',
   "all-graphics": '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>',
   "game-thumbnails": '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
   "youtube-thumbnails": '<path class="yt-bg" stroke="none" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8z"/><path class="yt-play" stroke="none" d="M9.6 15.6V8.4l6.2 3.6z"/>',
@@ -1479,6 +1563,7 @@ megaCard.innerHTML =
   '<div class="mega-float-text">' +
     '<div class="mega-float-row"><strong class="mega-float-title"></strong><span class="mega-float-price"></span></div>' +
     '<span class="mega-float-desc"></span>' +
+    '<span class="mega-float-was"></span>' +
     '<span class="mega-float-hint">Click to browse <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span>' +
   '</div>';
 document.body.appendChild(megaCard);
@@ -1486,6 +1571,7 @@ const megaCardLayers = Array.from(megaCard.querySelectorAll(".mega-float-layer")
 const megaCardTitle = megaCard.querySelector(".mega-float-title");
 const megaCardPrice = megaCard.querySelector(".mega-float-price");
 const megaCardDesc = megaCard.querySelector(".mega-float-desc");
+const megaCardWas = megaCard.querySelector(".mega-float-was");
 const megaCardFailed = new Set();
 let megaCardKey = null;
 let megaCardFront = 0;       // which of the two stacked layers is showing (each layer holds the picture pair)
@@ -1714,7 +1800,8 @@ function swapMegaCardImages(srcs, shape, shapes, done) {
 function showMegaCard(mega, link) {
   clearTimeout(megaCardHideTimer);
   const key = link.dataset.preview;
-  const data = MEGA_MENU_DATA[mega.name] && MEGA_MENU_DATA[mega.name][key];
+  let data = MEGA_MENU_DATA[mega.name] && MEGA_MENU_DATA[mega.name][key];
+  if (data && mega.name === "pricing") data = megaPricingCardData(key, data, mega);
   const images = data ? megaImages(data) : [];
   if (!data || !images.length || images.every((src) => megaCardFailed.has(src))) { hideMegaCard(true); return; }
 
@@ -1724,7 +1811,16 @@ function showMegaCard(mega, link) {
   const stats = megaStats(data);
   megaCardTitle.textContent = data.title || "";
   megaCardDesc.textContent = data.description || "";
-  megaCardPrice.textContent = stats.from ? "From " + commissionSettings.currency + stats.from : "";
+  megaCardWas.textContent = data.wasText || "";
+  if (data.priceText !== undefined) {
+    megaCardPrice.textContent = data.priceText;
+  } else if ("priceKey" in data) {
+    const ps = megaPricingStats();
+    const label = ps ? (data.priceKey === "bundles" ? megaPriceLabel(ps.bMinUsd, ps.bMinRbx, "usd") : data.priceKey === "products" ? megaPriceLabel(ps.minUsd, ps.minRbx, "usd") : "") : "";
+    megaCardPrice.textContent = label ? "From " + label : "";
+  } else {
+    megaCardPrice.textContent = stats.from ? "From " + commissionSettings.currency + stats.from : "";
+  }
 
   swapMegaCardImages(images, data.shape, data.shapes, (ok) => {
     if (token !== megaCardToken) return;
@@ -1749,6 +1845,410 @@ function hideMegaCard(immediate) {
   else megaCardHideTimer = setTimeout(run, MEGA_CARD_HIDE_DELAY);
 }
 
+// ----- Pricing menu: live prices + currency switcher -----
+// Prices come from /pricing-data.js (PRICING_DATA). The switcher uses the same setting as the
+// pricing page: html[data-currency] = both | usd | robux, remembered in localStorage.
+const MEGA_CUR_KEY = "bcraft-pricing-currency";
+const MEGA_CUR_MODES = ["both", "usd", "robux"];
+
+function megaCurrencyRead() {
+  try {
+    const saved = window.localStorage.getItem(MEGA_CUR_KEY);
+    if (MEGA_CUR_MODES.includes(saved)) return saved;
+  } catch (e) {}
+  return "both";
+}
+
+function megaCurrency() {
+  const attr = document.documentElement.getAttribute("data-currency");
+  return MEGA_CUR_MODES.includes(attr) ? attr : megaCurrencyRead();
+}
+
+if (!MEGA_CUR_MODES.includes(document.documentElement.getAttribute("data-currency"))) {
+  document.documentElement.setAttribute("data-currency", megaCurrencyRead());
+}
+
+function megaPriceNumber(text) {            // "$30" -> 30, "7.9K R$" -> 7900, anything else -> null
+  const m = String(text || "").replace(/,/g, "").match(/([\d.]+)\s*(k)?/i);
+  if (!m) return null;
+  const n = parseFloat(m[1]);
+  return isNaN(n) ? null : (m[2] ? n * 1000 : n);
+}
+
+function megaPricingStats() {
+  const data = window.PRICING_DATA;
+  if (!data) return null;
+  const keys = Object.keys(data.prices);
+  let minUsd = 0, minRbx = 0, bMinUsd = 0, bMinRbx = 0, best = 0;
+  keys.forEach((key) => {
+    const u = megaPriceNumber(data.prices[key] && data.prices[key].usd);
+    const r = megaPriceNumber(data.prices[key] && data.prices[key].robux);
+    if (u && (!minUsd || u < minUsd)) minUsd = u;
+    if (r && (!minRbx || r < minRbx)) minRbx = r;
+  });
+  data.bundles.forEach((bundle) => {
+    const u = megaPriceNumber(bundle.usd);
+    const r = megaPriceNumber(bundle.robux);
+    if (u && (!bMinUsd || u < bMinUsd)) bMinUsd = u;
+    if (r && (!bMinRbx || r < bMinRbx)) bMinRbx = r;
+    if (!u) return;
+    let regular = 0, complete = true;
+    bundle.items.forEach((item) => {
+      const price = data.prices[item.product] && megaPriceNumber(data.prices[item.product].usd);
+      if (!price) { complete = false; return; }
+      regular += price * (item.qty || 1);
+    });
+    if (complete && regular > u) best = Math.max(best, Math.round((1 - u / regular) * 100));
+  });
+  return { count: keys.length, minUsd: minUsd, minRbx: minRbx, bMinUsd: bMinUsd, bMinRbx: bMinRbx, best: best };
+}
+
+// "$7", "1.800 R$" or "$7 \u00b7 1.800 R$", depending on the currency switch
+function megaPriceLabel(usd, rbx, only) {
+  const mode = only || megaCurrency();
+  const parts = [];
+  if (mode !== "robux" && usd) parts.push("$" + (Number.isInteger(usd) ? usd : usd.toFixed(2)));
+  if (mode !== "usd" && rbx) parts.push(String(Math.round(rbx)).replace(/\B(?=(\d{3})+(?!\d))/g, ".") + " R$");
+  return parts.join(" \u00b7 ");
+}
+
+function setMegaBadge(link, text) {
+  const title = link.querySelector(".mega-link-title");
+  if (!title) return;
+  let badge = title.querySelector(".mega-link-badge");
+  if (!text) { if (badge) badge.remove(); return; }
+  if (!badge) {
+    badge = document.createElement("span");
+    badge.className = "mega-link-badge";
+    title.appendChild(badge);
+  }
+  badge.textContent = text;
+}
+
+// Row texts and tags of the Pricing menu (runs on open and whenever the currency changes)
+function applyMegaPricing(mega) {
+  if (mega.name !== "pricing") return;
+  const stats = megaPricingStats();
+  if (!stats) return;
+  mega.links.forEach((link) => {
+    const text = link.querySelector(".mega-link-text");
+    if (link.dataset.preview === "products") {
+      const from = megaPriceLabel(stats.minUsd, stats.minRbx);
+      if (text && from) text.textContent = "From " + from;
+      setMegaBadge(link, "");
+    } else if (link.dataset.preview === "bundles") {
+      setMegaBadge(link, stats.best > 0 ? "Save up to " + stats.best + "%" : "");
+    } else if (link.dataset.preview === "estimator") {
+      // While you are on the pricing page the estimator reports its total (window.BCRAFT_ESTIMATE)
+      if (text && !link.dataset.defaultText) link.dataset.defaultText = text.textContent;
+      const est = window.BCRAFT_ESTIMATE;
+      if (est && est.pieces) {
+        if (text) text.textContent = "Your total: " + megaPriceLabel(est.usd, est.rbx);
+        setMegaBadge(link, est.pieces + (est.pieces === 1 ? " piece" : " pieces"));
+      } else {
+        if (text && link.dataset.defaultText) text.textContent = link.dataset.defaultText;
+        setMegaBadge(link, "");
+      }
+    }
+  });
+}
+
+// ----- Featured bundle (banner + bundle card) -----
+// Names used in "1x Game Icons, 2x Game Thumbnails ..." (a key not listed here is written out from its key)
+const MEGA_PRODUCT_NAMES = {
+  "game-thumbnails": "Game Thumbnails", "game-icons": "Game Icons", "game-logos": "Game Logos",
+  "renders": "Renders", "profile-pictures": "Profile Pictures", "youtube-thumbnails": "YouTube Thumbnails",
+  "ads-posters": "Ads & Posters", "youtube-banners": "Social Banners", "commission-sheets": "Sheet Designs"
+};
+
+function megaProductName(key) {
+  return MEGA_PRODUCT_NAMES[key] || key.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// ----------------------------------------------------------
+// PRICING MENU BANNER: order and badge of each bundle (by its id in pricing-data.js)
+//   order - 1 shows first, 2 second ... (a bundle that is not listed comes after these)
+//   kind  - the badge look + animation: "star" | "youtube" | "budget" | "bundle"
+//   text  - the badge text
+// How long each bundle stays: MEGA_FEATURE_INTERVAL (ms).
+// ----------------------------------------------------------
+const MEGA_BUNDLE_BADGES = {
+  "game-launch-pack":     { order: 1, kind: "star",    text: "Most Popular" },
+  "creator-starter-pack": { order: 2, kind: "youtube", text: "YouTube" },
+  "render-pack":          { order: 3, kind: "budget",  text: "Budget Pick" }
+};
+const MEGA_FEATURE_INTERVAL = 3500;
+
+const MEGA_BADGE_ICONS = {
+  star: '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" focusable="false"><path fill="currentColor" d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>',
+  youtube: '<svg viewBox="0 0 24 24" width="17" height="13" aria-hidden="true" focusable="false"><rect x="1" y="4" width="22" height="16" rx="5" fill="#fff"/><path d="M10 8.6v6.8l5.8-3.4z" fill="#e60000"/></svg>',
+  budget: '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="#ffd25a" stroke="#a96b00" stroke-width="1.6"/><path d="M12 6.5v11M14.8 9.2c-.6-.8-1.6-1.2-2.8-1.2-1.6 0-2.8.8-2.8 2 0 3 5.8 1.4 5.8 4.2 0 1.2-1.2 2-3 2-1.3 0-2.4-.5-3-1.4" fill="none" stroke="#7a4b00" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  bundle: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>'
+};
+
+// All bundles from pricing-data.js in banner order (see MEGA_BUNDLE_BADGES)
+function megaBundleList() {
+  const data = window.PRICING_DATA;
+  if (!data || !data.bundles || !data.bundles.length) return [];
+  const rank = (b) => {
+    const cfg = MEGA_BUNDLE_BADGES[b.id];
+    return cfg ? cfg.order : (b.popular ? 50 : 100) + data.bundles.indexOf(b);
+  };
+  return data.bundles.slice().sort((a, b) => rank(a) - rank(b));
+}
+
+// Badge of a bundle: { kind, text }
+function megaBundleBadge(bundle) {
+  const cfg = MEGA_BUNDLE_BADGES[bundle.id] || {};
+  return {
+    kind: cfg.kind || (bundle.popular ? "star" : "bundle"),
+    text: cfg.text || bundle.badge || bundle.tag || (bundle.popular ? "Most Popular" : "Bundle")
+  };
+}
+
+// The bundle the banner is showing right now (the Bundles preview card follows it)
+function megaCurrentBundle(mega) {
+  const list = megaBundleList();
+  return list.length ? list[(mega.featIndex || 0) % list.length] : null;
+}
+
+function megaBundleInfo(bundle) {
+  const data = window.PRICING_DATA;
+  const usd = megaPriceNumber(bundle.usd);
+  const rbx = megaPriceNumber(bundle.robux);
+  let regU = 0, regR = 0, complete = true, pieces = 0;
+  const parts = [], arts = [];
+  bundle.items.forEach((item) => {
+    const price = data.prices[item.product] || {};
+    const pu = megaPriceNumber(price.usd);
+    const pr = megaPriceNumber(price.robux);
+    const qty = item.qty || 1;
+    pieces += qty;
+    if (pu) regU += pu * qty; else complete = false;
+    if (pr) regR += pr * qty;
+    parts.push(qty + "\u00d7 " + megaProductName(item.product));
+    if (item.art && item.art[0]) arts.push(item.art[0]);
+  });
+  const pct = complete && usd && regU > usd ? Math.round((1 - usd / regU) * 100) : 0;
+  return { usd: usd, rbx: rbx, regU: complete ? regU : 0, regR: regR, pct: pct, pieces: pieces, parts: parts, arts: arts };
+}
+
+// The hover card of the Bundles button: the featured bundle, what is in it, and what it saves
+function megaPricingCardData(key, data, mega) {
+  if (key !== "bundles") return data;
+  const bundle = megaCurrentBundle(mega);
+  if (!bundle) return data;
+  const info = megaBundleInfo(bundle);
+  const text = info.pieces + " pieces in one set" + (info.pct ? " \u00b7 save " + info.pct + "%" : "");
+  return Object.assign({}, data, {
+    title: bundle.name,
+    description: text,
+    wasText: info.regU ? "Bought separately: " + megaPriceLabel(info.regU, info.regR, "usd") : "",
+    images: info.arts.length ? info.arts.slice(0, 2) : data.images,
+    priceText: megaPriceLabel(info.usd, info.rbx, "usd")
+  });
+}
+
+// The wide banner of the Pricing menu: your bundles, one at a time (rotates every few seconds)
+function applyMegaFeature(mega) {
+  if (mega.name !== "pricing") return;
+  const banner = mega.panel.querySelector(".mega-banner");
+  const list = megaBundleList();
+  if (!banner || !list.length) return;
+  let feature = banner.querySelector(".mega-feature");
+  if (!feature) {
+    banner.removeAttribute("aria-hidden");
+    feature = document.createElement("div");
+    feature.className = "mega-feature";
+    feature.innerHTML =
+      '<span class="mega-feature-art"></span><span class="mega-feature-art"></span>' +
+      '<span class="mega-feature-tags"><span class="mega-feature-tag" data-kind="star"><span class="mega-feature-tag-icon" aria-hidden="true"></span><span class="mega-feature-tag-text"></span></span><span class="mega-feature-tag mega-feature-tag--save"></span></span>' +
+      '<strong class="mega-feature-name"></strong>' +
+      '<span class="mega-feature-line"><span class="mega-feature-price"></span><span class="mega-feature-was"></span></span>' +
+      '<a class="mega-feature-go" href="/pricing/#bundles">View bundles <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>' +
+      '<span class="mega-feature-dots"></span>';
+    banner.appendChild(feature);
+    // PC: only the "View bundles" button is clickable. Phone / tablet: a tap anywhere on the banner works.
+    feature.addEventListener("click", (event) => {
+      if (isDesktop() || event.target.closest("a, button")) return;
+      const go = feature.querySelector(".mega-feature-go");
+      if (go) go.click();
+    });
+    // the dots: one per bundle
+    const dots = feature.querySelector(".mega-feature-dots");
+    if (list.length > 1) {
+      list.forEach((bundle, i) => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "mega-feature-dot";
+        dot.setAttribute("aria-label", "Show " + bundle.name);
+        dot.addEventListener("click", () => {
+          mega.featHold = Date.now() + 6000;      // you picked one: leave it for a while
+          showMegaFeature(mega, i);
+        });
+        dots.appendChild(dot);
+      });
+    }
+    // pause while the pointer or the keyboard is on the banner
+    feature.addEventListener("mouseenter", () => { mega.featPaused = true; });
+    feature.addEventListener("mouseleave", () => { mega.featPaused = false; });
+    feature.addEventListener("focusin", () => { mega.featPaused = true; });
+    feature.addEventListener("focusout", () => { mega.featPaused = false; });
+  }
+  renderMegaFeature(mega);
+}
+
+// Fill the banner with the current bundle (also runs again when the currency changes)
+function renderMegaFeature(mega) {
+  const banner = mega.panel.querySelector(".mega-banner");
+  const feature = banner && banner.querySelector(".mega-feature");
+  const bundle = megaCurrentBundle(mega);
+  if (!feature || !bundle) return;
+  const info = megaBundleInfo(bundle);
+  const badge = megaBundleBadge(bundle);
+  const tag = feature.querySelector(".mega-feature-tag[data-kind]");
+  if (tag.dataset.kind !== badge.kind || !tag.querySelector(".mega-feature-tag-icon").firstChild) {
+    tag.dataset.kind = badge.kind;                                   // new kind = new look, the animation starts over
+    tag.querySelector(".mega-feature-tag-icon").innerHTML = MEGA_BADGE_ICONS[badge.kind] || "";
+  }
+  tag.querySelector(".mega-feature-tag-text").textContent = badge.text;
+  const save = feature.querySelector(".mega-feature-tag--save");
+  save.textContent = info.pct ? "Save " + info.pct + "%" : "";
+  save.hidden = !info.pct;
+  feature.querySelector(".mega-feature-name").textContent = bundle.name;
+  feature.querySelector(".mega-feature-price").textContent = megaPriceLabel(info.usd, info.rbx) || "Price coming soon";
+  feature.querySelector(".mega-feature-was").textContent = info.regU ? megaPriceLabel(info.regU, info.regR) : "";
+  // Picture: the new one fades in over the old one (two layers, the newest on top)
+  const art = info.arts[0] || "";
+  if ((mega.artSrc || "") !== art) {
+    mega.artSrc = art;
+    const layers = feature.querySelectorAll(".mega-feature-art");
+    if (!art) {
+      layers.forEach((layer) => layer.classList.remove("is-on"));
+    } else {
+      const loader = new Image();
+      loader.onload = () => {
+        if (mega.artSrc !== art) return;          // you already moved on to another bundle
+        const from = mega.artActive || 0, to = 1 - from;
+        layers[to].style.backgroundImage = 'url("' + art + '")';
+        layers[to].classList.add("is-on");
+        layers[from].classList.remove("is-on");
+        mega.artActive = to;
+      };
+      loader.src = art;
+    }
+  }
+  const index = (mega.featIndex || 0) % megaBundleList().length;
+  feature.querySelectorAll(".mega-feature-dot").forEach((dot, i) => {
+    dot.classList.toggle("is-active", i === index);
+    if (i === index) dot.setAttribute("aria-current", "true"); else dot.removeAttribute("aria-current");
+  });
+}
+
+// Switch to another bundle with a short fade
+function showMegaFeature(mega, index) {
+  const feature = mega.panel.querySelector(".mega-feature");
+  const total = megaBundleList().length;
+  if (!feature || total < 2) return;
+  mega.featIndex = ((index % total) + total) % total;
+  clearTimeout(mega.featSwap);
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { renderMegaFeature(mega); return; }
+  feature.classList.add("is-swapping");               // the texts slide out to the left ...
+  mega.featSwap = setTimeout(() => {
+    renderMegaFeature(mega);
+    feature.classList.remove("is-swapping");
+    feature.classList.add("is-entering");              // ... and the new ones start on the right ...
+    void feature.offsetWidth;
+    feature.classList.remove("is-entering");           // ... and slide in
+  }, 260);
+}
+
+// Auto-rotate while the menu is open (starts at the featured bundle, pauses on hover, stops when the menu closes)
+function startMegaFeatureRotation(mega) {
+  if (mega.name !== "pricing" || mega.featTimer) return;
+  if (megaBundleList().length < 2) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;   // dots still work
+  mega.featIndex = 0;
+  renderMegaFeature(mega);
+  mega.featTimer = setInterval(() => {
+    if (!mega.panel.classList.contains("is-open")) {
+      clearInterval(mega.featTimer);
+      mega.featTimer = null;
+      return;
+    }
+    if (mega.featPaused || document.hidden || Date.now() < (mega.featHold || 0)) return;
+    showMegaFeature(mega, (mega.featIndex || 0) + 1);
+  }, MEGA_FEATURE_INTERVAL);
+}
+
+// The Both / USD / Robux switch in the bottom strip (same look and storage as the pricing page)
+function buildMegaCurrency(mega) {
+  const box = mega.panel.querySelector("[data-mega-currency]");
+  if (!box || mega.curSeg) return;
+  box.className = "mega-strip-currency pc-currency";
+  const label = document.createElement("span");
+  label.className = "pc-currency-label";
+  label.textContent = "Show prices in";
+  const seg = document.createElement("div");
+  seg.className = "pc-seg";
+  seg.setAttribute("role", "group");
+  seg.setAttribute("aria-label", "Show prices in");
+  const thumb = document.createElement("span");
+  thumb.className = "pc-seg-thumb";
+  thumb.setAttribute("aria-hidden", "true");
+  seg.appendChild(thumb);
+  const buttons = [["both", "Both"], ["usd", "USD"], ["robux", "Robux"]].map((m) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.dataset.cur = m[0];
+    btn.appendChild(document.createTextNode(m[1]));
+    if (m[0] === "robux") {
+      const icon = document.createElement("img");
+      icon.className = "pc-robux-icon";
+      icon.src = (window.PRICING_DATA && window.PRICING_DATA.robuxIcon) || "/images/robux-icon.webp";
+      icon.alt = "";
+      btn.appendChild(icon);
+    }
+    btn.addEventListener("click", () => {
+      try { window.localStorage.setItem(MEGA_CUR_KEY, m[0]); } catch (e) {}
+      document.documentElement.setAttribute("data-currency", m[0]);   // the observer below updates everything
+    });
+    seg.appendChild(btn);
+    return btn;
+  });
+  box.appendChild(label);
+  box.appendChild(seg);
+  mega.curSeg = { seg: seg, thumb: thumb, buttons: buttons };
+  syncMegaCurrency(mega);
+}
+
+function syncMegaCurrency(mega) {
+  const cs = mega.curSeg;
+  if (!cs) return;
+  const mode = megaCurrency();
+  cs.buttons.forEach((b) => b.setAttribute("aria-pressed", b.dataset.cur === mode ? "true" : "false"));
+  const on = cs.seg.querySelector('button[aria-pressed="true"]');
+  if (!on || !on.offsetWidth) return;       // menu not visible yet: it measures again when it opens
+  cs.thumb.style.width = on.offsetWidth + "px";
+  cs.thumb.style.transform = "translateX(" + on.offsetLeft + "px)";
+  requestAnimationFrame(() => cs.seg.classList.add("is-ready"));   // slide animation only after the first placement
+}
+
+// Either switch (menu or pricing page) changes html[data-currency]: keep the menu in step
+new MutationObserver(() => {
+  megaMenus.forEach((mega) => {
+    if (mega.name !== "pricing") return;
+    applyMegaPricing(mega);
+    applyMegaFeature(mega);
+    syncMegaCurrency(mega);
+  });
+}).observe(document.documentElement, { attributes: true, attributeFilter: ["data-currency"] });
+
+// The estimator on the pricing page reports its total: show it on the Estimator button
+document.addEventListener("bcraft:estimate", () => {
+  megaMenus.forEach((mega) => applyMegaPricing(mega));
+});
+
 // ----- Open / close -----
 function hideMega(mega) {
   hideMegaCard(true);
@@ -1767,8 +2267,12 @@ function openMega(mega, pinned) {
   warmMegaPictures(mega);
   applyMegaIcons(mega);
   applyMegaContent(mega);
+  applyMegaPricing(mega);
+  applyMegaFeature(mega);
+  startMegaFeatureRotation(mega);
   applyMegaBannerCta(mega);
   applyMegaStrip(mega);
+  buildMegaCurrency(mega);
   applyMegaDecor(mega);
   applyMegaSideRender(mega);
   activeMega = mega;
@@ -1780,6 +2284,7 @@ function openMega(mega, pinned) {
   if (isDesktop() && mega.links.length) {
     showPreview(mega, mega.links[0].dataset.preview, true);
   }
+  if (mega.curSeg) requestAnimationFrame(() => syncMegaCurrency(mega));   // measure the pill once the menu is visible
 }
 
 function closeMega(returnFocus) {
@@ -1855,6 +2360,14 @@ function showPreview(mega, key, instant) {
 
 // ----- Events for each mega menu -----
 megaMenus.forEach((mega) => {
+  // A link to a spot on the page you are already on closes the menu (the page just scrolls)
+  mega.panel.addEventListener("click", (event) => {
+    const link = event.target.closest("a[href]");
+    if (!link || !link.hash) return;
+    if (link.pathname.replace(/\/$/, "") !== window.location.pathname.replace(/\/$/, "")) return;
+    closeMega(false);
+  });
+
   // Hover (desktop)
   mega.item.addEventListener("mouseenter", () => {
     if (!isDesktop()) return;
@@ -1939,6 +2452,10 @@ megaMenus.forEach((mega) => {
   const linkList = mega.panel.querySelector(".mega-links");
   if (linkList) {
     linkList.addEventListener("mouseleave", hideMegaCard);
+    // empty space inside the list (a gap or an empty grid cell) is not a button: no card there
+    linkList.addEventListener("mouseover", (event) => {
+      if (!event.target.closest(".mega-link")) hideMegaCard();
+    });
     linkList.addEventListener("focusout", (event) => {
       if (!linkList.contains(event.relatedTarget)) hideMegaCard();
     });
@@ -2381,7 +2898,7 @@ window.addEventListener("resize", () => {
   const box = document.querySelector("[data-rating-summary]");
   if (!box) return;
 
-  const ratings = REVIEWS.map((review) => Number(review.rating)).filter((n) => n >= 1 && n <= 5);
+  const ratings = REVIEWS.filter((review) => !review.placeholder).map((review) => Number(review.rating)).filter((n) => n >= 1 && n <= 5);
   if (!ratings.length) return;
 
   const average = ratings.reduce((sum, n) => sum + n, 0) / ratings.length;
@@ -3538,7 +4055,23 @@ const LIGHTBOX_SETTINGS = {
     return wrap;
   }
 
-  function createArtwork(review) {
+  // The pictures of a review: a list  projectImages: [{ type, src, alt, fit }, ...]  (one review can have a
+  // thumbnail AND a game icon), or the older single  projectImage / projectType / projectFit / projectAlt.
+  function getArtworks(review) {
+    if (Array.isArray(review.projectImages)) {
+      return review.projectImages
+        .filter((picture) => picture && picture.src)
+        .map((picture) => ({ src: picture.src, type: picture.type === "icon" ? "icon" : "thumbnail", fit: picture.fit, alt: picture.alt }));
+    }
+    if (review.projectImage) {
+      return [{ src: review.projectImage, type: review.projectType === "icon" ? "icon" : "thumbnail", fit: review.projectFit, alt: review.projectAlt }];
+    }
+    return [];
+  }
+
+  // One picture. Without the second argument it uses the review's single older fields (the homepage cards do that).
+  function createArtwork(review, artwork) {
+    const picture = artwork || { src: review.projectImage, type: review.projectType, fit: review.projectFit, alt: review.projectAlt };
     const art = el("div", "review-art");
     const placeholder = el("div", "review-art-placeholder");
     placeholder.appendChild(el("p", "review-art-label", "Project artwork"));
@@ -3546,11 +4079,15 @@ const LIGHTBOX_SETTINGS = {
     art.appendChild(placeholder);
 
     const img = el("img", "review-art-image");
-    img.alt = review.projectAlt || ((review.category || "Project") + " artwork made for " + review.name);
+    img.alt = picture.alt || ((review.category || "Project") + " artwork made for " + review.name);
+    const isIcon = picture.type === "icon";           // game icons are square, thumbnails are 16:9
+    img.width = isIcon ? 1000 : 1920;
+    img.height = isIcon ? 1000 : 1080;
     img.loading = "lazy";
     img.decoding = "async";
+    if (picture.fit === "contain") img.classList.add("is-contain");
     art.appendChild(img);
-    loadImage(img, review.projectImage);
+    loadImage(img, picture.src);
     return art;
   }
 
@@ -3592,6 +4129,34 @@ const LIGHTBOX_SETTINGS = {
     if (review.verified) name.insertAdjacentHTML("beforeend", " " + VERIFIED_HTML);
     if (review.youtuber) name.insertAdjacentHTML("beforeend", " " + YOUTUBER_HTML);
     return name;
+  }
+
+  // "Made for <game>" chip shown under the client's name (reviews page).
+  // review.game = { name: "Game Name", url: "https://..." }  (url optional, http/https only)
+  const GAME_ARROW_HTML = '<svg class="review-game-arrow" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M4 2.5h5.5V8M9.5 2.5 2.5 9.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  const GAME_CHEVRON_HTML = '<svg class="review-game-chevron" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="m4 2 4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  // The "Made for <game>" line on the reviews page. Only the game name is a link (new tab), and only when
+  // the game has a url. (The game popup is only used by the homepage carousel.)
+  function createGameChip(review) {
+    const game = review.game;
+    const safeUrl = game.url && /^https?:\/\//i.test(game.url) ? game.url : "";
+    const chip = el("span", "review-game");
+    chip.dataset.gameName = game.name;               // the game filter reads this
+    chip.appendChild(el("span", "review-game-label", "Made for"));
+    if (safeUrl) {
+      const link = el("a", "review-game-name", game.name);
+      link.href = safeUrl;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.title = "Open " + game.name + " in a new tab";
+      link.insertAdjacentHTML("beforeend", GAME_ARROW_HTML);
+      chip.appendChild(link);
+    } else {
+      chip.appendChild(el("span", "review-game-name", game.name));
+    }
+    return chip;
   }
 
   // A review is a chat-style bubble (artwork, category, stars, text) with
@@ -3686,8 +4251,30 @@ const LIGHTBOX_SETTINGS = {
     const card = el("article", "review-card");
     if (review.premium) card.classList.add("is-premium");
     if (review.premium && review.verified) card.classList.add("is-verified");
+    if (review.placeholder) card.dataset.placeholder = "";
+    if (review.marquee) card.dataset.marquee = "";     // shows in the featured marquee on the reviews page
+    card.id = "review-" + review.id;                   // share links point here:  /reviews/#review-<id>
 
     const bubble = el("div", "review-bubble");
+    const artworks = getArtworks(review);
+    if (artworks.length) {
+      card.classList.add("has-artwork");
+      // Sticker-style pictures on the bubble's top-right corner (half in, half out). Click = full image.
+      // A review can have several (for example a thumbnail and a game icon): they sit side by side.
+      const badges = el("div", "review-badges");
+      artworks.forEach((artwork) => {
+        const isIcon = artwork.type === "icon";
+        const badge = el("div", "review-badge");
+        if (isIcon) badge.classList.add("is-icon");     // square for a game icon
+        badge.tabIndex = 0;
+        badge.setAttribute("role", "button");
+        badge.setAttribute("aria-label", isIcon ? "View the game icon larger" : "View the thumbnail larger");
+        badge.title = isIcon ? "Game icon" : "Thumbnail";
+        badge.appendChild(createArtwork(review, artwork));
+        badges.appendChild(badge);
+      });
+      bubble.appendChild(badges);
+    }
     const body = el("div", "review-body");
     const meta = el("div", "review-meta");
 
@@ -3707,11 +4294,27 @@ const LIGHTBOX_SETTINGS = {
       stars.appendChild(svg);
     }
     meta.appendChild(stars);
+
+    // Share button (sits right behind the name and its badges): copies a link that opens the page scrolled to this review
+    const share = el("button", "review-share");
+    share.type = "button";
+    share.dataset.reviewId = review.id;
+    share.title = "Copy link to this review";
+    share.setAttribute("aria-label", "Copy link to this review");
+    share.insertAdjacentHTML("beforeend", '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M8.5 11.5a3.2 3.2 0 0 0 4.5 0l2.6-2.6a3.2 3.2 0 0 0-4.5-4.5l-.9.9M11.5 8.5a3.2 3.2 0 0 0-4.5 0l-2.6 2.6a3.2 3.2 0 0 0 4.5 4.5l.9-.9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>');
     body.appendChild(meta);
 
     const text = el("div", "review-text");
     String(review.text).split(/\n\s*\n/).forEach((part) => text.appendChild(el("p", null, part)));
     body.appendChild(text);
+
+    // "Read more" button: only shown (by setupReadMore below) when the text is long
+    const more = el("button", "review-more", "Read more");
+    more.type = "button";
+    more.hidden = true;
+    more.setAttribute("aria-expanded", "false");
+    body.appendChild(more);
+
     bubble.appendChild(body);
     card.appendChild(bubble);
 
@@ -3735,9 +4338,104 @@ const LIGHTBOX_SETTINGS = {
       avatar.appendChild(img);
     }
     author.appendChild(avatar);
-    author.appendChild(createName(review));
+    const nameRow = el("div", "review-name-row");
+    nameRow.appendChild(createName(review));       // the name with its badges ...
+    nameRow.appendChild(share);                    // ... and the share button right behind them
+    if (review.game && review.game.name) {
+      const info = el("div", "review-author-info");
+      info.appendChild(nameRow);
+      info.appendChild(createGameChip(review));
+      author.appendChild(info);
+    } else {
+      author.appendChild(nameRow);
+    }
     card.appendChild(author);
     return card;
+  }
+
+  // "Like what you see?" card that sits in the middle of the review list (not a review: filters and stats ignore it)
+  // The picture on the left side of that card. It is used as it is (not rotated): its cut-off side sits on the
+  // left edge of the card and its head sticks out above the frame (see .review-cta-render in style.css).
+  const CTA_RENDER_IMAGE = "/images/side-render.webp";
+
+  // Space above the card: only as much as the head really sticks out above the frame (measured), so there is no
+  // empty gap. (The previous card's own bottom margin already gives about 20px of it.)
+  function fitCtaSpace(wrap) {
+    if (!wrap) return;
+    const card = wrap.querySelector(".review-cta-card");
+    const img = wrap.querySelector(".review-cta-render");
+    if (!card || !img) return;
+    const c = card.getBoundingClientRect();
+    const r = img.getBoundingClientRect();
+    if (!r.height || !c.height) return;                    // hidden right now (a filter is on): keep what we had
+    const visibleTop = r.top + ((parseFloat(img.dataset.topGap) || 0) / 100) * r.height;   // top of the character itself
+    const sticksOut = Math.max(0, c.top - visibleTop);
+    wrap.style.paddingTop = Math.max(0, Math.round(sticksOut - 20)) + "px";
+  }
+
+  let ctaTimer = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(ctaTimer);
+    ctaTimer = setTimeout(() => document.querySelectorAll(".review-cta-wrap").forEach(fitCtaSpace), 150);
+  });
+
+  // The picture file can have empty (transparent) space around the character. This looks for where the character
+  // really starts and shifts the picture, so the character itself touches the left edge and the bottom edge of the
+  // card. (Percent shifts, so it keeps working at any size.) If the browser does not allow reading the pixels
+  // (for example when the site is opened from a file), nothing happens and the CSS position is kept.
+  function trimRender(img) {
+    try {
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      if (!w || !h) return;
+      const scale = Math.min(1, 400 / Math.max(w, h));
+      const cw = Math.max(1, Math.round(w * scale));
+      const ch = Math.max(1, Math.round(h * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = cw;
+      canvas.height = ch;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0, cw, ch);
+      const data = ctx.getImageData(0, 0, cw, ch).data;
+      let minX = cw;
+      let minY = ch;
+      let maxY = -1;
+      for (let y = 0; y < ch; y++) {
+        for (let x = 0; x < cw; x++) {
+          if (data[(y * cw + x) * 4 + 3] > 12) {
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+      if (maxY < 0) return;                                   // nothing visible in the picture
+      const left = (minX / cw) * 100;                         // empty space on the left, in % of the picture
+      const bottom = ((ch - 1 - maxY) / ch) * 100;            // empty space at the bottom, in % of the picture
+      img.style.transform = "translate(" + (-left) + "%, " + bottom + "%)";
+      img.dataset.topGap = String((minY / ch) * 100);          // empty space above the head, in % of the picture
+    } catch (error) { /* keep the CSS position */ }
+    fitCtaSpace(img.closest(".review-cta-wrap"));
+  }
+
+  function createCtaCard() {
+    const wrap = el("div", "review-cta-wrap");           // holds the space for the head that sticks out
+    const card = el("aside", "review-cta-card");
+    const render = el("img", "review-cta-render");
+    render.src = CTA_RENDER_IMAGE;
+    render.alt = "";
+    render.decoding = "async";                           // (not lazy: its size decides the space above the card)
+    render.setAttribute("onerror", "this.remove()");     // if the file is missing the card just has no picture
+    render.addEventListener("load", () => trimRender(render));
+    card.appendChild(render);
+    if (render.complete && render.naturalWidth) trimRender(render);
+    card.appendChild(el("p", "review-cta-title", "Like what you see?"));
+    card.appendChild(el("p", "review-cta-text", "Tell me what you need and let's make yours next."));
+    const button = el("a", "button button-primary", "Commission Me");
+    button.href = "/pricing/";
+    card.appendChild(button);
+    wrap.appendChild(card);
+    return wrap;
   }
 
   function renderPageGrid(grid) {
@@ -3745,7 +4443,299 @@ const LIGHTBOX_SETTINGS = {
     REVIEWS.slice()
       .sort((a, b) => (a.pageOrder || 0) - (b.pageOrder || 0))
       .forEach((review) => grid.appendChild(createPageCard(review)));
+
+    // the card goes in the middle of the list (only when there are enough reviews for a "middle")
+    const items = Array.from(grid.children);
+    if (items.length >= 4) grid.insertBefore(createCtaCard(), items[Math.floor(items.length / 2)]);
+    setupReadMore();
   }
+
+  // ----- Reviews page: "Read more" for long reviews -----
+  // A review taller than READMORE_TRIGGER lines is folded to READMORE_LINES lines
+  // with a fade and a "Read more" button. Shorter reviews are left alone.
+  // Works for the featured copies too (clicks are handled for the whole document).
+  const READMORE_LINES = 5;
+  const READMORE_TRIGGER = 6;
+
+  function measureReadMore(card) {
+    const text = card.querySelector(".review-text");
+    const button = card.querySelector(".review-more");
+    if (!text || !button) return;
+    if (!text.clientWidth) return;                       // hidden right now (filtered out): keep the old state
+
+    const expanded = text.classList.contains("is-open");
+    text.removeAttribute("data-clamp");                  // measure the natural height
+    const lineHeight = parseFloat(getComputedStyle(text).lineHeight) || 24;
+    const full = text.scrollHeight;
+    const needs = full > lineHeight * READMORE_TRIGGER;
+
+    if (!needs) {
+      text.classList.remove("is-open", "is-collapsed");
+      text.style.removeProperty("--clamp-h");
+      text.style.removeProperty("--full-h");
+      button.hidden = true;
+      return;
+    }
+    text.setAttribute("data-clamp", "");
+    text.style.setProperty("--clamp-h", Math.round(lineHeight * READMORE_LINES) + "px");
+    text.style.setProperty("--full-h", Math.ceil(full) + "px");
+    text.classList.toggle("is-open", expanded);
+    text.classList.toggle("is-collapsed", !expanded);
+    button.hidden = false;
+    button.textContent = expanded ? "Show less" : "Read more";
+    button.setAttribute("aria-expanded", expanded ? "true" : "false");
+  }
+
+  function setupReadMore() {
+    document.querySelectorAll(".review-grid .review-card, .review-featured .review-card").forEach(measureReadMore);
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest(".review-more");
+    if (!button) return;
+    const card = button.closest(".review-card");
+    const text = card && card.querySelector(".review-text");
+    if (!text) return;
+    const open = !text.classList.contains("is-open");
+    text.classList.toggle("is-open", open);
+    text.classList.toggle("is-collapsed", !open);
+    button.textContent = open ? "Show less" : "Read more";
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+
+  // ----- Reviews page: click the artwork badge to see the image large -----
+  let lightbox = null;
+  function openLightbox(badge) {
+    const source = badge.querySelector(".review-art-image");
+    if (!source || !source.src) return;
+    if (!lightbox) {
+      lightbox = document.createElement("dialog");
+      lightbox.className = "review-lightbox";
+      lightbox.setAttribute("aria-label", "Delivered work");
+      lightbox.innerHTML = '<div class="review-lightbox-frame"><img class="review-lightbox-image" alt="" width="1920" height="1080"></div><p class="review-lightbox-caption" data-caption hidden></p><button class="review-lightbox-close" type="button" aria-label="Close">&times;</button>';
+      lightbox.addEventListener("click", (e) => { if (e.target !== lightbox.querySelector(".review-lightbox-image")) lightbox.close(); });
+      document.body.appendChild(lightbox);
+    }
+    const big = lightbox.querySelector(".review-lightbox-image");
+    big.src = source.src;
+    big.alt = source.alt;
+    big.classList.toggle("is-contain", source.classList.contains("is-contain"));
+    const isIcon = badge.classList.contains("is-icon");
+    lightbox.classList.toggle("is-icon", isIcon);       // a game icon opens in a small square popup
+    big.width = isIcon ? 1000 : 1920;
+    big.height = isIcon ? 1000 : 1080;
+
+    // Caption: "Made for <game>" + a link to the game, taken from the card's chip
+    const caption = lightbox.querySelector("[data-caption]");
+    const card = badge.closest(".review-card");
+    const chip = card && card.querySelector(".review-game");
+    caption.textContent = "";
+    caption.hidden = !chip;
+    lightbox.classList.toggle("has-caption", !!chip);
+    if (chip) {
+      const title = el("span", "review-lightbox-game");
+      title.appendChild(document.createTextNode("Made for "));
+      title.appendChild(el("b", null, chip.querySelector(".review-game-name").textContent));
+      caption.appendChild(title);
+      const gameLink = chip.querySelector("a");
+      const gameUrl = gameLink ? gameLink.href : "";
+      if (gameUrl) {
+        const play = el("a", "button button-primary review-lightbox-link", "Play game");
+        play.href = gameUrl;
+        play.target = "_blank";
+        play.rel = "noopener noreferrer";
+        play.insertAdjacentHTML("beforeend", GAME_ARROW_HTML);
+        caption.appendChild(play);
+      }
+    }
+    lightbox.showModal();
+  }
+  document.addEventListener("click", (event) => {
+    const badge = event.target.closest(".review-badge");
+    if (badge) openLightbox(badge);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const badge = event.target.closest && event.target.closest(".review-badge");
+    if (badge && event.target === badge) { event.preventDefault(); openLightbox(badge); }
+  });
+
+  // ----- Reviews page: game popup (opens when the "Made for <game>" line is clicked) -----
+  // A mockup of a game page: thumbnail, title, creator, Play button, favorite / like, stats, about.
+  // Play opens the real game (data-game-url). Favorite and like only toggle on the mockup.
+  const GM_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg>';
+  const GM_STAR = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m12 3.4 2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.8l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
+  const GM_LIKE = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 10.5h3.2V20H3.5zM8.6 20V10.4l3.6-6.6c1.3-.1 2.4.9 2.4 2.2v3.6h4.9a2 2 0 0 1 2 2.4l-1.3 6.2a2 2 0 0 1-2 1.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+  let gameModal = null;
+
+  function buildGameModal() {
+    const dialog = document.createElement("dialog");
+    dialog.className = "review-modal game-modal";
+    dialog.setAttribute("aria-labelledby", "game-modal-title");
+    dialog.innerHTML = `
+      <div class="review-modal-card gm-card">
+        <button class="review-modal-close" type="button" data-modal-close aria-label="Close">&times;</button>
+
+        <div class="gm-layout">
+          <div class="gm-thumb">
+            <span class="gm-thumb-fallback" data-g-fallback aria-hidden="true"></span>
+            <img data-g-image alt="" width="1920" height="1080" loading="lazy">
+          </div>
+          <div class="gm-info">
+            <h2 class="gm-title" id="game-modal-title" data-g-title></h2>
+            <p class="gm-by">By <b data-g-creator></b></p>
+            <div class="gm-actions">
+              <a class="gm-play" data-g-play target="_blank" rel="noopener noreferrer">${GM_PLAY}<span>Play</span></a>
+              <button class="gm-icon-btn" type="button" data-fav aria-pressed="false" aria-label="Favorite" title="Favorite">${GM_STAR}</button>
+              <button class="gm-like" type="button" data-like aria-pressed="false" aria-label="Like" title="Like">${GM_LIKE}<span data-g-likes></span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="gm-stats" data-g-stats hidden></div>
+
+        <div class="gm-about">
+          <h3 class="gm-heading">About this game</h3>
+          <p class="gm-text" data-g-text></p>
+        </div>
+
+        <p class="gm-foot" data-g-foot>Preview of the game page. Play opens the real game.</p>
+      </div>`;
+    document.body.appendChild(dialog);
+
+    const $ = (selector) => dialog.querySelector(selector);
+    const image = $("[data-g-image]");
+    image.addEventListener("error", () => { image.hidden = true; });
+
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog || event.target.closest("[data-modal-close]")) { dialog.close(); return; }
+      const toggle = event.target.closest("[data-fav], [data-like]");
+      if (toggle) toggle.setAttribute("aria-pressed", toggle.getAttribute("aria-pressed") === "true" ? "false" : "true");
+    });
+    dialog.addEventListener("close", () => { document.documentElement.style.overflow = ""; });
+
+    dialog.fill = function (d) {
+      const name = d.gameName || "";
+      $("[data-g-title]").textContent = name;
+      $("[data-g-creator]").textContent = d.gameCreator || d.client || "";
+      $(".gm-by").hidden = !(d.gameCreator || d.client);
+      $("[data-g-text]").textContent = d.gameDesc || (d.client ? "A project I made for " + d.client + "." : "A game I made designs for.");
+
+      // thumbnail (16:9), with a letter tile if there is no picture
+      $("[data-g-fallback]").textContent = name.charAt(0).toUpperCase();
+      if (d.workImage) {
+        image.hidden = false;
+        image.classList.toggle("is-contain", d.workFit === "contain");
+        image.alt = d.workAlt || ("Thumbnail of " + name);
+        image.src = d.workImage;
+      } else {
+        image.hidden = true;
+      }
+
+      // Play button: opens the real game, or is greyed out when there is no link
+      const play = $("[data-g-play]");
+      if (d.gameUrl) {
+        play.href = d.gameUrl;
+        play.classList.remove("is-disabled");
+        play.removeAttribute("aria-disabled");
+      } else {
+        play.removeAttribute("href");
+        play.classList.add("is-disabled");
+        play.setAttribute("aria-disabled", "true");
+      }
+
+      // like button shows the percentage, if given
+      const likes = $("[data-g-likes]");
+      likes.textContent = d.gameLikes || "";
+      likes.hidden = !d.gameLikes;
+      dialog.querySelectorAll("[data-fav], [data-like]").forEach((b) => b.setAttribute("aria-pressed", "false"));
+
+      // stats row: only the fields that were given
+      const stats = $("[data-g-stats]");
+      stats.textContent = "";
+      [["Active", d.gamePlayers], ["Favorites", d.gameFavorites], ["Visits", d.gameVisits], ["Genre", d.gameGenre]].forEach((pair) => {
+        if (!pair[1]) return;
+        const cell = el("div", "gm-stat");
+        cell.appendChild(el("span", "gm-stat-label", pair[0]));
+        cell.appendChild(el("span", "gm-stat-value", pair[1]));
+        stats.appendChild(cell);
+      });
+      stats.hidden = !stats.children.length;
+
+      $("[data-g-foot]").textContent = d.workImage
+        ? "Thumbnail by Bcraft Designs. Preview of the game page, Play opens the real game."
+        : "Preview of the game page. Play opens the real game.";
+    };
+    return dialog;
+  }
+
+  document.addEventListener("click", (event) => {
+    const chip = event.target.closest(".games-slide");
+    if (!chip) return;
+    if (!gameModal) gameModal = buildGameModal();
+    gameModal.fill(chip.dataset);
+    document.documentElement.style.overflow = "hidden";
+    gameModal.showModal();
+  });
+
+  // ----- Reviews page: share links (/reviews/#review-<id>) -----
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).then(() => true, () => false);
+    }
+    return new Promise((resolve) => {
+      const box = document.createElement("textarea");
+      box.value = text;
+      box.setAttribute("readonly", "");
+      box.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+      document.body.appendChild(box);
+      box.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (error) { ok = false; }
+      box.remove();
+      resolve(ok);
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest(".review-share");
+    if (!button) return;
+    const hash = "#review-" + button.dataset.reviewId;
+    copyText(window.location.href.split("#")[0] + hash).then((ok) => {
+      if (!ok) window.location.hash = hash;            // could not copy: the link is now in the address bar
+      button.dataset.tip = ok ? "Link copied" : "Copy it from the address bar";
+      button.classList.add("is-copied");
+      clearTimeout(button.tipTimer);
+      button.tipTimer = setTimeout(() => button.classList.remove("is-copied"), 2200);
+    });
+  });
+
+  // Opened with #review-<id> (or the hash changed): show the full list, scroll to that review and make it glow
+  let linkedTimer = 0;
+  function goToLinkedReview() {
+    const match = /^#review-(\d+)$/.exec(window.location.hash);
+    if (!match) return;
+    const card = document.getElementById("review-" + match[1]);
+    if (!card) return;
+    if (card.classList.contains("is-filtered-out") && window.bcraftReviewFilter) window.bcraftReviewFilter("all");
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    card.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "center" });
+    card.classList.remove("is-linked");
+    void card.offsetWidth;                              // restart the glow if it is already running
+    card.classList.add("is-linked");
+    clearTimeout(linkedTimer);
+    linkedTimer = setTimeout(() => card.classList.remove("is-linked"), 3400);
+  }
+  window.addEventListener("hashchange", goToLinkedReview);
+  window.addEventListener("load", () => setTimeout(goToLinkedReview, 250));   // after fonts and "Read more" have settled
+
+  let readMoreTimer = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(readMoreTimer);
+    readMoreTimer = setTimeout(setupReadMore, 150);
+  });
+  window.addEventListener("load", setupReadMore);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(setupReadMore);
 
   // ----- Homepage: calm, swipeable carousel of featured reviews -----
   function initCarousel(root) {
@@ -3863,7 +4853,238 @@ const LIGHTBOX_SETTINGS = {
     update();
   }
 
+  // ----- Homepage: "Games I've worked on" strip -----
+  // Games come from WORKED_ON_GAMES plus the "game" of every review in REVIEWS (matched by name, no duplicates).
+  // Clicking a tile opens the same game popup as the "Made for <game>" line on the reviews page.
+  function collectGames() {
+    const games = [];
+    const add = (game) => {
+      if (!game || !game.name) return;
+      const same = games.find((g) => g.name.toLowerCase() === String(game.name).toLowerCase());
+      if (!same) { games.push(Object.assign({}, game)); return; }
+      Object.keys(game).forEach((key) => { if (!same[key] && game[key]) same[key] = game[key]; });   // only fills gaps
+    };
+    (typeof WORKED_ON_GAMES !== "undefined" ? WORKED_ON_GAMES : []).forEach(add);
+    REVIEWS.forEach((review) => {
+      if (!review.game || !review.game.name) return;
+      add(Object.assign({}, review.game, {
+        image: review.projectType === "icon" ? "" : review.projectImage,     // slides are 16:9: a square icon would be cropped
+        imageFit: review.projectFit,
+        imageAlt: review.projectAlt,
+        client: review.name
+      }));
+    });
+    return games;
+  }
+
+  function renderGamesStrip(section) {
+    const track = section.querySelector("[data-games-track]");
+    if (!track) return;
+    const games = collectGames();
+    track.textContent = "";
+
+    games.forEach((game, index) => {
+      const safeUrl = game.url && /^https?:\/\//i.test(game.url) ? game.url : "";
+      const item = el("div", "games-item");
+      item.setAttribute("role", "group");
+      item.setAttribute("aria-roledescription", "slide");
+      item.setAttribute("aria-label", (index + 1) + " of " + games.length);
+
+      // The whole slide is one button that opens the game popup. Its data-* attributes feed the popup.
+      const slide = el("button", "games-slide");
+      slide.type = "button";
+      slide.setAttribute("aria-haspopup", "dialog");
+      slide.dataset.gameName = game.name;
+      if (game.client) slide.dataset.client = game.client;
+      if (safeUrl) slide.dataset.gameUrl = safeUrl;
+      if (game.description) slide.dataset.gameDesc = game.description;
+      ["creator", "players", "favorites", "visits", "likes", "genre"].forEach((key) => {
+        if (game[key]) slide.dataset["game" + key.charAt(0).toUpperCase() + key.slice(1)] = game[key];
+      });
+      if (game.image) {
+        slide.dataset.workImage = game.image;
+        slide.dataset.workAlt = game.imageAlt || "";
+        if (game.imageFit === "contain") slide.dataset.workFit = "contain";
+      }
+
+      slide.appendChild(el("span", "games-slide-letter", String(game.name).charAt(0).toUpperCase()));
+      if (game.image) {
+        const img = el("img", "games-slide-image");
+        img.alt = "";
+        img.width = 1920;
+        img.height = 1080;
+        img.loading = "lazy";
+        img.decoding = "async";
+        if (game.imageFit === "contain") img.classList.add("is-contain");
+        // If the picture is missing it is removed and the letter stays
+        img.setAttribute("onload", "this.classList.add('is-loaded')");
+        img.setAttribute("onerror", "this.remove()");
+        img.src = game.image;
+        slide.appendChild(img);
+      }
+
+      const body = el("span", "games-slide-body");
+      const text = el("span", "games-slide-text");
+      text.appendChild(el("span", "games-slide-title", game.name));
+      if (game.client) text.appendChild(el("span", "games-slide-sub", "Made for " + game.client));
+      const stats = [["players", "Active"], ["visits", "Visits"], ["likes", "Likes"]].filter((pair) => game[pair[0]]);
+      if (stats.length) {
+        const row = el("span", "games-slide-stats");
+        stats.forEach((pair) => {
+          const stat = el("span", "games-slide-stat");
+          stat.appendChild(el("b", null, game[pair[0]]));
+          stat.appendChild(document.createTextNode(" " + pair[1]));
+          row.appendChild(stat);
+        });
+        text.appendChild(row);
+      }
+      body.appendChild(text);
+      body.insertAdjacentHTML("beforeend", '<span class="games-slide-cta">View game ' + GAME_CHEVRON_HTML + "</span>");
+      slide.appendChild(body);
+
+      item.appendChild(slide);
+      track.appendChild(item);
+    });
+
+    section.hidden = !games.length;
+    if (games.length) initGamesCarousel(section, track);
+  }
+
+  // Infinite carousel. The slides are repeated (3 or 5 copies in a row) and the person always sits in the
+  // middle copy. When scrolling stops on another copy, the track jumps (invisibly) to the same slide in the
+  // middle copy, so there is never an end. The slide in the middle is "active" (full size), the others are dimmed.
+  function initGamesCarousel(section, track) {
+    const originals = Array.from(track.querySelectorAll(".games-item"));
+    const N = originals.length;
+    const controls = section.querySelector("[data-games-controls]");
+    const dotsBox = section.querySelector("[data-games-dots]");
+    const prev = section.querySelector("[data-games-prev]");
+    const next = section.querySelector("[data-games-next]");
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // Copies: only when there is something to loop. The copies are hidden from screen readers and the Tab key.
+    const copies = N < 2 ? 1 : (N < 4 ? 5 : 3);
+    const mid = Math.floor(copies / 2);
+    const makeCopy = (item) => {
+      const copy = item.cloneNode(true);
+      copy.classList.add("is-clone");
+      copy.setAttribute("aria-hidden", "true");
+      copy.removeAttribute("role");
+      copy.querySelectorAll("button").forEach((button) => { button.tabIndex = -1; });
+      return copy;
+    };
+    for (let c = 0; c < mid; c++) originals.forEach((item) => track.insertBefore(makeCopy(item), originals[0]));
+    for (let c = mid + 1; c < copies; c++) originals.forEach((item) => track.appendChild(makeCopy(item)));
+
+    const items = Array.from(track.querySelectorAll(".games-item"));
+    let active = 0;          // which game (0 to N-1) is in the middle
+    let targetP = null;      // the slide we are gliding to (position in the long row), so fast clicks add up
+    let lockUntil = 0;
+    let ticking = false;
+    let settleTimer = 0;
+
+    if (dotsBox) dotsBox.textContent = "";
+    const dots = originals.map((item, i) => {
+      const dot = el("button", "games-dot");
+      dot.type = "button";
+      dot.setAttribute("aria-label", "Show game " + (i + 1));
+      dot.addEventListener("click", () => goToGame(i));
+      if (dotsBox) dotsBox.appendChild(dot);
+      return dot;
+    });
+
+    // Position in the long row of the slide that is closest to the middle of the track
+    function nearest() {
+      const middle = track.scrollLeft + track.clientWidth / 2;
+      let best = 0;
+      let bestGap = Infinity;
+      items.forEach((item, p) => {
+        const gap = Math.abs(item.offsetLeft + item.offsetWidth / 2 - middle);
+        if (gap < bestGap) { bestGap = gap; best = p; }
+      });
+      return best;
+    }
+
+    // The same game appears in every copy: all of them get "active" so nothing flickers when the track jumps
+    function setActive(game) {
+      active = game;
+      items.forEach((item, p) => item.classList.toggle("is-active", p % N === game));
+      dots.forEach((dot, n) => {
+        dot.classList.toggle("is-active", n === game);
+        if (n === game) dot.setAttribute("aria-current", "true"); else dot.removeAttribute("aria-current");
+      });
+    }
+
+    function scrollToPosition(p, instant) {
+      const clamped = Math.max(0, Math.min(items.length - 1, p));
+      const item = items[clamped];
+      const quick = instant || calm.matches;
+      lockUntil = Date.now() + (quick ? 50 : 700);   // ignore the scroll events while we glide there
+      track.scrollTo({ left: item.offsetLeft + item.offsetWidth / 2 - track.clientWidth / 2, behavior: quick ? "auto" : "smooth" });
+      targetP = clamped;
+      setActive(clamped % N);
+    }
+
+    // One step left (-1) or right (+1)
+    function step(direction) {
+      const base = targetP === null ? nearest() : targetP;
+      scrollToPosition(base + direction);
+    }
+
+    // Jump to a specific game (dots): take the copy that is the shortest way from here
+    function goToGame(game) {
+      const base = targetP === null ? nearest() : targetP;
+      const forward = base + ((game - (base % N) + N) % N);
+      const backward = forward - N;
+      scrollToPosition(Math.abs(backward - base) < Math.abs(forward - base) ? backward : forward);
+    }
+
+    // Scrolling has stopped: remember what is in the middle and, if we are in an outer copy,
+    // jump to the same slide in the middle copy (the copies look identical, so the jump cannot be seen)
+    function settle() {
+      targetP = null;
+      const p = nearest();
+      setActive(p % N);
+      const copy = Math.floor(p / N);
+      if (copy === mid || copies === 1) return;
+      const copyWidth = items[N].offsetLeft - items[0].offsetLeft;
+      track.style.scrollSnapType = "none";
+      track.scrollLeft += (mid - copy) * copyWidth;
+      void track.offsetWidth;
+      requestAnimationFrame(() => { track.style.scrollSnapType = ""; });
+    }
+
+    // While the person drags or swipes, the slide closest to the middle becomes the active one
+    track.addEventListener("scroll", () => {
+      if (!ticking && Date.now() >= lockUntil) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          ticking = false;
+          const game = nearest() % N;
+          if (game !== active) setActive(game);
+        });
+      }
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(settle, 140);
+    }, { passive: true });
+
+    if (prev) prev.addEventListener("click", () => step(-1));
+    if (next) next.addEventListener("click", () => step(1));
+    track.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight") { event.preventDefault(); step(1); }
+      if (event.key === "ArrowLeft") { event.preventDefault(); step(-1); }
+    });
+    window.addEventListener("resize", () => scrollToPosition(mid * N + active, true));
+
+    if (controls) controls.hidden = N < 2;
+    setActive(0);
+    requestAnimationFrame(() => scrollToPosition(mid * N, true));
+  }
+
   // ----- Start -----
+  const gamesStrip = document.querySelector("[data-games-strip]");
+  if (gamesStrip) renderGamesStrip(gamesStrip);
+
   const carousel = document.querySelector("[data-review-carousel]");
   if (carousel) initCarousel(carousel);
 
@@ -4388,7 +5609,6 @@ function buildSalePopup(cfg, STORAGE_KEY, theme) {
   const closeIcon = '<svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M2 2l10 10M12 2 2 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
   // Dropdown arrow: the card's button folds the card down into the small tab
   const dropIcon = '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M3 5.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  const mailIcon = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/></svg>';
   const giftIcon = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>';
   const chevron = '<svg class="welcome-offer-tab-chevron" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 7.5 6 4l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
@@ -4502,7 +5722,6 @@ function buildSalePopup(cfg, STORAGE_KEY, theme) {
         '<div class="welcome-modal-col welcome-modal-col--side">' +
         '<div class="welcome-modal-actions">' +
           '<a class="button button-primary welcome-modal-dm" href="#"><span class="welcome-modal-dm-text"></span>' + arrow + '</a>' +
-          '<a class="button button-secondary welcome-modal-email" href="#">' + mailIcon + '<span class="welcome-modal-email-text"></span></a>' +
           '<button class="button button-secondary welcome-modal-dismiss" type="button"></button>' +
         '</div>' +
         '</div>' +
@@ -4521,18 +5740,9 @@ function buildSalePopup(cfg, STORAGE_KEY, theme) {
     modal.querySelector(".welcome-modal-steps").appendChild(item);
   });
   modal.querySelector(".welcome-modal-steps").hidden = !(cfg.modalSteps && cfg.modalSteps.length);
-  modal.querySelector(".welcome-modal-dm").setAttribute("href", cfg.dmLink);
+  modal.querySelector(".welcome-modal-dm").setAttribute("href", cfg.estimatorLink);
   modal.querySelector(".welcome-modal-dm-text").textContent = cfg.modalButtonText;
 
-  // Second contact option: e-mail (opens with subject and message already filled in)
-  const emailBtn = modal.querySelector(".welcome-modal-email");
-  modal.querySelector(".welcome-modal-email-text").textContent = cfg.modalEmailText || "Email me";
-  if (cfg.emailLink) {
-    emailBtn.setAttribute("href", cfg.emailLink + (cfg.emailLink.indexOf("?") < 0 ? "?" : "&") +
-      "subject=" + encodeURIComponent(cfg.emailSubject || "") + "&body=" + encodeURIComponent(cfg.dmMessage || ""));
-  } else {
-    emailBtn.hidden = true;
-  }
   modal.querySelector(".welcome-modal-dismiss").textContent = cfg.modalCloseText;
   modal.querySelector(".welcome-offer-terms-text").textContent = cfg.terms;
 
@@ -4790,6 +6000,20 @@ function buildSalePopup(cfg, STORAGE_KEY, theme) {
   }
 
   cta.addEventListener("click", openModal);
+
+  // "Use it now": on the pricing page the estimator takes over (scroll + tick with an animation);
+  // on any other page we go to the pricing page, which does the same when it opens.
+  modal.querySelector(".welcome-modal-dm").addEventListener("click", (event) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;   // open in a new tab as usual
+    event.preventDefault();
+    closeModal();
+    card.querySelector(".welcome-offer-close").click();   // the offer card tucks away to its tab (it would cover the estimator)
+    if (typeof window.bcraftClaimWelcome === "function") {
+      setTimeout(() => window.bcraftClaimWelcome(), 280);   // let the window finish closing first
+    } else {
+      window.location.href = cfg.estimatorLink;
+    }
+  });
 
   // Phones: the window is a bottom sheet. Drag its handle down to close it.
   const grab = modal.querySelector(".welcome-modal-grab");
@@ -6921,4 +8145,40 @@ const HOME_HOVER_FX = true;
     }, { threshold: 0.6 });
     watcher.observe(frame);
   });
+})();
+
+// ----- "How to leave a review" tip -----
+// The reviews page sends people to /contact/?review=1. On any page opened with ?review=1 a small sticky box
+// at the bottom explains what to include in the message. It can be closed with the x.
+(function () {
+  let wanted = false;
+  try { wanted = new URLSearchParams(window.location.search).get("review") === "1"; } catch (error) { wanted = false; }
+  if (!wanted) return;
+
+  function showTip() {
+    if (document.querySelector(".review-tip")) return;
+    const tip = document.createElement("aside");
+    tip.className = "review-tip";
+    tip.setAttribute("aria-label", "How to leave a review");
+    tip.innerHTML =
+      '<button class="review-tip-close" type="button" aria-label="Close">&times;</button>' +
+      '<p class="review-tip-title">Leaving a review? <span>Clients only</span></p>' +
+      '<p class="review-tip-text">Mention it in your message and include:</p>' +
+      '<ul class="review-tip-list">' +
+        '<li><b>Your name</b> as you want it shown</li>' +
+        '<li><b>Your profile picture</b> (a blank avatar can\'t be used)</li>' +
+        '<li><b>Your stars</b> from 1 to 5</li>' +
+        '<li><b>Your review</b> a few sentences about the service, quality and speed</li>' +
+      '</ul>' +
+      '<p class="review-tip-note">I add it to the page after a quick look.</p>';
+    tip.querySelector(".review-tip-close").addEventListener("click", () => {
+      tip.remove();
+      document.body.classList.remove("has-review-tip");
+    });
+    document.body.appendChild(tip);
+    document.body.classList.add("has-review-tip");
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", showTip);
+  else showTip();
 })();

@@ -14,8 +14,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400;500;600;700&display=swap">
-  <link rel="stylesheet" href="/style.css">
-  <script src="/script.js" defer></script>
+  <link rel="stylesheet" href="/style.css?v=3">
+  <script src="/pricing-data.js?v=3"></script>
+  <script src="/script.js?v=3" defer></script>
   <script src="/companion.js" defer></script>
   <style>
     /* ===== BUNDLES v14: three cards, premium one in the middle =====
@@ -99,20 +100,6 @@
     html[data-currency="robux"] .pc-buy .pc-price-robux { color: var(--color-text); font-size: 1.2rem; }
     html[data-currency="robux"] .pc-buy .pc-price-robux .pc-robux-icon { width: 1.3rem; height: 1.3rem; }
 
-    .pc-currency { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; }
-    .pc-currency-label { color: var(--color-text-muted); font-size: 0.82rem; font-weight: 700; }
-    .pc-seg { position: relative; display: inline-flex; padding: 0.2rem; border: 1px solid rgba(var(--rgb-blue), 0.3); border-radius: 999px; background: rgba(var(--rgb-blue), 0.08); }
-    .pc-seg button { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.38rem 0.9rem; border: 0; border-radius: 999px; background: transparent; color: var(--color-text-muted); font: inherit; font-size: 0.85rem; font-weight: 800; cursor: pointer; transition: color 0.3s ease; }
-    /* The light pill that slides (with a little overshoot) to the chosen option; the script sets its width and position */
-    .pc-seg-thumb { position: absolute; top: 0.2rem; bottom: 0.2rem; left: 0; width: 0; border-radius: 999px; background: var(--color-accent-bright); box-shadow: 0 6px 16px -6px rgba(var(--rgb-blue), 0.9); pointer-events: none; }
-    .pc-seg.is-ready .pc-seg-thumb { transition: transform 0.45s cubic-bezier(0.34, 1.45, 0.5, 1), width 0.45s cubic-bezier(0.34, 1.45, 0.5, 1); }
-    .pc-seg button:hover { color: var(--color-text); }
-    .pc-seg button[aria-pressed="true"] { color: #06122b; }
-    .pc-seg button:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
-    .pc-seg .pc-robux-icon { width: 0.95rem; height: 0.95rem; }
-    .pc-seg .pc-robux-icon { transition: filter 0.3s ease; }
-    .pc-seg button[aria-pressed="true"] .pc-robux-icon { filter: brightness(0); }
-    @media (prefers-reduced-motion: reduce) { .pc-seg.is-ready .pc-seg-thumb { transition: none; } .pc-seg button, .pc-seg .pc-robux-icon { transition: none; } }
 
     /* ===== Order estimator ===== */
     .pc-estimator { padding: var(--space-4) 0 var(--space-2); scroll-margin-top: var(--header-height); }
@@ -123,18 +110,45 @@
       .est { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
       .est-summary { position: sticky; top: calc(var(--header-height) + 1.2rem); }
     }
-    .est-panel, .est-summary { border: 1px solid rgba(var(--rgb-blue), 0.2); border-radius: 20px; background: radial-gradient(ellipse 90% 60% at 0% 0%, rgba(var(--rgb-blue), 0.12), transparent 70%), rgba(var(--rgb-blue), 0.04); }
-    .est-panel { padding: 1.4rem 1.5rem; }
-    .est-block + .est-block { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.07); }
+    .est-panel, .est-summary { border: 1px solid rgba(var(--rgb-blue), 0.26); border-radius: 22px; background: radial-gradient(ellipse 90% 60% at 0% 0%, rgba(var(--rgb-blue), 0.12), transparent 70%), linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 35%), rgba(var(--rgb-blue), 0.04); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 26px 50px -36px rgba(0, 0, 0, 0.85); }
+    .est-panel { padding: 1.7rem 1.8rem; }
+    .est-block + .est-block { margin-top: 1.7rem; padding-top: 1.7rem; border-top: 1px solid rgba(255, 255, 255, 0.08); }
     .est-label { margin: 0 0 0.75rem; color: var(--color-text-muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
     .est-label small { margin-left: 0.4rem; font-size: 0.85rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
     .est-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .est-chip { padding: 0.45rem 0.95rem; border: 1px solid rgba(var(--rgb-blue), 0.35); border-radius: 999px; background: rgba(var(--rgb-blue), 0.08); color: var(--color-text); font: inherit; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; }
     .est-chip:hover { border-color: var(--color-accent-bright); background: rgba(var(--rgb-blue), 0.18); }
     .est-chip:focus-visible, .est-step:focus-visible, .est-reset:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
-    .est-list { display: grid; margin: 0; padding: 0; list-style: none; }
-    .est-row { display: flex; align-items: center; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
-    .est-row:last-child { border-bottom: 0; }
+    .est-list { display: grid; gap: 0.6rem; margin: 0; padding: 0; list-style: none; }
+    .est-row { display: flex; align-items: center; gap: 1rem; margin-inline: -0.85rem; padding: 0.7rem 0.85rem; border-radius: 12px; transition: background-color 0.2s ease, box-shadow 0.2s ease; }
+    .est-row:hover:not(.is-disabled) { background: rgba(255, 255, 255, 0.035); }
+    .est-row.is-on { background: rgba(var(--rgb-blue), 0.11); box-shadow: inset 3px 0 0 var(--color-accent-bright); }
+    .est-rowtotal { display: inline-flex; align-items: center; gap: 0.3rem; margin-left: 0.55rem; padding: 0.08rem 0.55rem; border: 1px solid rgba(var(--rgb-blue), 0.4); border-radius: 999px; background: rgba(var(--rgb-blue), 0.16); color: var(--color-text); font-size: 0.76rem; font-weight: 800; font-variant-numeric: tabular-nums; vertical-align: middle; }
+    .est-rowtotal[hidden] { display: none; }
+    /* section headings */
+    .est-sechead { margin: 0 0 0.9rem; }
+    .est-sectitle { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-family: var(--font-display); font-size: 1.12rem; font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; }
+    .est-optional { padding: 0.12rem 0.55rem; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 999px; color: var(--color-text-muted); font-family: inherit; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+    .est-sechint { margin: 0.3rem 0 0; color: var(--color-text-muted); font-size: 0.86rem; line-height: 1.45; }
+    /* bundle cards */
+    .est-bundles { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 0.6rem; }
+    .est-bundle { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 0.3rem; padding: 0.6rem 0.8rem; border: 1px solid rgba(var(--rgb-blue), 0.16); border-radius: 12px; background: rgba(var(--rgb-blue), 0.04); color: var(--color-text); font: inherit; text-align: left; cursor: pointer; transition: border-color 0.2s ease, background-color 0.2s ease; }
+    .est-bundle:hover { border-color: rgba(var(--rgb-blue), 0.45); background: rgba(var(--rgb-blue), 0.08); }
+    .est-bundle:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 3px; }
+    .est-bundle.is-active { border-color: rgba(var(--rgb-blue), 0.55); background: rgba(var(--rgb-blue), 0.1); }
+    .est-bundle-top { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.4rem; }
+    .est-bundle-name { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+    .est-bundle-badge { padding: 0.05rem 0.4rem; border-radius: 999px; background: rgba(var(--rgb-blue), 0.18); color: var(--color-accent-bright); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+    .est-bundle-items { color: var(--color-text-muted); font-size: 0.74rem; line-height: 1.35; }
+    .est-bundle-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.5rem; margin-top: auto; padding-top: 0.1rem; font-size: 0.82rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .est-bundle-save { padding: 0; border: 0; border-radius: 0; background: none; color: #7ff0b8; font-size: 0.74rem; font-weight: 600; }
+    /* the bundle cards show the title only; what is inside and the price appear in the estimate once a bundle is picked */
+    .est-bundle-badge, .est-bundle-items, .est-bundle-foot { display: none; }
+    .est-bundle-save .est-rbx { color: #7ff0b8; }
+    html:not([data-currency="robux"]) .est-bundle-save .cur-rbx { display: none; }
+    @media (max-width: 559px) { .est-panel, .est-summary { padding: 1.25rem 1.1rem; border-radius: 18px; } .est-block + .est-block { margin-top: 1.3rem; padding-top: 1.3rem; } }
+    @media (prefers-reduced-motion: reduce) { .est-bundle, .est-row { transition: none; } .est-bundle:hover { transform: none; } }
+    @media (pointer: coarse) { .est-step { width: 2.5rem; height: 2.5rem; } }
     .est-info { flex: 1; min-width: 0; }
     .est-name { font-weight: 800; line-height: 1.25; }
     .est-row.is-on .est-name { color: var(--color-accent-bright); }
@@ -155,12 +169,39 @@
     .est-toggle input:checked + span::after { transform: translateX(1.15rem); background: #06122b; }
     .est-toggle input:focus-visible + span { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
     .est-toggle input:disabled { cursor: not-allowed; }
+    /* info box under the Character add-on: max characters per product */
+    .est-charnote { margin: 0.6rem 0 0.2rem; padding: 0.8rem 0.95rem 0.85rem; border: 1px solid rgba(var(--rgb-blue), 0.28); border-radius: 12px; background: rgba(var(--rgb-blue), 0.07); list-style: none; }
+    .est-charnote-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; color: var(--color-accent-bright); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+    .est-charnote-head svg { flex: none; width: 1.1rem; height: 1.1rem; }
+    .est-charnote-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.25rem 1.4rem; margin: 0; padding: 0; list-style: none; }
+    .est-charnote-item { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8rem; padding: 0.22rem 0.45rem; border-radius: 8px; color: var(--color-text-muted); font-size: 0.85rem; font-weight: 600; }
+    .est-charnote-max { flex: none; color: var(--color-text); font-weight: 800; font-variant-numeric: tabular-nums; }
+    .est-charnote-item.is-picked { background: rgba(var(--rgb-blue), 0.18); color: var(--color-text); }
+    .est-charnote-item.is-picked .est-charnote-max { color: var(--color-accent-bright); }
     .est-hint { margin: 0 0 0.4rem; color: var(--color-text-muted); font-size: 0.88rem; }
 
-    .est-summary { display: grid; gap: 1rem; padding: 1.4rem 1.5rem; }
+    .est-summary { display: grid; gap: 1rem; padding: 1.7rem 1.8rem; }
     .est-sum-title { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 0; font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
     .est-sum-title small { color: var(--color-text-muted); font-family: inherit; font-size: 0.85rem; font-weight: 700; letter-spacing: 0; }
-    .est-empty { margin: 0; color: var(--color-text-muted); }
+    .est-empty { display: flex; align-items: center; gap: 0.9rem; margin: 0; padding: 1rem 1.05rem; border: 1.5px dashed rgba(var(--rgb-blue), 0.35); border-radius: 14px; background: rgba(var(--rgb-blue), 0.05); color: var(--color-text-muted); }
+    .est-empty-icon { flex: none; display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 12px; background: rgba(var(--rgb-blue), 0.18); color: var(--color-accent-bright); }
+    .est-empty-icon svg { width: 1.4rem; height: 1.4rem; }
+    .est-empty-text { display: grid; gap: 0.15rem; font-size: 0.9rem; line-height: 1.45; }
+    .est-empty-text strong { color: var(--color-text); font-size: 1rem; }
+    .est-summary { scroll-margin-top: calc(var(--header-height) + 1rem); }
+    /* total bar at the bottom of the screen on phones and tablets (the summary is sticky beside the list on wide screens) */
+    .est-minibar { position: sticky; bottom: 0.8rem; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; padding: 0.6rem 0.65rem 0.6rem 1rem; border: 1px solid rgba(var(--rgb-blue), 0.45); border-radius: 16px; background: rgba(10, 16, 36, 0.92); box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.9); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+    .est-minibar[hidden] { display: none; }
+    .est-minibar-info { display: grid; min-width: 0; }
+    .est-minibar-count { color: var(--color-text-muted); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+    .est-minibar-total { display: inline-flex; flex-wrap: nowrap; align-items: baseline; gap: 0 0.6rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .est-minibar-usd { font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+    .est-minibar-rbx { display: inline-flex; align-items: center; gap: 0.25rem; color: var(--color-orange); font-weight: 800; }
+    .est-minibar-rbx .pc-robux-icon { width: 1rem; height: 1rem; }
+    html[data-currency="robux"] .est-minibar-rbx { color: var(--color-text); font-family: var(--font-display); font-size: 1.35rem; line-height: 1.15; }
+    .est-minibar-btn { flex: none; gap: 0.4rem; padding-inline: 1rem; cursor: pointer; }
+    @media (min-width: 960px) { .est-minibar { display: none; } }
+    @media (max-width: 959px) { html.has-est-minibar .to-top { bottom: 5.4rem; } }
     .est-lines { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; font-variant-numeric: tabular-nums; }
     .est-line { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; font-size: 0.92rem; }
     .est-line > span:first-child { min-width: 0; color: #c3cde0; }
@@ -187,6 +228,19 @@
     .est-newtag { flex: none; padding: 0.3rem 0.7rem; border: 1px solid rgba(47, 214, 143, 0.5); border-radius: 999px; background: rgba(47, 214, 143, 0.14); color: #7ff0b8; font-size: 0.85rem; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .est-newtag .est-rbx { color: #7ff0b8; }
     html:not([data-currency="robux"]) .est-newtag .cur-rbx { display: none; }
+    /* Welcome offer claimed from the offer window: the box pulses while the page scrolls, then the tick pops with a burst of sparks */
+    .est-new.is-claiming { animation: est-new-ring 1.1s ease-out infinite; }
+    .est-new.is-claimed { animation: est-new-glow 1.4s ease-out 1; }
+    .est-new.is-claimed .est-newbox { animation: est-box-pop 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) 1; }
+    .est-new.is-claimed .est-newtag { animation: est-tag-pop 0.6s 0.2s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
+    .est-burst { position: absolute; left: 1.95rem; top: 50%; z-index: 2; width: 0; height: 0; pointer-events: none; }
+    .est-burst i { position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--c); box-shadow: 0 0 8px var(--c); animation: est-spark 1.15s cubic-bezier(0.2, 0.7, 0.3, 1) forwards; }
+    @keyframes est-new-ring { 0% { box-shadow: 0 0 0 0 rgba(var(--rgb-blue), 0.65); } 100% { box-shadow: 0 0 0 16px rgba(var(--rgb-blue), 0); } }
+    @keyframes est-new-glow { 0% { box-shadow: 0 0 0 0 rgba(47, 214, 143, 0.7); } 100% { box-shadow: 0 0 0 22px rgba(47, 214, 143, 0); } }
+    @keyframes est-box-pop { 0% { transform: scale(1); } 45% { transform: scale(1.4) rotate(-8deg); } 100% { transform: scale(1) rotate(0); } }
+    @keyframes est-tag-pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes est-spark { 0% { transform: rotate(var(--a)) translateX(8px) scale(1); opacity: 1; } 55% { opacity: 1; } 100% { transform: rotate(var(--a)) translateX(var(--d)) scale(0.2); opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .est-new.is-claiming, .est-new.is-claimed, .est-new.is-claimed .est-newbox, .est-new.is-claimed .est-newtag { animation: none; } .est-burst { display: none; } }
     @media (prefers-reduced-motion: reduce) { .est-new, .est-newbox, .est-newbox svg { transition: none; } }
     .est-note { margin: 0; padding: 0.7rem 0.9rem; border-radius: 12px; background: rgba(var(--rgb-blue), 0.1); color: #c3cde0; font-size: 0.86rem; line-height: 1.45; }
     .est-note[hidden] { display: none; }
@@ -220,7 +274,7 @@
     .est-viewbtn[aria-expanded="true"] .est-chev { transform: rotate(180deg); }
     .est-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; }
     .est-collapse.is-open { grid-template-rows: 1fr; }
-    .est-collapse-inner { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s linear 0.4s; }
+    .est-collapse-inner { min-height: 0; margin-inline: -0.85rem; padding-inline: 0.85rem; overflow: hidden; visibility: hidden; transition: visibility 0s linear 0.4s; }
     .est-collapse.is-open .est-collapse-inner { visibility: visible; transition-delay: 0s; }
     .est-collapse-inner > :first-child { margin-top: 0.9rem; }
 
@@ -234,19 +288,54 @@
     .est-modal-close:hover { background: rgba(255, 255, 255, 0.14); }
     .est-modal-close:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; }
     .est-modal-title { margin: 0 2.8rem 0.3rem 0; font-family: var(--font-display); font-size: 1.55rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
-    .est-modal-lead { margin: 0 0 1rem; color: var(--color-text-muted); font-size: 0.95rem; }
+    .est-modal-notice { display: flex; align-items: flex-start; gap: 0.85rem; margin: 0.6rem 0 1rem; padding: 0.95rem 1.05rem; border: 1.5px solid rgba(var(--rgb-orange), 0.7); border-radius: 16px; background: linear-gradient(135deg, rgba(var(--rgb-orange), 0.2), rgba(var(--rgb-orange), 0.06)); box-shadow: 0 0 0 4px rgba(var(--rgb-orange), 0.08); }
+    .est-modal-notice-icon { flex: none; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 12px; background: var(--color-orange); color: var(--color-orange-ink); }
+    .est-modal-notice-icon svg { width: 1.35rem; height: 1.35rem; }
+    .est-modal-notice-body { min-width: 0; }
+    .est-modal-notice-title { margin: 0; font-family: var(--font-display); font-size: 1.1rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.01em; color: var(--color-text); }
+    .est-modal-notice-title strong { color: var(--color-orange-bright); }
+    .est-modal-notice-text { margin: 0.3rem 0 0; color: #e3e9f7; font-size: 0.92rem; line-height: 1.45; }
     .est-ticket-wrap { display: grid; place-items: center; padding: 1.2rem 1rem; border-radius: 16px; background: radial-gradient(ellipse 70% 80% at 50% 0%, rgba(var(--rgb-blue), 0.2), transparent 70%), rgba(255, 255, 255, 0.02); }
     .est-ticket { display: block; width: min(100%, 25rem); height: auto; filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.55)); animation: est-print 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both; }
-    .est-modal-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
-    .est-modal-actions .button { flex: 1 1 8rem; justify-content: center; gap: 0.5rem; cursor: pointer; }
+    /* the two main buttons: normal size, side by side, no wide backing bar behind them */
+    .est-modal-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem; margin: 1rem 0 0; padding: 0; }
+    .est-modal-actions .button { flex: 0 1 auto; justify-content: center; gap: 0.5rem; cursor: pointer; }
     .est-modal-actions .button[hidden] { display: none; }
-    .est-modal-actions .est-modal-go { flex-basis: 100%; }
-    .est-modal-tip { margin: 0.8rem 0 0; color: var(--color-text-muted); font-size: 0.82rem; line-height: 1.45; }
+    .est-modal-actions .est-modal-go.is-next { border-color: var(--color-accent-bright); box-shadow: 0 0 0 3px rgba(var(--rgb-blue), 0.3); }
+    .est-modal-more { display: flex; justify-content: center; gap: 0.4rem; margin-top: 0.1rem; }
+    .est-modal-link { padding: 0.35rem 0.7rem; border: 0; background: transparent; color: var(--color-text-muted); font: inherit; font-size: 0.88rem; font-weight: 700; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
+    .est-modal-link:hover { color: var(--color-text); }
+    .est-modal-link:focus-visible { outline: 2px solid var(--color-accent-bright); outline-offset: 2px; border-radius: 6px; }
+    .est-modal-link[hidden] { display: none; }
+    /* the picture on top, "What happens next" underneath it */
+    .est-modal-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.9rem; }
+    .est-modal-side { position: relative; display: flex; flex-direction: column; justify-content: center; padding: 1.1rem 1.6rem; border: 1px solid rgba(var(--rgb-blue), 0.3); border-radius: 16px; background: linear-gradient(160deg, rgba(var(--rgb-blue), 0.16), rgba(var(--rgb-blue), 0.03) 70%); }
+    .est-modal-side::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse 80% 60% at 100% 0%, rgba(var(--rgb-blue), 0.3), transparent 70%); pointer-events: none; }
+    .est-modal-side > * { position: relative; }
+    .est-modal-steps-title { margin: 0 0 0.9rem; color: var(--color-accent-bright); font-size: 0.76rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+    .est-modal-steps { flex: none; display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+    .est-tl { flex: none; position: relative; display: flex; align-items: flex-start; gap: 0.95rem; padding-bottom: 1rem; }
+    .est-tl:last-child { padding-bottom: 0; }
+    .est-tl::before { content: ""; position: absolute; left: 1.125rem; top: 2.5rem; bottom: 0.2rem; width: 2px; margin-left: -1px; border-radius: 2px; background: rgba(255, 255, 255, 0.12); }
+    .est-tl:last-child::before { display: none; }
+    .est-tl.is-done::before { background: linear-gradient(180deg, rgba(47, 214, 143, 0.75), rgba(var(--rgb-blue), 0.5)); }
+    .est-tl-node { position: relative; z-index: 1; flex: none; display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border: 1.5px solid rgba(255, 255, 255, 0.18); border-radius: 50%; background: #121c3a; color: #c9d3ea; font-family: var(--font-display); font-size: 0.95rem; font-weight: 800; transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
+    .est-tl-node svg { display: none; width: 1.05rem; height: 1.05rem; }
+    .est-tl.is-active .est-tl-node { border-color: transparent; background: linear-gradient(135deg, var(--color-accent), var(--color-accent-bright)); color: #06122b; box-shadow: 0 0 0 4px rgba(var(--rgb-blue), 0.22), 0 8px 22px -6px rgba(var(--rgb-blue), 0.9); animation: est-glow 2.4s ease-in-out infinite; }
+    .est-tl.is-done .est-tl-node { border-color: rgba(47, 214, 143, 0.65); background: rgba(47, 214, 143, 0.18); color: #7ff0b8; }
+    .est-tl.is-done .est-tl-num { display: none; }
+    .est-tl.is-done .est-tl-node svg { display: block; }
+    .est-tl-body { min-width: 0; padding-top: 0.1rem; }
+    .est-tl-body strong { display: block; color: #dbe5fb; font-family: var(--font-display); font-size: 1.05rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.01em; }
+    .est-tl-body span { display: block; margin-top: 0.2rem; color: #aebad4; font-size: 0.86rem; line-height: 1.45; }
+    .est-tl.is-active .est-tl-body strong { color: #fff; }
+    .est-tl.is-done .est-tl-body strong { color: #9af5c9; }
+    @keyframes est-glow { 0%, 100% { box-shadow: 0 0 0 4px rgba(var(--rgb-blue), 0.2), 0 8px 22px -6px rgba(var(--rgb-blue), 0.8); } 50% { box-shadow: 0 0 0 8px rgba(var(--rgb-blue), 0.07), 0 8px 26px -4px rgba(var(--rgb-blue), 1); } }
     @keyframes est-fade { from { opacity: 0; } }
     @keyframes est-pop { from { opacity: 0; transform: translateY(20px) scale(0.96); } }
     @keyframes est-print { from { clip-path: inset(0 0 100% 0); transform: translateY(-14px) rotate(-1.2deg); } to { clip-path: inset(0 0 0 0); transform: none; } }
-    @media (prefers-reduced-motion: reduce) { .est-modal-backdrop, .est-modal-box, .est-ticket { animation: none; } .est-collapse, .est-chev { transition: none; } }
-    @media (max-width: 559px) { .est-modal-box { padding: 1.2rem 1rem 1rem; } .est-ticket-wrap { padding: 0.8rem 0.4rem; } }
+    @media (prefers-reduced-motion: reduce) { .est-modal-backdrop, .est-modal-box, .est-ticket, .est-tl.is-active .est-tl-node { animation: none; } .est-collapse, .est-chev { transition: none; } }
+    @media (max-width: 559px) { .est-modal-box { padding: 1.2rem 1rem 1rem; } .est-ticket-wrap { padding: 0.8rem 0.4rem; } .est-modal-actions { flex-wrap: nowrap; } .est-modal-actions .button { flex: 1 1 0; padding-inline: 0.8rem; } .est-go-more { display: none; } .est-modal-side { padding: 1.1rem 1rem; } }
 
     /* After pressing a card button the estimate section flashes once, and a small message offers the direct way */
     .est-panel { position: relative; }
@@ -487,7 +576,71 @@
               </div>
             </li>
 
-            <li class="nav-item"><a class="nav-link" href="/pricing/" aria-current="page">Pricing</a></li>
+            <!-- PRICING mega menu: same system as Work. Prices, badges and the currency switcher are filled in by script.js (MEGA_MENU_DATA.pricing). Paste this <li> on every page in place of the plain Pricing link. On the pricing page itself keep aria-current="page" on the button. -->
+            <li class="nav-item has-mega">
+              <button class="nav-link nav-trigger" type="button" aria-expanded="false" aria-controls="mega-pricing" aria-current="page">
+                Pricing <svg class="nav-chevron" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" focusable="false"><path d="M1.5 3.5 5 7l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="mega mega-work mega-pricing" id="mega-pricing" data-mega="pricing">
+                <div class="mega-inner">
+                  <div class="mega-main">
+                    <p class="mega-eyebrow">Browse the prices</p>
+                    <ul class="mega-links">
+                  <li>
+                    <a class="mega-link" href="/pricing/#catalogue" data-preview="products">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></span>
+                      <span class="mega-link-body">
+                        <span class="mega-link-title">Products</span>
+                        <span class="mega-link-text">Every design, with the price up front.</span>
+                      </span>
+                      <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="mega-link" href="/pricing/#bundles" data-preview="bundles">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span>
+                      <span class="mega-link-body">
+                        <span class="mega-link-title">Bundles</span>
+                        <span class="mega-link-text">Matching sets that cost less together.</span>
+                      </span>
+                      <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="mega-link" href="/pricing/#estimate" data-preview="estimator">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M8 6h8"/><path d="M16 14v4"/><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/></svg></span>
+                      <span class="mega-link-body">
+                        <span class="mega-link-title">Estimator</span>
+                        <span class="mega-link-text">Build your total in seconds.</span>
+                      </span>
+                      <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="mega-link" href="/pricing/#payments" data-preview="payment">
+                      <span class="mega-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></span>
+                      <span class="mega-link-body">
+                        <span class="mega-link-title">Payment Methods</span>
+                        <span class="mega-link-text">Ways to pay, Robux included.</span>
+                      </span>
+                      <svg class="mega-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </a>
+                  </li>
+                    </ul>
+                    <div class="mega-foot mega-strip" data-mega-strip data-status="open">
+                      <p class="mega-strip-status">
+                        <span class="mega-strip-dot" aria-hidden="true"></span>
+                        <span class="mega-strip-text">Open for commissions</span>
+                      </p>
+                      <div class="mega-strip-currency" data-mega-currency></div>
+                    </div>
+                    <figure class="mega-banner" aria-hidden="true">
+                      <img class="mega-banner-image" src="" alt="">
+                    </figure>
+                  </div>
+                </div>
+              </div>
+            </li>
             <li class="nav-item"><a class="nav-link" href="/reviews/">Reviews</a></li>
             <li class="nav-item"><a class="nav-link" href="/about/">About</a></li>
             <li class="nav-item"><a class="nav-link" href="/news/">News</a></li>
@@ -1192,7 +1345,7 @@
       }
 
       // The Robux icon: used after the Robux prices and on the Robux payment card.
-      var ROBUX_ICON = "/images/robux-icon.webp";
+      var ROBUX_ICON = PRICING_DATA.robuxIcon;
 
       var STATUS_TEXT = {
         open:    "Commissions are open.",
@@ -1200,40 +1353,9 @@
         closed:  "Commissions are currently closed."
       };
 
-      var PRICES = {
-        "game-thumbnails":    { usd: "$30", robux: "7900 R$" },
-        "game-icons":         { usd: "$25", robux: "6600 R$" },
-        "game-logos":         { usd: "$15", robux: "3900 R$" },
-        "renders":            { usd: "$7",  robux: "1800 R$", note: "Bulk Order Discounts Available!" },
-        "profile-pictures":   { usd: "$10", robux: "2600 R$" },
-        "youtube-thumbnails": { usd: "$20", robux: "5300 R$" },
-        "ads-posters":        { usd: "$20", robux: "5300 R$" },
-        "youtube-banners":    { usd: "$20", robux: "5300 R$" },
-        "commission-sheets":  { usd: "$20", robux: "5300 R$" }
-      };
-
-      // BUNDLES: several pieces together. The three cards in the Bundles section are built from this list, in this order.
-      //   The MIDDLE card is the big one, so keep the featured bundle (popular: true) second in the list.
-      //   items       : { product: <a key from PRICES>, qty: <number>, art: [<image paths>] }
-      //                 art is optional: one image per piece (a list shorter than qty repeats). Leave it out to use the product's own artwork.
-      //   usd, robux  : the bundle price as text, like in PRICES. Left out (or "") shows "Price coming soon".
-      //   tag         : optional small label ("New", "Budget Pick", ...) shown on the card.
-      //   popular     : true makes it the featured card: bigger, soft violet border, star badge. badge: sets that badge text (default "Most Popular").
-      //   The "Bought separately" price, the saving and the percent badge are worked out from PRICES.
-      var BUNDLES = [
-        { id: "render-pack", tag: "Budget Pick", icon: "render", name: "Render Pack",
-          text: "For creators and devs who just need a clean, matching set of renders.",
-          items: [ { product: "renders", qty: 3, art: [ "/images/work/featured-gfx-02.webp", "/images/work/portfolio-gfx-01.webp", "/images/work/portfolio-render-03.webp" ] } ],
-          usd: "$17", robux: "4500 R$" },
-        { id: "game-launch-pack", popular: true, badge: "Most Popular", icon: "rocket", name: "Game Launch Pack",
-          text: "For Roblox developers ready to launch: icon, thumbnails and ads in one go.",
-          items: [ { product: "game-icons", qty: 1 }, { product: "game-thumbnails", qty: 2, art: [ "/images/work/featured-gfx-01.webp", "/images/work/portfolio-thumbnail-01.webp", "/images/work/portfolio-thumbnail-02.webp" ] }, { product: "ads-posters", qty: 2 } ],
-          usd: "$100", robux: "26300 R$" },
-        { id: "creator-starter-pack", icon: "youtube", name: "YouTuber Starter Pack",
-          text: "For new YouTubers who want a full channel look from the very first upload.",
-          items: [ { product: "profile-pictures", qty: 1 }, { product: "youtube-banners", qty: 1 }, { product: "youtube-thumbnails", qty: 2, art: [ "/images/work/featured-thumbnail-01.webp", "/images/work/featured-thumbnail-02.webp" ] } ],
-          usd: "$60", robux: "15800 R$" }
-      ];
+      // Prices and bundles now live in /pricing-data.js (edit them there).
+      var PRICES = PRICING_DATA.prices;
+      var BUNDLES = PRICING_DATA.bundles;
 
       // ---- Price helpers (cards and bundles use these) ----
       // "$30" -> 30, "7.9K R$" -> 7900, anything else -> null
@@ -1539,6 +1661,14 @@
           curButtons.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-cur') === mode ? 'true' : 'false'); });
           placeThumbs();
         }
+        // The switcher in the Pricing mega menu changes html[data-currency] too: follow it
+        new MutationObserver(function () {
+          var m = document.documentElement.getAttribute('data-currency');
+          if (CUR_MODES.indexOf(m) < 0 || m === curNow) return;
+          curNow = m;
+          curButtons.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-cur') === m ? 'true' : 'false'); });
+          placeThumbs();
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-currency'] });
         document.querySelectorAll('[data-currency-toggle]').forEach(function (box) {
           box.className = 'pc-currency';
           box.appendChild(el('span', 'pc-currency-label', 'Show prices in'));
@@ -1588,17 +1718,16 @@
         var MAX_QTY = 20;               // most pieces of one product
         var WELCOME_MIN_USD = 10;       // the welcome offer says "$10 minimum order"
         var SALE_COVERS_ADDONS = true;  // true = the seasonal % also takes money off paid add-ons; false = only off the products
-        // Add-ons. scope "order" = once per order (a switch). scope "piece" = per piece (a counter, up to the number of pieces).
+        // Add-ons. scope "order" = once per order (a switch). scope "piece" = per piece (a counter, up to the number of pieces; unlimited: true removes that limit).
         // usd 0 and robux 0 = FREE. usd null and robux null = "price to be discussed" (shown as such and NOT added to the total).
         // Anything else is an extra charge. Robux = USD x 263.17 (7895 R$ per $30), rounded to the nearest 100.
         var ADDONS = [
           { id: 'psd',      name: 'PSD file',                note: 'Layered source file, on request',      scope: 'order', usd: 0,  robux: 0 },
           { id: 'alpha',    name: 'Transparent background',  note: 'PNG without a background',             scope: 'order', usd: 0,  robux: 0 },
           { id: 'brand',    name: 'Add my logo or username', note: 'Send it with your details',            scope: 'order', usd: 0,  robux: 0 },
-          { id: 'character', name: 'Character',                note: 'Add a character to a piece', scope: 'piece', usd: 3, robux: 800 },
-          { id: 'rush',     name: 'Rush delivery',           note: 'Moved to the front of the queue',      scope: 'order', usd: 10, robux: 2600 },
-          { id: 'variant',  name: 'Extra variation',         note: 'Another color or layout of a piece',   scope: 'piece', usd: 5,  robux: 1300 },
-          { id: 'revision', name: 'Extra revision round',    note: 'One more round of changes',            scope: 'order', usd: 5,  robux: 1300 }
+          { id: 'formats',   name: 'Extra file formats',      note: 'JPG and WebP copies of your PNG',      scope: 'order', usd: 0,  robux: 0 },
+          { id: 'mockup',    name: 'Roblox page mockup',      note: 'Your art shown on a Roblox page',      scope: 'order', usd: 1,  robux: 300 },
+          { id: 'character', name: 'Character',                note: 'Add as many characters as you like',   scope: 'piece', unlimited: true, usd: 3, robux: 800 }
         ];
 
         // ---- What can be ordered: the product cards above (name) + PRICES (price) ----
@@ -1610,11 +1739,12 @@
           byId[id] = item;
         });
 
-        var qty = {}, extra = {}, isNew = false;
+        var qty = {}, extra = {}, isNew = false, claimPending = false;
         products.forEach(function (p) { qty[p.id] = 0; });
         ADDONS.forEach(function (a) { extra[a.id] = 0; });
         var ARROW_SVG = '<svg class="pc-arrow" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h10M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
         var MINUS = '\u2212';
+        var DOWNLOAD_SVG = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 4v11M7 11l5 5 5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
         // ---- Offers (read from script.js) ----
         function activeSale() {
@@ -1776,29 +1906,66 @@
 
         // ---- The left side (built once) ----
         var rows = {}, addRows = {};
-        // 1. Start from a bundle
+        function secHead(title, hint, optional) {   // a section title with a short hint under it
+          var h = el('div', 'est-sechead');
+          var t = el('p', 'est-sectitle', title);
+          if (optional) t.appendChild(el('span', 'est-optional', 'Optional'));
+          h.appendChild(t);
+          if (hint) h.appendChild(el('p', 'est-sechint', hint));
+          return h;
+        }
+        // 1. Start from a bundle: one small card per bundle (what is in it, the price and what you save). The card lights up when its saving is applied.
         var blockStart = el('div', 'est-block');
-        blockStart.appendChild(el('p', 'est-label', 'Start from a bundle'));
-        var chips = el('div', 'est-chips');
+        blockStart.appendChild(secHead('Start from a bundle', 'A ready-made set with a saving. Pressing one replaces the pieces you picked.', true));
+        var chips = el('div', 'est-bundles');
+        var bundleCards = [];
         BUNDLES.forEach(function (b) {
-          var chip = el('button', 'est-chip', b.name);
-          chip.type = 'button';
-          chip.addEventListener('click', function () { startBundle(b.id); });
-          chips.appendChild(chip);
+          var card = el('button', 'est-bundle');
+          card.type = 'button';
+          card.setAttribute('aria-pressed', 'false');
+          var top = el('span', 'est-bundle-top');
+          top.appendChild(el('span', 'est-bundle-name', b.name));
+          if (b.badge || b.tag) top.appendChild(el('span', 'est-bundle-badge', b.badge || b.tag));
+          card.appendChild(top);
+          var regU = 0, regR = 0, known = true, parts = [];
+          b.items.forEach(function (it) {
+            var pr = byId[it.product];
+            parts.push(it.qty + '\u00d7 ' + (pr ? pr.name : it.product));
+            if (pr && pr.usd !== null) { regU += pr.usd * it.qty; regR += (pr.rbx || 0) * it.qty; } else known = false;
+          });
+          card.appendChild(el('span', 'est-bundle-items', parts.join(' \u00b7 ')));
+          var bu = toNumber(b.usd), br = toNumber(b.robux);
+          var foot = el('span', 'est-bundle-foot');
+          foot.appendChild(priceText(bu, br));
+          if (known && regU > bu) {
+            var sv = el('span', 'est-bundle-save');
+            sv.appendChild(el('span', 'cur-usd', 'Save ' + formatUsd(regU - bu)));
+            var sr = el('span', 'cur-rbx est-rbx');
+            fillRobux(sr, regR - br);
+            sr.insertBefore(document.createTextNode('Save '), sr.firstChild);
+            sv.appendChild(sr);
+            foot.appendChild(sv);
+          }
+          card.appendChild(foot);
+          card.addEventListener('click', function () { startBundle(b.id); });
+          chips.appendChild(card);
+          bundleCards.push({ name: b.name, btn: card });
         });
         blockStart.appendChild(chips);
         mainEl.appendChild(blockStart);
 
         // 2. Pieces
         var blockPieces = el('div', 'est-block');
-        var lbl = el('p', 'est-label', 'Choose your pieces');
-        lbl.appendChild(el('small', '', 'Prices are for one piece. Each bundle saving applies once per order.'));
-        blockPieces.appendChild(lbl);
+        blockPieces.appendChild(secHead('Choose your pieces', 'Prices are for one piece. Each bundle saving applies once per order.'));
         var list = el('ul', 'est-list');
         products.forEach(function (p) {
           var li = el('li', 'est-row');
           var info = el('div', 'est-info');
-          info.appendChild(el('div', 'est-name', p.name));
+          var nameEl = el('div', 'est-name', p.name);
+          var rowTot = el('span', 'est-rowtotal');   // "x3" once there is more than one piece
+          rowTot.hidden = true;
+          nameEl.appendChild(rowTot);
+          info.appendChild(nameEl);
           var sub = el('div', 'est-sub');
           if (p.usd === null) { sub.textContent = 'Price coming soon'; li.classList.add('is-disabled'); }
           else sub.appendChild(priceText(p.usd, p.rbx || 0));
@@ -1808,7 +1975,7 @@
             var st = stepper(function () { qty[p.id] = Math.max(0, qty[p.id] - 1); sync(); },
                              function () { qty[p.id] = Math.min(MAX_QTY, qty[p.id] + 1); sync(); }, p.name);
             li.appendChild(st.box);
-            rows[p.id] = { li: li, st: st };
+            rows[p.id] = { li: li, st: st, tot: rowTot };
           }
           list.appendChild(li);
         });
@@ -1859,6 +2026,36 @@
         viewBtn.addEventListener('click', function () { setAddonsOpen(!collapse.classList.contains('is-open')); });
         var addHint = el('p', 'est-hint', 'Pick a product first, then add extras.');
         collapseInner.appendChild(addHint);
+        // Info box under the Character add-on: the most characters one piece of each product can have (listed in the order of the product cards).
+        // It only informs: the counter above still lets people go higher. Game Logos is not listed yet.
+        var CHARACTER_LIMITS = [
+          { id: 'game-thumbnails',    label: 'Game Thumbnails',    max: 3 },
+          { id: 'game-icons',         label: 'Game Icons',         max: 2 },
+          { id: 'renders',            label: 'Renders',            max: 1 },
+          { id: 'profile-pictures',   label: 'Profile Pictures',   max: 1 },
+          { id: 'youtube-thumbnails', label: 'YouTube Thumbnails', max: 2 },
+          { id: 'youtube-banners',    label: 'Social Banners',     max: 2 },
+          { id: 'ads-posters',        label: 'Ads & Posters',      max: 2 },
+          { id: 'commission-sheets',  label: 'Commission Sheets',  max: 1 }
+        ];
+        var charNoteItems = {};
+        function buildCharNote() {
+          var box = el('li', 'est-charnote');
+          var head = el('div', 'est-charnote-head');
+          head.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v5.5M12 7.6v.1" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>');
+          head.appendChild(el('span', '', 'Max characters per piece'));
+          box.appendChild(head);
+          var grid = el('ul', 'est-charnote-grid');
+          CHARACTER_LIMITS.forEach(function (c) {
+            var item = el('li', 'est-charnote-item');
+            item.appendChild(el('span', 'est-charnote-name', c.label));
+            item.appendChild(el('strong', 'est-charnote-max', 'Max ' + c.max));
+            grid.appendChild(item);
+            charNoteItems[c.id] = item;
+          });
+          box.appendChild(grid);
+          return box;
+        }
         var addList = el('ul', 'est-list');
         ADDONS.forEach(function (a) {
           var free = isFree(a), quote = isQuote(a);
@@ -1881,7 +2078,7 @@
           li.appendChild(info);
           if (a.scope === 'piece') {
             var st = stepper(function () { extra[a.id] = Math.max(0, extra[a.id] - 1); sync(); },
-                             function () { extra[a.id] = Math.min(pieceCount(), extra[a.id] + 1); sync(); }, a.name);
+                             function () { extra[a.id] = a.unlimited ? extra[a.id] + 1 : Math.min(pieceCount(), extra[a.id] + 1); sync(); }, a.name);
             li.appendChild(st.box);
             addRows[a.id] = { li: li, st: st, a: a };
           } else {
@@ -1896,6 +2093,7 @@
             addRows[a.id] = { li: li, cb: cb, a: a };
           }
           addList.appendChild(li);
+          if (a.id === 'character') addList.appendChild(buildCharNote());
         });
         collapseInner.appendChild(addList);
         mainEl.appendChild(blockAdd);
@@ -2027,6 +2225,44 @@
         var fine = el('p', 'est-fine', 'This is an estimate. I confirm the final price and details with you before work starts, and a 50% deposit starts the work.');
         [sumTitle, sumBody, addTeaser, newBox, noteEl, totalBox, actions, direct, fine].forEach(function (n) { sumEl.appendChild(n); });
 
+        // A slim bar that stays at the bottom of the screen on phones and tablets while you pick, so the total is always in view
+        var miniBar = el('div', 'est-minibar');
+        miniBar.hidden = true;
+        var miniInfo = el('div', 'est-minibar-info');
+        var miniCount = el('span', 'est-minibar-count', '');
+        var miniTotal = el('span', 'est-minibar-total');
+        miniInfo.appendChild(miniCount);
+        miniInfo.appendChild(miniTotal);
+        var miniBtn = el('button', 'button button-primary est-minibar-btn');
+        miniBtn.type = 'button';
+        miniBtn.innerHTML = 'Review ' + ARROW_SVG;
+        miniBtn.setAttribute('aria-label', 'Review your estimate');
+        miniBtn.addEventListener('click', function () { sumEl.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' }); });
+        miniBar.appendChild(miniInfo);
+        miniBar.appendChild(miniBtn);
+        root.appendChild(miniBar);
+        // While the bar is on screen, the round "back to top" button moves up so they never sit on top of each other
+        var miniShown = false, estOnScreen = false;
+        function markMiniBar() { document.documentElement.classList.toggle('has-est-minibar', miniShown && estOnScreen); }
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver(function (entries) { estOnScreen = entries[0].isIntersecting; markMiniBar(); }).observe(root);
+        }
+        function updateMiniBar(r) {
+          // tell the Pricing mega menu (script.js) what the estimate is right now
+          window.BCRAFT_ESTIMATE = r.pieces ? { pieces: r.pieces, usd: r.totalU, rbx: r.totalR } : null;
+          document.dispatchEvent(new CustomEvent('bcraft:estimate'));
+          miniBar.hidden = !r.pieces;
+          miniShown = !!r.pieces;
+          markMiniBar();
+          if (!r.pieces) return;
+          miniCount.textContent = r.pieces + (r.pieces === 1 ? ' piece' : ' pieces');
+          miniTotal.textContent = '';
+          miniTotal.appendChild(el('span', 'est-minibar-usd cur-usd', formatUsd(r.totalU)));
+          var mr = el('span', 'est-minibar-rbx cur-rbx');
+          fillRobux(mr, r.totalR);
+          miniTotal.appendChild(mr);
+        }
+
         var lastText = '';
         function buildText(r) {
           var L = ['Order estimate from the pricing page:'];
@@ -2057,7 +2293,7 @@
           sumBody.textContent = '';
           totalBox.textContent = '';
           var welcome = welcomeOffer(), sale = activeSale();
-          newBox.hidden = !(welcome && r.pieces);
+          newBox.hidden = !(welcome && (r.pieces || claimPending || isNew));
           if (welcome) {
             newSub.textContent = 'Welcome offer on your first order, $' + WELCOME_MIN_USD + ' minimum';
             newTag.textContent = '';
@@ -2067,11 +2303,22 @@
             tagR.insertBefore(document.createTextNode('\u2212'), tagR.firstChild);
             newTag.appendChild(tagR);
           }
+          if (welcome && isNew && !r.pieces) r.note = 'Welcome offer is on. Pick your pieces: it takes $' + welcome.usd + ' off once your order reaches $' + WELCOME_MIN_USD + '.';
           noteEl.hidden = !r.note;
           noteEl.textContent = r.note;
           actions.hidden = !r.pieces;
+          updateMiniBar(r);
           if (!r.pieces) {
-            sumBody.appendChild(el('p', 'est-empty', 'Nothing selected yet. Pick a product, start from a bundle, or press the button on any card above.'));
+            var empty = el('div', 'est-empty');
+            var emptyIcon = el('span', 'est-empty-icon');
+            emptyIcon.setAttribute('aria-hidden', 'true');
+            emptyIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>';
+            var emptyText = el('div', 'est-empty-text');
+            emptyText.appendChild(el('strong', '', 'Nothing selected yet'));
+            emptyText.appendChild(el('span', '', 'Pick a product, start from a bundle, or press the button on any card above.'));
+            empty.appendChild(emptyIcon);
+            empty.appendChild(emptyText);
+            sumBody.appendChild(empty);
             lastText = '';
             return;
           }
@@ -2118,17 +2365,23 @@
             row.li.classList.toggle('is-on', n > 0);
             row.st.minus.disabled = n <= 0;
             row.st.plus.disabled = n >= MAX_QTY;
+            row.tot.textContent = '';
+            if (n > 1 && p.usd !== null) {
+              row.tot.appendChild(document.createTextNode('\u00d7' + n));
+            }
+            row.tot.hidden = !(n > 1);
           });
           addHint.hidden = total > 0;
+          Object.keys(charNoteItems).forEach(function (id) { charNoteItems[id].classList.toggle('is-picked', (qty[id] || 0) > 0); });
           ADDONS.forEach(function (a) {
             var row = addRows[a.id];
             if (!total) extra[a.id] = 0;
             row.li.classList.toggle('is-disabled', !total);
             if (a.scope === 'piece') {
-              extra[a.id] = Math.min(extra[a.id], total);
+              if (!a.unlimited) extra[a.id] = Math.min(extra[a.id], total);
               row.st.q.textContent = extra[a.id];
               row.st.minus.disabled = extra[a.id] <= 0;
-              row.st.plus.disabled = extra[a.id] >= total;
+              row.st.plus.disabled = !total || (!a.unlimited && extra[a.id] >= total);
             } else {
               row.cb.checked = extra[a.id] > 0;
               row.cb.disabled = !total;
@@ -2144,6 +2397,12 @@
             addCard.classList.add('is-nudge');
             window.setTimeout(function () { addCard.classList.remove('is-nudge'); }, 3600);
           }
+          var appliedNow = {};
+          (total ? applyBundles() : []).forEach(function (x) { appliedNow[x.name] = true; });
+          bundleCards.forEach(function (c) {
+            c.btn.classList.toggle('is-active', !!appliedNow[c.name]);
+            c.btn.setAttribute('aria-pressed', appliedNow[c.name] ? 'true' : 'false');
+          });
           updateTeaser();
           renderSummary();
         }
@@ -2187,6 +2446,7 @@
           im.onerror = function () { logoCache = false; cb(null); };
           im.src = (head && (head.currentSrc || head.src)) || '/images/logo.webp';
         }
+        function fileStamp() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
         function ticketId(r) {
           var s = JSON.stringify([r.lines, r.adds.map(function (a) { return a.name + a.n; }), r.totalU, r.totalR]), h = 5381;
           for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
@@ -2289,10 +2549,9 @@
           x.font = '500 15px ' + bodyFont; x.fillStyle = '#8fa2c9'; x.fillText('bcraftdesigns.com', brandX, 88);
           x.textAlign = 'right';
           x.font = '800 13px ' + bodyFont; x.fillStyle = '#7db8ff'; spacing(2.5); x.fillText('ORDER ESTIMATE', W - PAD, 54); spacing(0);
-          var id = ticketId(r);
-          x.font = '700 21px ui-monospace, Menlo, Consolas, monospace'; x.fillStyle = '#fff'; x.fillText(id, W - PAD, 86);
-          x.font = '500 14px ' + bodyFont; x.fillStyle = '#8fa2c9';
-          x.fillText(new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }), W - PAD, 112);
+          var id = ticketId(r);   // only seeds the barcode pattern now: it is no longer printed anywhere
+          x.font = '700 20px ' + bodyFont; x.fillStyle = '#fff';
+          x.fillText(new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }), W - PAD, 88);
           x.textAlign = 'left';
 
           // tear lines
@@ -2393,7 +2652,6 @@
           var bx = PAD;
           x.fillStyle = 'rgba(255,255,255,0.62)';
           while (bx < PAD + 190) { var bw = 1.5 + Math.floor(rnd() * 3) * 1.5; x.fillRect(bx, footTop + 6, bw, 46); bx += bw + 1.5 + Math.floor(rnd() * 3) * 1.5; }
-          x.font = '600 12px ui-monospace, Menlo, Consolas, monospace'; x.fillStyle = '#8fa2c9'; x.fillText(id, PAD, footTop + 72);
           x.font = '500 14px ' + bodyFont; x.fillStyle = '#8fa2c9';
           wrapLines(x, 'Estimate only. The final price and details are confirmed with you before work starts, and a 50% deposit starts the work.' + (r.pending.length ? ' Items marked TO DISCUSS are not in the total.' : ''), W - 2 * PAD - 230)
             .forEach(function (ln, i) { x.fillText(ln, PAD + 230, footTop + 18 + i * 21); });
@@ -2413,20 +2671,74 @@
         mClose.setAttribute('aria-label', 'Close');
         var mTitle = el('h3', 'est-modal-title', 'Here is your estimate');
         mTitle.id = 'est-modal-title';
-        var mLead = el('p', 'est-modal-lead', 'Save this picture and send it with your message, so I can see exactly what you picked.');
+        // The "download this and send it to me" reminder: a highlighted box above the picture
+        var mNotice = el('div', 'est-modal-notice');
+        mNotice.setAttribute('role', 'note');
+        var mNoticeIcon = el('span', 'est-modal-notice-icon');
+        mNoticeIcon.setAttribute('aria-hidden', 'true');
+        mNoticeIcon.innerHTML = DOWNLOAD_SVG;
+        var mNoticeBody = el('div', 'est-modal-notice-body');
+        var mNoticeTitle = el('p', 'est-modal-notice-title');
+        mNoticeTitle.appendChild(el('strong', '', 'Download this image'));
+        mNoticeTitle.appendChild(document.createTextNode(' and send it to me'));
+        var mNoticeText = el('p', 'est-modal-notice-text', 'Press Save image below, then send the picture to me on Discord, X or email. It is how I see exactly what you picked.');
+        mNoticeBody.appendChild(mNoticeTitle);
+        mNoticeBody.appendChild(mNoticeText);
+        mNotice.appendChild(mNoticeIcon);
+        mNotice.appendChild(mNoticeBody);
         var mTicketWrap = el('div', 'est-ticket-wrap');
         var mActions = el('div', 'est-modal-actions');
-        var mSave = el('a', 'button button-secondary', 'Save image');
-        var mShare = el('button', 'button button-secondary', 'Share');
+        var mSave = el('a', 'button button-primary est-modal-save');
+        mSave.innerHTML = DOWNLOAD_SVG + '<span>Save image</span>';
+        var mSaveLabel = mSave.querySelector('span');
+        var mGo = el('a', 'button button-secondary est-modal-go');
+        mGo.innerHTML = '<span>Continue<span class="est-go-more"> to contact</span></span> ' + ARROW_SVG;   // on a phone only "Continue" shows, so both buttons fit on one row
+        mGo.setAttribute('aria-label', 'Continue to contact');
+        [mSave, mGo].forEach(function (n) { mActions.appendChild(n); });   // the two main buttons: this row stays in view at the bottom of the pop-up
+        var mShare = el('button', 'est-modal-link', 'Share');
         mShare.type = 'button';
         mShare.hidden = true;
-        var mCopy = el('button', 'button button-secondary', 'Copy summary');
+        var mCopy = el('button', 'est-modal-link', 'Copy summary');
         mCopy.type = 'button';
-        var mGo = el('a', 'button button-primary est-modal-go');
-        mGo.innerHTML = 'Continue to contact ' + ARROW_SVG;
-        [mSave, mShare, mCopy, mGo].forEach(function (n) { mActions.appendChild(n); });
-        var mTip = el('p', 'est-modal-tip', 'Tip: on the contact page, attach the saved picture to your message. The text of your estimate is added for you.');
-        [mClose, mTitle, mLead, mTicketWrap, mActions, mTip].forEach(function (n) { mBox.appendChild(n); });
+        var mMore = el('div', 'est-modal-more');
+        [mShare, mCopy].forEach(function (n) { mMore.appendChild(n); });
+        // What happens next: a small timeline to the right of the picture. It moves on by itself when the image is saved.
+        var mSide = el('div', 'est-modal-side');
+        var mStepsTitle = el('p', 'est-modal-steps-title', 'What happens next');
+        var mSteps = el('ol', 'est-modal-steps');
+        var CHECK_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        var stepEls = [
+          ['Save the image', 'Use the Save image button below.'],
+          ['Send it to me', 'On Discord, X or email. You can paste the copied summary too.'],
+          ['I confirm your price', 'Then a 50% deposit starts the work.']
+        ].map(function (st, i) {
+          var li = el('li', 'est-tl');
+          var node = el('span', 'est-tl-node');
+          node.setAttribute('aria-hidden', 'true');
+          node.appendChild(el('span', 'est-tl-num', String(i + 1)));
+          node.insertAdjacentHTML('beforeend', CHECK_SVG);
+          var body = el('div', 'est-tl-body');
+          body.appendChild(el('strong', '', st[0]));
+          body.appendChild(el('span', '', st[1]));
+          li.appendChild(node);
+          li.appendChild(body);
+          mSteps.appendChild(li);
+          return li;
+        });
+        function setStep(n) {   // n = the step to do now: the ones before it are done
+          stepEls.forEach(function (li, i) {
+            li.classList.toggle('is-done', i < n);
+            li.classList.toggle('is-active', i === n);
+            if (i === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+          });
+        }
+        setStep(0);
+        mSide.appendChild(mStepsTitle);
+        mSide.appendChild(mSteps);
+        var mBody = el('div', 'est-modal-body');
+        mBody.appendChild(mTicketWrap);
+        mBody.appendChild(mSide);
+        [mClose, mTitle, mNotice, mBody, mActions, mMore].forEach(function (n) { mBox.appendChild(n); });
         modal.appendChild(mBackdrop);
         modal.appendChild(mBox);
         document.body.appendChild(modal);
@@ -2448,6 +2760,11 @@
           if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
           else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
         }
+        mSave.addEventListener('click', function () {   // the download itself is the link's own job: this only shows it happened and points to the next step
+          mSaveLabel.textContent = 'Saved \u2713';
+          mGo.classList.add('is-next');
+          setStep(1);
+        });
         mClose.addEventListener('click', closeTicket);
         mBackdrop.addEventListener('click', closeTicket);
         function copyText(btn, label) {
@@ -2479,12 +2796,18 @@
               try { url = made.canvas.toDataURL('image/png'); } catch (e) { url = ''; }
               mTicketWrap.textContent = '';
               var pic;
-              if (url) { pic = document.createElement('img'); pic.src = url; pic.alt = 'Your order estimate ' + made.id + ', total ' + formatUsd(r.totalU); }
+              if (url) { pic = document.createElement('img'); pic.src = url; pic.alt = 'Your order estimate, total ' + formatUsd(r.totalU); }
               else pic = made.canvas;
               pic.className = 'est-ticket';
               mTicketWrap.appendChild(pic);
               mSave.hidden = !url;
-              if (url) { mSave.href = url; mSave.setAttribute('download', 'bcraft-' + made.id.toLowerCase() + '.png'); }
+              mSaveLabel.textContent = 'Save image';
+              mGo.classList.remove('is-next');
+              setStep(0);
+              mNoticeText.textContent = url
+                ? 'Press Save image below, then send the picture to me on Discord, X or email. It is how I see exactly what you picked.'
+                : 'Save the picture (right-click it, or press and hold on a phone), then send it to me on Discord, X or email. It is how I see exactly what you picked.';
+              if (url) { mSave.href = url; mSave.setAttribute('download', 'bcraft-estimate-' + fileStamp() + '.png'); }
               mGo.href = '/contact/?estimate=' + encodeURIComponent(lastText);
               // phones: hand the picture straight to the share sheet (Messages, Discord ...) when the browser can do that
               mShare.hidden = true;
@@ -2493,7 +2816,7 @@
                 made.canvas.toBlob(function (blob) {
                   if (!blob) return;
                   try {
-                    var f = new File([blob], 'bcraft-' + made.id.toLowerCase() + '.png', { type: 'image/png' });
+                    var f = new File([blob], 'bcraft-estimate-' + fileStamp() + '.png', { type: 'image/png' });
                     if (navigator.canShare({ files: [f] })) { shareFile = f; mShare.hidden = false; }
                   } catch (e) {}
                 }, 'image/png');
@@ -2502,7 +2825,7 @@
               document.documentElement.classList.add('est-modal-open');
               document.addEventListener('keydown', onModalKey);
               mBox.scrollTop = 0;
-              mClose.focus();
+              (mSave.hidden ? mClose : mSave).focus();
             }); });
           }
           if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
@@ -2513,15 +2836,82 @@
           products.forEach(function (p) { qty[p.id] = 0; });
           ADDONS.forEach(function (a) { extra[a.id] = 0; });
           isNew = false;
+          claimPending = false;
           newCb.checked = false;
           newBox.classList.remove('is-checked');
           sync();
         });
 
+        // The welcome-offer window (script.js) sends visitors here: scroll to the estimator,
+        // then tick "I'm a new client" with a little show.
+        var claimTimer = 0;
+        function afterScroll(done) {              // waits until the page has stopped scrolling
+          var last = window.pageYOffset, calm = 0, ticks = 0;
+          (function check() {
+            var y = window.pageYOffset;
+            calm = (y === last) ? calm + 1 : 0;
+            last = y;
+            ticks++;
+            if ((calm >= 8 && ticks > 12) || ticks > 150) done(); else window.requestAnimationFrame(check);
+          })();
+        }
+        function burst() {
+          var wrap = el('span', 'est-burst');
+          wrap.setAttribute('aria-hidden', 'true');
+          var colors = ['#6db6ff', '#7ff0b8', '#ffa24a', '#ffffff'];
+          for (var i = 0; i < 12; i++) {
+            var spark = document.createElement('i');
+            spark.style.setProperty('--a', (i * 30) + 'deg');
+            spark.style.setProperty('--d', (40 + (i % 3) * 14) + 'px');
+            spark.style.setProperty('--c', colors[i % 4]);
+            wrap.appendChild(spark);
+          }
+          newBox.appendChild(wrap);
+          setTimeout(function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 1300);
+        }
+        window.bcraftClaimWelcome = function () {
+          if (!welcomeOffer()) return false;
+          var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          claimPending = true;
+          sync();                                  // the box shows up (not ticked yet)
+          var top = window.pageYOffset, box = newBox.getBoundingClientRect(), section = document.getElementById('estimate');
+          var boxTop = box.top + top;
+          var start = section ? section.getBoundingClientRect().top + top - 90 : null;
+          // the start of the estimator if the box fits on screen with it, otherwise the box itself in the middle
+          var goTo = (start !== null && boxTop + box.height - start < window.innerHeight - 120) ? start : boxTop - (window.innerHeight - box.height) / 2;
+          newBox.classList.remove('is-claimed');
+          if (!still) newBox.classList.add('is-claiming');
+          window.scrollTo({ top: Math.max(0, goTo), behavior: still ? 'auto' : 'smooth' });
+          clearTimeout(claimTimer);
+          afterScroll(function () {
+            isNew = true;
+            newCb.checked = true;
+            newBox.classList.add('is-checked');
+            sync();
+            if (still) return;
+            newBox.classList.remove('is-claiming');
+            newBox.classList.add('is-claimed');
+            burst();
+            claimTimer = setTimeout(function () { newBox.classList.remove('is-claimed'); }, 1500);
+          });
+          return true;
+        };
+
         sync();
         // script.js (which holds the sale and welcome offer) runs after this script: look at the offers again once everything has loaded
         document.addEventListener('DOMContentLoaded', sync);
         window.addEventListener('load', sync);
+
+        // Arriving from the welcome-offer window of another page (/pricing/?offer=welcome#estimate)
+        if (/[?&]offer=welcome(&|$)/.test(window.location.search)) {
+          window.addEventListener('load', function () {
+            setTimeout(function () {
+              if (window.bcraftClaimWelcome()) {
+                try { window.history.replaceState(null, '', window.location.pathname + '#estimate'); } catch (e) {}
+              }
+            }, 400);
+          });
+        }
       })();
 
       // Backdrop behind square artwork: a tiny copy of the image that the browser smooths when it is stretched.
