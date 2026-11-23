@@ -128,6 +128,16 @@ const X_NAME = "Bcraft | bcraftdesigns.com";
 /* X-POSTS:START  (auto-generated from x-links.txt by GitHub Actions. Do not edit by hand, add links to x-links.txt instead) */
 const X_POSTS = [
   {
+    "url": "https://x.com/realbcraft/status/2124729568519163996",
+    "date": "2026-11-23",
+    "image": "images/x-2124729568519163996.webp",
+    "text": [
+      "💙Made this fresh set for Heist Showdown!",
+      "Visit the game here: https://www.roblox.com/games/115276350266504",
+      "🌐Order yours here: https://bcraftdesigns.com"
+    ]
+  },
+  {
     "url": "https://x.com/realbcraft/status/2115164715811045873",
     "date": "2026-10-27",
     "image": "images/x-2115164715811045873.webp",
@@ -140,16 +150,6 @@ const X_POSTS = [
       "robloxgfx",
       "gfx",
       "robloxdev"
-    ]
-  },
-  {
-    "url": "https://x.com/realbcraft/status/2113664464348172378",
-    "date": "2026-10-23",
-    "image": "images/x-2113664464348172378.webp",
-    "text": [
-      "Linktree? Not anymore. 👀",
-      "I built my own custom socials page for me. Complete with a new design, easter eggs, beautiful buttons, and all my socials in one place. 💙",
-      "🫣Take a look: https://bcraftdesigns.com/socials"
     ]
   }
 ];
