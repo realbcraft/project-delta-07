@@ -128,6 +128,21 @@ const X_NAME = "Bcraft | bcraftdesigns.com";
 /* X-POSTS:START  (auto-generated from x-links.txt by GitHub Actions. Do not edit by hand, add links to x-links.txt instead) */
 const X_POSTS = [
   {
+    "url": "https://x.com/realbcraft/status/2124781008939876863",
+    "date": "2026-11-23",
+    "image": "images/x-2124781008939876863.webp",
+    "text": [
+      "🥳Giveaway Time!",
+      "🏆1,000 Robux",
+      "How to enter:",
+      "✅Follow me & Retweet",
+      "💬 Reply with your Roblox Username",
+      "🩵 That's it! With some luck the 1,000 Robux will be yours!",
+      "📅Ends: 11.30.26 @ 12:00 PM EDT",
+      "🎲random winner chosen & DM'ed. (New winner picked if no reply in 48 hours)."
+    ]
+  },
+  {
     "url": "https://x.com/realbcraft/status/2124729568519163996",
     "date": "2026-11-23",
     "image": "images/x-2124729568519163996.webp",
@@ -135,21 +150,6 @@ const X_POSTS = [
       "💙Made this fresh set for Heist Showdown!",
       "Visit the game here: https://www.roblox.com/games/115276350266504",
       "🌐Order yours here: https://bcraftdesigns.com"
-    ]
-  },
-  {
-    "url": "https://x.com/realbcraft/status/2115164715811045873",
-    "date": "2026-10-27",
-    "image": "images/x-2115164715811045873.webp",
-    "text": [
-      "Do NOT go into the woods with someone you don't know.. 🌲",
-      "My first official gore GFX. No warning since this isn't extreme.. yet."
-    ],
-    "tags": [
-      "robloxart",
-      "robloxgfx",
-      "gfx",
-      "robloxdev"
     ]
   }
 ];
